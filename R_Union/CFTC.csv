@@ -1,0 +1,1038 @@
+DES,ticker
+GRAIN - CBOT WHEAT 1st Contract Price,W 1 Comdty
+GRAIN - CBOT WHEAT Non Comercial Long,CBT1WNCL Index
+GRAIN - CBOT WHEAT Non Comercial Short,CBT1WNCS Index
+GRAIN - CBOT WHEAT Non Comercial Spreading,CBT1WNCP Index
+GRAIN - CBOT WHEAT Commercial Long,CBT1WCOL Index
+GRAIN - CBOT WHEAT Commercial Short,CBT1WCOS Index
+GRAIN - CBOT WHEAT Total Long,CBT1WTLL Index
+GRAIN - CBOT WHEAT Total Short,CBT1WTLS Index
+GRAIN - CBOT WHEAT Open Interest,CBT1WOIN Index
+GRAIN - CBOT WHEAT Non Reportable Long,CBT1WNRL Index
+GRAIN - CBOT WHEAT Non Reportable Short,CBT1WNRS Index
+GRAIN - CBOT WHEAT Managed Money Long,CFFDAMML Index
+GRAIN - CBOT WHEAT Managed Money Short,CFFDAMMS Index
+GRAIN - CBOT WHEAT Producer Long,CFFDAPML Index
+GRAIN - CBOT WHEAT Producer Short,CFFDAPMS Index
+GRAIN - CBOT WHEAT Swap Dealers Long,CFFDASWL Index
+GRAIN - CBOT WHEAT Swap Dealers Short,CFFDASWS Index
+GRAIN - CBOT WHEAT Swap Dealers Spreading,CFFDASWD Index
+GRAIN - CBOT WHEAT Managed Money Spread,CFFDAMMD Index
+GRAIN - CBOT WHEAT Other Reportables Long,CFFDAORL Index
+GRAIN - CBOT WHEAT Other Reportables Short,CFFDAORS Index
+GRAIN - CBOT WHEAT Other Reportables Spreading,CFFDAORD Index
+GRAIN - CBOT WHEAT Non Commercial Net Position,CBT1WNCN Index
+GRAIN - KCB WHEAT 1st Contract Price,KW1 Comdty
+GRAIN - KCB WHEAT Non Comercial Long,KCBTWNCL Index
+GRAIN - KCB WHEAT Non Comercial Short,KCBTWNCS Index
+GRAIN - KCB WHEAT Non Comercial Spreading,KCBTWNCP Index
+GRAIN - KCB WHEAT Commercial Long,KCBTWCOL Index
+GRAIN - KCB WHEAT Commercial Short,KCBTWCOS Index
+GRAIN - KCB WHEAT Total Long,KCBTWTLL Index
+GRAIN - KCB WHEAT Total Short,KCBTWTLS Index
+GRAIN - KCB WHEAT Open Interest,KCBTWOIN Index
+GRAIN - KCB WHEAT Non Reportable Long,KCBTWNRL Index
+GRAIN - KCB WHEAT Non Reportable Short,KCBTWNRS Index
+GRAIN - KCB WHEAT Managed Money Long,CFFDBMML Index
+GRAIN - KCB WHEAT Managed Money Short,CFFDBMMS Index
+GRAIN - KCB WHEAT Producer Long,CFFDBPML Index
+GRAIN - KCB WHEAT Producer Short,CFFDBPMS Index
+GRAIN - KCB WHEAT Swap Dealers Long,CFFDBSWL Index
+GRAIN - KCB WHEAT Swap Dealers Short,CFFDBSWS Index
+GRAIN - KCB WHEAT Swap Dealers Spreading,CFFDBSWD Index
+GRAIN - KCB WHEAT Managed Money Spread,CFFDBMMD Index
+GRAIN - KCB WHEAT Other Reportables Long,CFFDBORL Index
+GRAIN - KCB WHEAT Other Reportables Short,CFFDBORS Index
+GRAIN - KCB WHEAT Other Reportables Spreading,CFFDBORD Index
+GRAIN - KCB WHEAT Non Commercial Net Position,KCBTWNCN Index
+GRAIN - MGE WHEAT 1st Contract Price,MW1 Comdty
+GRAIN - MGE WHEAT Non Comercial Long,MGE1WNCL Index
+GRAIN - MGE WHEAT Non Comercial Short,MGE1WNCS Index
+GRAIN - MGE WHEAT Non Comercial Spreading,MGE1WNCP Index
+GRAIN - MGE WHEAT Commercial Long,MGE1WCOL Index
+GRAIN - MGE WHEAT Commercial Short,MGE1WCOS Index
+GRAIN - MGE WHEAT Total Long,MGE1WTLL Index
+GRAIN - MGE WHEAT Total Short,MGE1WTLS Index
+GRAIN - MGE WHEAT Open Interest,MGE1WOIN Index
+GRAIN - MGE WHEAT Non Reportable Long,MGE1WNRL Index
+GRAIN - MGE WHEAT Non Reportable Short,MGE1WNRS Index
+GRAIN - MGE WHEAT Managed Money Long,DFU1AMML Index
+GRAIN - MGE WHEAT Managed Money Short,DFU1AMMS Index
+GRAIN - MGE WHEAT Producer Long,DFU1APML Index
+GRAIN - MGE WHEAT Producer Short,DFU1APMS Index
+GRAIN - MGE WHEAT Swap Dealers Long,DFU1ASWL Index
+GRAIN - MGE WHEAT Swap Dealers Short,DFU1ASWS Index
+GRAIN - MGE WHEAT Swap Dealers Spreading,DFU1ASWD Index
+GRAIN - MGE WHEAT Managed Money Spread,DFU1AMMD Index
+GRAIN - MGE WHEAT Other Reportables Long,DFU1AORL Index
+GRAIN - MGE WHEAT Other Reportables Short,DFU1AORS Index
+GRAIN - MGE WHEAT Other Reportables Spreading,DFU1AORD Index
+GRAIN - MGE WHEAT Non Commercial Net Position,MGE1WNCN Index
+GRAIN - CBOT SOYBEAN 1st Contract Price,S 1 Comdty
+GRAIN - CBOT SOYBEAN Non Comercial Long,CBT1SNCL Index
+GRAIN - CBOT SOYBEAN Non Comercial Short,CBT1SNCS Index
+GRAIN - CBOT SOYBEAN Non Comercial Spreading,CBT1SNCP Index
+GRAIN - CBOT SOYBEAN Commercial Long,CBT1SCOL Index
+GRAIN - CBOT SOYBEAN Commercial Short,CBT1SCOS Index
+GRAIN - CBOT SOYBEAN Total Long,CBT1STLL Index
+GRAIN - CBOT SOYBEAN Total Short,CBT1STLS Index
+GRAIN - CBOT SOYBEAN Open Interest,CBT1SOIN Index
+GRAIN - CBOT SOYBEAN Non Reportable Long,CBT1SNRL Index
+GRAIN - CBOT SOYBEAN Non Reportable Short,CBT1SNRS Index
+GRAIN - CBOT SOYBEAN Managed Money Long,CFFDGMML Index
+GRAIN - CBOT SOYBEAN Managed Money Short,CFFDGMMS Index
+GRAIN - CBOT SOYBEAN Producer Long,CFFDGPML Index
+GRAIN - CBOT SOYBEAN Producer Short,CFFDGPMS Index
+GRAIN - CBOT SOYBEAN Swap Dealers Long,CFFDGSWL Index
+GRAIN - CBOT SOYBEAN Swap Dealers Short,CFFDGSWS Index
+GRAIN - CBOT SOYBEAN Swap Dealers Spreading,CFFDGSWD Index
+GRAIN - CBOT SOYBEAN Managed Money Spread,CFFDGMMD Index
+GRAIN - CBOT SOYBEAN Other Reportables Long,CFFDGORL Index
+GRAIN - CBOT SOYBEAN Other Reportables Short,CFFDGORS Index
+GRAIN - CBOT SOYBEAN Other Reportables Spreading,CFFDGORD Index
+GRAIN - CBOT SOYBEAN Non Commercial Net Position,CBT1SNCN Index
+GRAIN - CBOT CORN 1st Contract Price,C 1 Comdty
+GRAIN - CBOT CORN Non Comercial Long,CBT1CNCL Index
+GRAIN - CBOT CORN Non Comercial Short,CBT1CNCS Index
+GRAIN - CBOT CORN Non Comercial Spreading,CBT1CNCP Index
+GRAIN - CBOT CORN Commercial Long,CBT1CCOL Index
+GRAIN - CBOT CORN Commercial Short,CBT1CCOS Index
+GRAIN - CBOT CORN Total Long,CBT1CTLL Index
+GRAIN - CBOT CORN Total Short,CBT1CTLS Index
+GRAIN - CBOT CORN Open Interest,CBT1COIN Index
+GRAIN - CBOT CORN Non Reportable Long,CBT1CNRL Index
+GRAIN - CBOT CORN Non Reportable Short,CBT1CNRS Index
+GRAIN - CBOT CORN Managed Money Long,CFFDCMML Index
+GRAIN - CBOT CORN Managed Money Short,CFFDCMMS Index
+GRAIN - CBOT CORN Producer Long,CFFDCPML Index
+GRAIN - CBOT CORN Producer Short,CFFDCPMS Index
+GRAIN - CBOT CORN Swap Dealers Long,CFFDCSWL Index
+GRAIN - CBOT CORN Swap Dealers Short,CFFDCSWS Index
+GRAIN - CBOT CORN Swap Dealers Spreading,CFFDCSWD Index
+GRAIN - CBOT CORN Managed Money Spread,CFFDCMMD Index
+GRAIN - CBOT CORN Other Reportables Long,CFFDCORL Index
+GRAIN - CBOT CORN Other Reportables Short,CFFDCORS Index
+GRAIN - CBOT CORN Other Reportables Spreading,CFFDCORD Index
+GRAIN - CBOT CORN Non Commercial Net Position,CBT1CNCN Index
+GRAIN - CBOT SOYBEAN OIL 1st Contract Price,BO1 Comdty
+GRAIN - CBOT SOYBEAN OIL Non Comercial Long,CBT2SNCL Index
+GRAIN - CBOT SOYBEAN OIL Non Comercial Short,CBT2SNCS Index
+GRAIN - CBOT SOYBEAN OIL Non Comercial Spreading,CBT2SNCP Index
+GRAIN - CBOT SOYBEAN OIL Commercial Long,CBT2SCOL Index
+GRAIN - CBOT SOYBEAN OIL Commercial Short,CBT2SCOS Index
+GRAIN - CBOT SOYBEAN OIL Total Long,CBT2STLL Index
+GRAIN - CBOT SOYBEAN OIL Total Short,CBT2STLS Index
+GRAIN - CBOT SOYBEAN OIL Open Interest,CBT2SOIN Index
+GRAIN - CBOT SOYBEAN OIL Non Reportable Long,CBT2SNRL Index
+GRAIN - CBOT SOYBEAN OIL Non Reportable Short,CBT2SNRS Index
+GRAIN - CBOT SOYBEAN OIL Managed Money Long,CFFDHMML Index
+GRAIN - CBOT SOYBEAN OIL Managed Money Short,CFFDHMMS Index
+GRAIN - CBOT SOYBEAN OIL Producer Long,CFFDHPML Index
+GRAIN - CBOT SOYBEAN OIL Producer Short,CFFDHPMS Index
+GRAIN - CBOT SOYBEAN OIL Swap Dealers Long,CFFDHSWL Index
+GRAIN - CBOT SOYBEAN OIL Swap Dealers Short,CFFDHSWS Index
+GRAIN - CBOT SOYBEAN OIL Swap Dealers Spreading,CFFDHSWD Index
+GRAIN - CBOT SOYBEAN OIL Managed Money Spread,CFFDHMMD Index
+GRAIN - CBOT SOYBEAN OIL Other Reportables Long,CFFDHORL Index
+GRAIN - CBOT SOYBEAN OIL Other Reportables Short,CFFDHORS Index
+GRAIN - CBOT SOYBEAN OIL Other Reportables Spreading,CFFDHORD Index
+GRAIN - CBOT SOYBEAN OIL Non Commercial Net Position,CBT2SNCN Index
+GRAIN - CBOT SOYBEAN MEAL 1st Contract Price,SM1 Comdty
+GRAIN - CBOT SOYBEAN MEAL Non Comercial Long,CBT3SNCL Index
+GRAIN - CBOT SOYBEAN MEAL Non Comercial Short,CBT3SNCS Index
+GRAIN - CBOT SOYBEAN MEAL Non Comercial Spreading,CBT3SNCP Index
+GRAIN - CBOT SOYBEAN MEAL Commercial Long,CBT3SCOL Index
+GRAIN - CBOT SOYBEAN MEAL Commercial Short,CBT3SCOS Index
+GRAIN - CBOT SOYBEAN MEAL Total Long,CBT3STLL Index
+GRAIN - CBOT SOYBEAN MEAL Total Short,CBT3STLS Index
+GRAIN - CBOT SOYBEAN MEAL Open Interest,CBT3SOIN index
+GRAIN - CBOT SOYBEAN MEAL Non Reportable Long,CBT3SNRL Index
+GRAIN - CBOT SOYBEAN MEAL Non Reportable Short,CBT3SNRS Index
+GRAIN - CBOT SOYBEAN MEAL Managed Money Long,CFFDIMML Index
+GRAIN - CBOT SOYBEAN MEAL Managed Money Short,CFFDIMMS Index
+GRAIN - CBOT SOYBEAN MEAL Producer Long,CFFDIPML Index
+GRAIN - CBOT SOYBEAN MEAL Producer Short,CFFDIPMS Index
+GRAIN - CBOT SOYBEAN MEAL Swap Dealers Long,CFFDISWL Index
+GRAIN - CBOT SOYBEAN MEAL Swap Dealers Short,CFFDISWS Index
+GRAIN - CBOT SOYBEAN MEAL Swap Dealers Spreading,CFFDISWD Index
+GRAIN - CBOT SOYBEAN MEAL Managed Money Spread,CFFDIMMD Index
+GRAIN - CBOT SOYBEAN MEAL Other Reportables Long,CFFDIORL Index
+GRAIN - CBOT SOYBEAN MEAL Other Reportables Short,CFFDIORS Index
+GRAIN - CBOT SOYBEAN MEAL Other Reportables Spreading,CFFDIORD Index
+GRAIN - CBOT SOYBEAN MEAL Non Commercial Net Position,CBT3SNCN Index
+LIVESTOCK - CME FEEDER CATTLE 1st Contract Price,FC1 Comdty
+LIVESTOCK - CME FEEDER CATTLE Non Comercial Long,CME1FNCL Index
+LIVESTOCK - CME FEEDER CATTLE Non Comercial Short,CME1FNCS Index
+LIVESTOCK - CME FEEDER CATTLE Non Comercial Spreading,CME1FNCP Index
+LIVESTOCK - CME FEEDER CATTLE Commercial Long,CME1FCOL Index
+LIVESTOCK - CME FEEDER CATTLE Commercial Short,CME1FCOS Index
+LIVESTOCK - CME FEEDER CATTLE Total Long,CME1FTLL Index
+LIVESTOCK - CME FEEDER CATTLE Total Short,CME1FTLS Index
+LIVESTOCK - CME FEEDER CATTLE Open Interest,CME1FOIN Index
+LIVESTOCK - CME FEEDER CATTLE Non Reportable Long,CME1FNRL Index
+LIVESTOCK - CME FEEDER CATTLE Non Reportable Short,CME1FNRS Index
+LIVESTOCK - CME FEEDER CATTLE Managed Money Long,CFFDFMML Index
+LIVESTOCK - CME FEEDER CATTLE Managed Money Short,CFFDFMMS Index
+LIVESTOCK - CME FEEDER CATTLE Producer Long,CFFDFPML Index
+LIVESTOCK - CME FEEDER CATTLE Producer Short,CFFDFPMS Index
+LIVESTOCK - CME FEEDER CATTLE Swap Dealers Long,CFFDFSWL Index
+LIVESTOCK - CME FEEDER CATTLE Swap Dealers Short,CFFDFSWS Index
+LIVESTOCK - CME FEEDER CATTLE Swap Dealers Spreading,CFFDFSWD Index
+LIVESTOCK - CME FEEDER CATTLE Managed Money Spread,CFFDFMMD Index
+LIVESTOCK - CME FEEDER CATTLE Other Reportables Long,CFFDFORL Index
+LIVESTOCK - CME FEEDER CATTLE Other Reportables Short,CFFDFORS Index
+LIVESTOCK - CME FEEDER CATTLE Other Reportables Spreading,CFFDFORD Index
+LIVESTOCK - CME FEEDER CATTLE Non Commercial Net Position,CME1FNCN Index
+LIVESTOCK-CME LEAN HOGS 1st Contract Price,LH1 Comdty
+LIVESTOCK-CME LEAN HOGS Non Comercial Long,CME3HNCL Index
+LIVESTOCK-CME LEAN HOGS Non Comercial Short,CME3HNCS Index
+LIVESTOCK-CME LEAN HOGS Non Comercial Spreading,CME3HNCP Index
+LIVESTOCK-CME LEAN HOGS Commercial Long,CME3HCOL Index
+LIVESTOCK-CME LEAN HOGS Commercial Short,CME3HCOS Index
+LIVESTOCK-CME LEAN HOGS Total Long,CME3HTLL Index
+LIVESTOCK-CME LEAN HOGS Total Short,CME3HTLS Index
+LIVESTOCK-CME LEAN HOGS Open Interest,CME3HOIN Index
+LIVESTOCK-CME LEAN HOGS Non Reportable Long,CME3HNRL Index
+LIVESTOCK-CME LEAN HOGS Non Reportable Short,CME3HNRS Index
+LIVESTOCK-CME LEAN HOGS Managed Money Long,CFFDDMML Index
+LIVESTOCK-CME LEAN HOGS Managed Money Short,CFFDDMMS Index
+LIVESTOCK-CME LEAN HOGS Producer Long,CFFDDPML Index
+LIVESTOCK-CME LEAN HOGS Producer Short,CFFDDPMS Index
+LIVESTOCK-CME LEAN HOGS Swap Dealers Long,CFFDDSWL Index
+LIVESTOCK-CME LEAN HOGS Swap Dealers Short,CFFDDSWS Index
+LIVESTOCK-CME LEAN HOGS Swap Dealers Spreading,CFFDDSWD Index
+LIVESTOCK-CME LEAN HOGS Managed Money Spread,CFFDDMMD Index
+LIVESTOCK-CME LEAN HOGS Other Reportables Long,CFFDDORL Index
+LIVESTOCK-CME LEAN HOGS Other Reportables Short,CFFDDORS Index
+LIVESTOCK-CME LEAN HOGS Other Reportables Spreading,CFFDDORD Index
+LIVESTOCK-CME LEAN HOGS Non Commercial Net Position,CME3HNCN Index
+LIVESTOCK - CME LIVE CATTLE 1st Contract Price,LC1 Comdty
+LIVESTOCK - CME LIVE CATTLE Non Comercial Long,CME1LNCL Index
+LIVESTOCK - CME LIVE CATTLE Non Comercial Short,CME1LNCS Index
+LIVESTOCK - CME LIVE CATTLE Non Comercial Spreading,CME1LNCP Index
+LIVESTOCK - CME LIVE CATTLE Commercial Long,CME1LCOL Index
+LIVESTOCK - CME LIVE CATTLE Commercial Short,CME1LCOS Index
+LIVESTOCK - CME LIVE CATTLE Total Long,CME1LTLL Index
+LIVESTOCK - CME LIVE CATTLE Total Short,CME1LTLS Index
+LIVESTOCK - CME LIVE CATTLE Open Interest,CME1LOIN Index
+LIVESTOCK - CME LIVE CATTLE Non Reportable Long,CME1LNRL Index
+LIVESTOCK - CME LIVE CATTLE Non Reportable Short,CME1LNRS Index
+LIVESTOCK - CME LIVE CATTLE Managed Money Long,CFFDEMML Index
+LIVESTOCK - CME LIVE CATTLE Managed Money Short,CFFDEMMS Index
+LIVESTOCK - CME LIVE CATTLE Producer Long,CFFDEPML Index
+LIVESTOCK - CME LIVE CATTLE Producer Short,CFFDEPMS Index
+LIVESTOCK - CME LIVE CATTLE Swap Dealers Long,CFFDESWL Index
+LIVESTOCK - CME LIVE CATTLE Swap Dealers Short,CFFDESWS Index
+LIVESTOCK - CME LIVE CATTLE Swap Dealers Spreading,CFFDESWD Index
+LIVESTOCK - CME LIVE CATTLE Managed Money Spread,CFFDEMMD Index
+LIVESTOCK - CME LIVE CATTLE Other Reportables Long,CFFDEORL Index
+LIVESTOCK - CME LIVE CATTLE Other Reportables Short,CFFDEORS Index
+LIVESTOCK - CME LIVE CATTLE Other Reportables Spreading,CFFDEORD Index
+LIVESTOCK - CME LIVE CATTLE Non Commercial Net Position,CME1LNCN Index
+FOODSTUFF -  CME MILK (class III) 1st Contract Price,DA1 comdty
+FOODSTUFF -  CME MILK (class III) Non Comercial Long,CME4MNCL Index
+FOODSTUFF -  CME MILK (class III) Non Comercial Short,CME4MNCS Index
+FOODSTUFF -  CME MILK (class III) Non Comercial Spreading,CME4MNCP Index
+FOODSTUFF -  CME MILK (class III) Commercial Long,CME4MCOL Index
+FOODSTUFF -  CME MILK (class III) Commercial Short,CME4MCOS Index
+FOODSTUFF -  CME MILK (class III) Total Long,CME4MTLL Index
+FOODSTUFF -  CME MILK (class III) Total Short,CME4MTLS Index
+FOODSTUFF -  CME MILK (class III) Open Interest,CME4MOIN Index
+FOODSTUFF -  CME MILK (class III) Non Reportable Long,CME4MNRL Index
+FOODSTUFF -  CME MILK (class III) Non Reportable Short,CME4MNRS Index
+FOODSTUFF -  CME MILK (class III) Managed Money Long,DFU2JMML Index
+FOODSTUFF -  CME MILK (class III) Managed Money Short,DFU2JMMS Index
+FOODSTUFF -  CME MILK (class III) Producer Long,DFU2JPML Index
+FOODSTUFF -  CME MILK (class III) Producer Short,DFU2JPMS Index
+FOODSTUFF -  CME MILK (class III) Swap Dealers Long,DFU2JSWL Index
+FOODSTUFF -  CME MILK (class III) Swap Dealers Short,DFU2JSWS Index
+FOODSTUFF -  CME MILK (class III) Swap Dealers Spreading,DFU2JSWD Index
+FOODSTUFF -  CME MILK (class III) Managed Money Spread,DFU2JMMD Index
+FOODSTUFF -  CME MILK (class III) Other Reportables Long,DFU2JORL Index
+FOODSTUFF -  CME MILK (class III) Other Reportables Short,DFU2JORS Index
+FOODSTUFF -  CME MILK (class III) Other Reportables Spreading,DFU2JORD Index
+FOODSTUFF -  CME MILK (class III) Non Commercial Net Position,CME4MNCN Index
+FOODSTUFF -  CME BUTTER (Grade AA) 1st Contract Price,v61 comdty
+FOODSTUFF -  CME BUTTER (Grade AA) Non Comercial Long,CCBFTNCL Index
+FOODSTUFF -  CME BUTTER (Grade AA) Non Comercial Short,CCBFTNCS Index
+FOODSTUFF -  CME BUTTER (Grade AA) Non Comercial Spreading,CCBFTNCP Index
+FOODSTUFF -  CME BUTTER (Grade AA) Commercial Long,CCBFTCOL Index
+FOODSTUFF -  CME BUTTER (Grade AA) Commercial Short,CCBFTCOS Index
+FOODSTUFF -  CME BUTTER (Grade AA) Total Long,CCBFTTLL Index
+FOODSTUFF -  CME BUTTER (Grade AA) Total Short,CCBFTTLS Index
+FOODSTUFF -  CME BUTTER (Grade AA) Open Interest,CCBFTOIN Index
+FOODSTUFF -  CME BUTTER (Grade AA) Non Reportable Long,CCBFTNRL Index
+FOODSTUFF -  CME BUTTER (Grade AA) Non Reportable Short,CCBFTNRS Index
+FOODSTUFF -  CME BUTTER (Grade AA) Managed Money Long,CMB1AMML Index
+FOODSTUFF -  CME BUTTER (Grade AA) Managed Money Short,CMB1AMMS Index
+FOODSTUFF -  CME BUTTER (Grade AA) Producer Long,CMB1APML Index
+FOODSTUFF -  CME BUTTER (Grade AA) Producer Short,CMB1APMS Index
+FOODSTUFF -  CME BUTTER (Grade AA) Swap Dealers Long,CMB1ASWL Index
+FOODSTUFF -  CME BUTTER (Grade AA) Swap Dealers Short,CMB1ASWS Index
+FOODSTUFF -  CME BUTTER (Grade AA) Swap Dealers Spreading,CMB1ASWD Index
+FOODSTUFF -  CME BUTTER (Grade AA) Managed Money Spread,CMB1AMMD Index
+FOODSTUFF -  CME BUTTER (Grade AA) Other Reportables Long,CMB1AORL Index
+FOODSTUFF -  CME BUTTER (Grade AA) Other Reportables Short,CMB1AORS Index
+FOODSTUFF -  CME BUTTER (Grade AA) Other Reportables Spreading,CMB1AORD Index
+FOODSTUFF -  CME BUTTER (Grade AA) Non Commercial Net Position,CCBFTNCN Index
+OIL - NYM CRUDE OIL 1st Contract Price,CL1 Comdty
+OIL - NYM CRUDE OIL Non Comercial Long,NYM1CNCL Index
+OIL - NYM CRUDE OIL Non Comercial Short,NYM1CNCS Index
+OIL - NYM CRUDE OIL Non Comercial Spreading,NYM1CNCP Index
+OIL - NYM CRUDE OIL Commercial Long,NYM1CCOL Index
+OIL - NYM CRUDE OIL Commercial Short,NYM1CCOS Index
+OIL - NYM CRUDE OIL Total Long,NYM1CTLL Index
+OIL - NYM CRUDE OIL Total Short,NYM1CTLS Index
+OIL - NYM CRUDE OIL Open Interest,NYM1COIN Index
+OIL - NYM CRUDE OIL Non Reportable Long,NYM1CNRL Index
+OIL - NYM CRUDE OIL Non Reportable Short,NYM1CNRS Index
+OIL - NYM CRUDE OIL Managed Money Long,CFFDQMML Index
+OIL - NYM CRUDE OIL Managed Money Short,CFFDQMMS Index
+OIL - NYM CRUDE OIL Producer Long,CFFDQPML Index
+OIL - NYM CRUDE OIL Producer Short,CFFDQPMS Index
+OIL - NYM CRUDE OIL Swap Dealers Long,CFFDQSWL Index
+OIL - NYM CRUDE OIL Swap Dealers Short,CFFDQSWS Index
+OIL - NYM CRUDE OIL Swap Dealers Spreading,CFFDQSWD Index
+OIL - NYM CRUDE OIL Managed Money Spread,CFFDQMMD Index
+OIL - NYM CRUDE OIL Other Reportables Long,CFFDQORL Index
+OIL - NYM CRUDE OIL Other Reportables Short,CFFDQORS Index
+OIL - NYM CRUDE OIL Other Reportables Spreading,CFFDQORD Index
+OIL - NYM CRUDE OIL Non Commercial Net Position,NYM1CNCN Index
+OIL - NYM GASOLINE RBOB 1st Contract Price,XB1 Comdty
+OIL - NYM GASOLINE RBOB Non Comercial Long,NYM2XNCL Index
+OIL - NYM GASOLINE RBOB Non Comercial Short,NYM2XNCS Index
+OIL - NYM GASOLINE RBOB Non Comercial Spreading,NYM2XNCP Index
+OIL - NYM GASOLINE RBOB Commercial Long,NYM2XCOL Index
+OIL - NYM GASOLINE RBOB Commercial Short,NYM2XCOS Index
+OIL - NYM GASOLINE RBOB Total Long,NYM2XTLL Index
+OIL - NYM GASOLINE RBOB Total Short,NYM2XTLS Index
+OIL - NYM GASOLINE RBOB Open Interest,NYM2XOIN Index
+OIL - NYM GASOLINE RBOB Non Reportable Long,NYM2XNRL Index
+OIL - NYM GASOLINE RBOB Non Reportable Short,NYM2XNRS Index
+OIL - NYM GASOLINE RBOB Managed Money Long,CFFDRMML Index
+OIL - NYM GASOLINE RBOB Managed Money Short,CFFDRMMS Index
+OIL - NYM GASOLINE RBOB Producer Long,CFFDRPML Index
+OIL - NYM GASOLINE RBOB Producer Short,CFFDRPMS Index
+OIL - NYM GASOLINE RBOB Swap Dealers Long,CFFDRSWL Index
+OIL - NYM GASOLINE RBOB Swap Dealers Short,CFFDRSWS Index
+OIL - NYM GASOLINE RBOB Swap Dealers Spreading,CFFDRSWD Index
+OIL - NYM GASOLINE RBOB Managed Money Spread,CFFDRMMD Index
+OIL - NYM GASOLINE RBOB Other Reportables Long,CFFDRORL Index
+OIL - NYM GASOLINE RBOB Other Reportables Short,CFFDRORS Index
+OIL - NYM GASOLINE RBOB Other Reportables Spreading,CFFDRORD Index
+OIL - NYM GASOLINE RBOB Non Commercial Net Position,NYM2XNCN Index
+OIL - NYM NATURAL GAS 1st Contract Price,NG1 Comdty
+OIL - NYM NATURAL GAS Non Comercial Long,NYM1NNCL Index
+OIL - NYM NATURAL GAS Non Comercial Short,NYM1NNCS Index
+OIL - NYM NATURAL GAS Non Comercial Spreading,NYM1NNCP Index
+OIL - NYM NATURAL GAS Commercial Long,NYM1NCOL Index
+OIL - NYM NATURAL GAS Commercial Short,NYM1NCOS Index
+OIL - NYM NATURAL GAS Total Long,NYM1NTLL Index
+OIL - NYM NATURAL GAS Total Short,NYM1NTLS Index
+OIL - NYM NATURAL GAS Open Interest,NYM1NOIN Index
+OIL - NYM NATURAL GAS Non Reportable Long,NYM1NNRL Index
+OIL - NYM NATURAL GAS Non Reportable Short,NYM1NNRS Index
+OIL - NYM NATURAL GAS Managed Money Long,CFFDOMML Index
+OIL - NYM NATURAL GAS Managed Money Short,CFFDOMMS Index
+OIL - NYM NATURAL GAS Producer Long,CFFDOPML Index
+OIL - NYM NATURAL GAS Producer Short,CFFDOPMS Index
+OIL - NYM NATURAL GAS Swap Dealers Long,CFFDOSWL Index
+OIL - NYM NATURAL GAS Swap Dealers Short,CFFDOSWS Index
+OIL - NYM NATURAL GAS Swap Dealers Spreading,CFFDOSWD Index
+OIL - NYM NATURAL GAS Managed Money Spread,CFFDOMMD Index
+OIL - NYM NATURAL GAS Other Reportables Long,CFFDOORL Index
+OIL - NYM NATURAL GAS Other Reportables Short,CFFDOORS Index
+OIL - NYM NATURAL GAS Other Reportables Spreading,CFFDOORD Index
+OIL - NYM NATURAL GAS Non Commercial Net Position,NYM1NNCN Index
+OIL - NYM PROPANE 1st Contract Price,BAP1 Comdty
+OIL - NYM PROPANE Non Comercial Long,CFF2ZNCL Index
+OIL - NYM PROPANE Non Comercial Short,CFF2ZNCS Index
+OIL - NYM PROPANE Non Comercial Spreading,CFF2ZNCP Index
+OIL - NYM PROPANE Commercial Long,CFF2ZCOL Index
+OIL - NYM PROPANE Commercial Short,CFF2ZCOS Index
+OIL - NYM PROPANE Total Long,CFF2ZTLL Index
+OIL - NYM PROPANE Total Short,CFF2ZTLS Index
+OIL - NYM PROPANE Open Interest,CFF2ZOIN Index
+OIL - NYM PROPANE Non Reportable Long,CFF2ZNRL Index
+OIL - NYM PROPANE Non Reportable Short,CFF2ZNRS Index
+OIL - NYM PROPANE Managed Money Long,DFU3EMML Index
+OIL - NYM PROPANE Managed Money Short,DFU3EMMS Index
+OIL - NYM PROPANE Producer Long,DFU3EPML Index
+OIL - NYM PROPANE Producer Short,DFU3EPMS Index
+OIL - NYM PROPANE Swap Dealers Long,DFU3ESWL Index
+OIL - NYM PROPANE Swap Dealers Short,DFU3ESWS Index
+OIL - NYM PROPANE Swap Dealers Spreading,DFU3ESWD Index
+OIL - NYM PROPANE Managed Money Spread,DFU3EMMD Index
+OIL - NYM PROPANE Other Reportables Long,DFU3EORL Index
+OIL - NYM PROPANE Other Reportables Short,DFU3EORS Index
+OIL - NYM PROPANE Other Reportables Spreading,DFU3EORD Index
+OIL - NYM PROPANE Non Commercial Net Position,CFF2ZNCN Index
+OIL- NYM ETHANE 1st Contract Price,CAP1 Comdty
+OIL- NYM ETHANE Non Comercial Long,CFF3ANCL Index
+OIL- NYM ETHANE Non Comercial Short,CFF3ANCS Index
+OIL- NYM ETHANE Non Comercial Spreading,CFF3ANCP Index
+OIL- NYM ETHANE Commercial Long,CFF3ACOL Index
+OIL- NYM ETHANE Commercial Short,CFF3ACOS Index
+OIL- NYM ETHANE Total Long,CFF3ATLL Index
+OIL- NYM ETHANE Total Short,CFF3ATLS Index
+OIL- NYM ETHANE Open Interest,CFF3AOIN Index
+OIL- NYM ETHANE Non Reportable Long,CFF3ANRL Index
+OIL- NYM ETHANE Non Reportable Short,CFF3ANRS Index
+OIL- NYM ETHANE Managed Money Long,DFU3FMML Index
+OIL- NYM ETHANE Managed Money Short,DFU3FMMS Index
+OIL- NYM ETHANE Producer Long,DFU3FPML Index
+OIL- NYM ETHANE Producer Short,DFU3FPMS Index
+OIL- NYM ETHANE Swap Dealers Long,DFU3FSWL Index
+OIL- NYM ETHANE Swap Dealers Short,DFU3FSWS Index
+OIL- NYM ETHANE Swap Dealers Spreading,DFU3FSWD Index
+OIL- NYM ETHANE Managed Money Spread,DFU3FMMD Index
+OIL- NYM ETHANE Other Reportables Long,DFU3FORL Index
+OIL- NYM ETHANE Other Reportables Short,DFU3FORS Index
+OIL- NYM ETHANE Other Reportables Spreading,DFU3FORD Index
+OIL- NYM ETHANE Non Commercial Net Position,CFF3ANCN Index
+OIL- NYM BUTANE 1st Contract Price,DAE1 Comdty
+OIL- NYM BUTANE Non Comercial Long,CFF3BNCL Index
+OIL- NYM BUTANE Non Comercial Short,CFF3BNCS Index
+OIL- NYM BUTANE Non Comercial Spreading,CFF3BNCP Index
+OIL- NYM BUTANE Commercial Long,CFF3BCOL Index
+OIL- NYM BUTANE Commercial Short,CFF3BCOS Index
+OIL- NYM BUTANE Total Long,CFF3BTLL Index
+OIL- NYM BUTANE Total Short,CFF3BTLS Index
+OIL- NYM BUTANE Open Interest,CFF3BOIN Index
+OIL- NYM BUTANE Non Reportable Long,CFF3BNRL Index
+OIL- NYM BUTANE Non Reportable Short,CFF3BNRS Index
+OIL- NYM BUTANE Managed Money Long,DFU3GMML Index
+OIL- NYM BUTANE Managed Money Short,DFU3GMMS Index
+OIL- NYM BUTANE Producer Long,DFU3GPML Index
+OIL- NYM BUTANE Producer Short,DFU3GPMS Index
+OIL- NYM BUTANE Swap Dealers Long,DFU3GSWL Index
+OIL- NYM BUTANE Swap Dealers Short,DFU3GSWS Index
+OIL- NYM BUTANE Swap Dealers Spreading,DFU3GSWD Index
+OIL- NYM BUTANE Managed Money Spread,DFU3GMMD Index
+OIL- NYM BUTANE Other Reportables Long,DFU3GORL Index
+OIL- NYM BUTANE Other Reportables Short,DFU3GORS Index
+OIL- NYM BUTANE Other Reportables Spreading,DFU3GORD Index
+OIL- NYM BUTANE Non Commercial Net Position,CFF3BNCN Index
+OIL - NYM - GASOLINE OPIS 1st Contract Price,MMB1 Comdty
+OIL - NYM - GASOLINE OPIS Non Comercial Long,CFF3CNCL Index
+OIL - NYM - GASOLINE OPIS Non Comercial Short,CFF3CNCS Index
+OIL - NYM - GASOLINE OPIS Non Comercial Spreading,CFF3CNCP Index
+OIL - NYM - GASOLINE OPIS Commercial Long,CFF3CCOL Index
+OIL - NYM - GASOLINE OPIS Commercial Short,CFF3CCOS Index
+OIL - NYM - GASOLINE OPIS Total Long,CFF3CTLL Index
+OIL - NYM - GASOLINE OPIS Total Short,CFF3CTLS Index
+OIL - NYM - GASOLINE OPIS Open Interest,CFF3COIN Index
+OIL - NYM - GASOLINE OPIS Non Reportable Long,CFF3CNRL Index
+OIL - NYM - GASOLINE OPIS Non Reportable Short,CFF3CNRS Index
+OIL - NYM - GASOLINE OPIS Managed Money Long,DFU3HMML Index
+OIL - NYM - GASOLINE OPIS Managed Money Short,DFU3HMMS Index
+OIL - NYM - GASOLINE OPIS Producer Long,DFU3HPML Index
+OIL - NYM - GASOLINE OPIS Producer Short,DFU3HPMS Index
+OIL - NYM - GASOLINE OPIS Swap Dealers Long,DFU3HSWL Index
+OIL - NYM - GASOLINE OPIS Swap Dealers Short,DFU3HSWS Index
+OIL - NYM - GASOLINE OPIS Swap Dealers Spreading,DFU3HSWD Index
+OIL - NYM - GASOLINE OPIS Managed Money Spread,DFU3HMMD Index
+OIL - NYM - GASOLINE OPIS Other Reportables Long,DFU3HORL Index
+OIL - NYM - GASOLINE OPIS Other Reportables Short,DFU3HORS Index
+OIL - NYM - GASOLINE OPIS Other Reportables Spreading,DFU3HORD Index
+OIL - NYM - GASOLINE OPIS Non Commercial Net Position,CFF3CNCN Index
+OIL - ICE EUROPE BRENT CRUDE 1st Contract Price,CO1 COMDTY
+OIL - ICE EUROPE BRENT CRUDE Open Interest,ICFUBOIN Index
+OIL - ICE EUROPE BRENT CRUDE Non Reportable Long,ICFUBNRL Index
+OIL - ICE EUROPE BRENT CRUDE Non Reportable Short,ICFUBNRS Index
+OIL - ICE EUROPE BRENT CRUDE Managed Money Long,ICFUBMML Index
+OIL - ICE EUROPE BRENT CRUDE Managed Money Short,ICFUBMMS Index
+OIL - ICE EUROPE BRENT CRUDE Producer Long,ICFUBPML Index
+OIL - ICE EUROPE BRENT CRUDE Producer Short,ICFUBPMS Index
+OIL - ICE EUROPE BRENT CRUDE Swap Dealers Long,ICFUBSWL Index
+OIL - ICE EUROPE BRENT CRUDE Swap Dealers Short,ICFUBSWS Index
+OIL - ICE EUROPE BRENT CRUDE Swap Dealers Spreading,ICFUBSWD Index
+OIL - ICE EUROPE BRENT CRUDE Managed Money Spread,ICFUBMMD Index
+OIL - ICE EUROPE BRENT CRUDE Other Reportables Long,ICFUBORL Index
+OIL - ICE EUROPE BRENT CRUDE Other Reportables Short,ICFUBORS Index
+OIL - ICE EUROPE BRENT CRUDE Other Reportables Spreading,ICFUBORD Index
+OIL - NYM HEATING OIL 1st Contract Price,HO1 Comdty
+OIL - NYM HEATING OIL Non Comercial Long,NYM1HNCL Index
+OIL - NYM HEATING OIL Non Comercial Short,NYM1HNCS Index
+OIL - NYM HEATING OIL Non Comercial Spreading,NYM1HNCP Index
+OIL - NYM HEATING OIL Commercial Long,NYM1HCOL Index
+OIL - NYM HEATING OIL Commercial Short,NYM1HCOS Index
+OIL - NYM HEATING OIL Total Long,NYM1HTLL Index
+OIL - NYM HEATING OIL Total Short,NYM1HTLS Index
+OIL - NYM HEATING OIL Open Interest,NYM1HOIN Index
+OIL - NYM HEATING OIL Non Reportable Long,NYM1HNRL Index
+OIL - NYM HEATING OIL Non Reportable Short,NYM1HNRS Index
+OIL - NYM HEATING OIL Managed Money Long,CFFDNMML Index
+OIL - NYM HEATING OIL Managed Money Short,CFFDNMMS Index
+OIL - NYM HEATING OIL Producer Long,CFFDNPML Index
+OIL - NYM HEATING OIL Producer Short,CFFDNPMS Index
+OIL - NYM HEATING OIL Swap Dealers Long,CFFDNSWL Index
+OIL - NYM HEATING OIL Swap Dealers Short,CFFDNSWS Index
+OIL - NYM HEATING OIL Swap Dealers Spreading,CFFDNSWD Index
+OIL - NYM HEATING OIL Managed Money Spread,CFFDNMMD Index
+OIL - NYM HEATING OIL Other Reportables Long,CFFDNORL Index
+OIL - NYM HEATING OIL Other Reportables Short,CFFDNORS Index
+OIL - NYM HEATING OIL Other Reportables Spreading,CFFDNORD Index
+OIL - NYM HEATING OIL Non Commercial Net Position,NYM1HNCN Index
+OIL - ICE EUROPE GASOIL FUTURES 1st Contract Price,QS1 COMDTY
+OIL - ICE EUROPE GASOIL FUTURES Open Interest,ICFUAOIN INDEX
+OIL - ICE EUROPE GASOIL FUTURES Non Reportable Long,ICFUANRL Index
+OIL - ICE EUROPE GASOIL FUTURES Non Reportable Short,ICFUANRS Index
+OIL - ICE EUROPE GASOIL FUTURES Managed Money Long,ICFUAMML INDEX
+OIL - ICE EUROPE GASOIL FUTURES Managed Money Short,ICFUAMMS INDEX
+OIL - ICE EUROPE GASOIL FUTURES Producer Long,ICFUAPML INDEX
+OIL - ICE EUROPE GASOIL FUTURES Producer Short,ICFUAPMS INDEX
+OIL - ICE EUROPE GASOIL FUTURES Swap Dealers Long,ICFUASWL INDEX
+OIL - ICE EUROPE GASOIL FUTURES Swap Dealers Short,ICFUASWS INDEX
+OIL - ICE EUROPE GASOIL FUTURES Swap Dealers Spreading,ICFUASWD INDEX
+OIL - ICE EUROPE GASOIL FUTURES Managed Money Spread,ICFUAMMD INDEX
+OIL - ICE EUROPE GASOIL FUTURES Other Reportables Long,ICFUAORL INDEX
+OIL - ICE EUROPE GASOIL FUTURES Other Reportables Short,ICFUAORS INDEX
+OIL - ICE EUROPE GASOIL FUTURES Other Reportables Spreading,ICFUAORD INDEX
+OIL - ICE EUROPE GASOIL FUTURES Non Commercial Net Position,ICFUAORN INDEX
+OIL - ICE NATURAL GAS HENRY HUB 1st Contract Price,NR1 COMDTY
+OIL - ICE NATURAL GAS HENRY HUB Non Comercial Long,EN1FBNCL Index
+OIL - ICE NATURAL GAS HENRY HUB Non Comercial Short,EN1FBNCS Index
+OIL - ICE NATURAL GAS HENRY HUB Non Comercial Spreading,EN1FBNCP Index
+OIL - ICE NATURAL GAS HENRY HUB Commercial Long,EN1FBCOL Index
+OIL - ICE NATURAL GAS HENRY HUB Commercial Short,EN1FBCOS Index
+OIL - ICE NATURAL GAS HENRY HUB Total Long,EN1FBTLL Index
+OIL - ICE NATURAL GAS HENRY HUB Total Short,EN1FBTLS Index
+OIL - ICE NATURAL GAS HENRY HUB Open Interest,EN1FBOIN Index
+OIL - ICE NATURAL GAS HENRY HUB Non Reportable Long,EN1FBNRL Index
+OIL - ICE NATURAL GAS HENRY HUB Non Reportable Short,EN1FBNRS Index
+OIL - ICE NATURAL GAS HENRY HUB Managed Money Long,DFU4NMML Index
+OIL - ICE NATURAL GAS HENRY HUB Managed Money Short,DFU4NMMS Index
+OIL - ICE NATURAL GAS HENRY HUB Producer Long,DFU4NPML Index
+OIL - ICE NATURAL GAS HENRY HUB Producer Short,DFU4NPMS Index
+OIL - ICE NATURAL GAS HENRY HUB Swap Dealers Long,DFU4NSWL Index
+OIL - ICE NATURAL GAS HENRY HUB Swap Dealers Short,DFU4NSWS Index
+OIL - ICE NATURAL GAS HENRY HUB Swap Dealers Spreading,DFU4NSWD Index
+OIL - ICE NATURAL GAS HENRY HUB Managed Money Spread,DFU4NMMD Index
+OIL - ICE NATURAL GAS HENRY HUB Other Reportables Long,DFU4NORL Index
+OIL - ICE NATURAL GAS HENRY HUB Other Reportables Short,DFU4NORS Index
+OIL - ICE NATURAL GAS HENRY HUB Other Reportables Spreading,DFU4NORD Index
+OIL - ICE NATURAL GAS HENRY HUB Non Commercial Net Position,EN1FBNCN Index
+"OIL - CRUDE OIL, LIGHT SWEET 1st Contract Price",EN1 COMDTY
+"OIL - CRUDE OIL, LIGHT SWEET Non Comercial Long",EN1FANCL Index
+"OIL - CRUDE OIL, LIGHT SWEET Non Comercial Short",EN1FANCS Index
+"OIL - CRUDE OIL, LIGHT SWEET Non Comercial Spreading",EN1FANCP Index
+"OIL - CRUDE OIL, LIGHT SWEET Commercial Long",EN1FACOL Index
+"OIL - CRUDE OIL, LIGHT SWEET Commercial Short",EN1FACOS Index
+"OIL - CRUDE OIL, LIGHT SWEET Total Long",EN1FATLL Index
+"OIL - CRUDE OIL, LIGHT SWEET Total Short",EN1FATLS Index
+"OIL - CRUDE OIL, LIGHT SWEET Open Interest",EN1FAOIN Index
+"OIL - CRUDE OIL, LIGHT SWEET Non Reportable Long",EN1FANRL Index
+"OIL - CRUDE OIL, LIGHT SWEET Non Reportable Short",EN1FANRS Index
+"OIL - CRUDE OIL, LIGHT SWEET Managed Money Long",CFFDPMML Index
+"OIL - CRUDE OIL, LIGHT SWEET Managed Money Short",CFFDPMMS Index
+"OIL - CRUDE OIL, LIGHT SWEET Producer Long",CFFDPPML Index
+"OIL - CRUDE OIL, LIGHT SWEET Producer Short",CFFDPPMS Index
+"OIL - CRUDE OIL, LIGHT SWEET Swap Dealers Long",CFFDPSWL Index
+"OIL - CRUDE OIL, LIGHT SWEET Swap Dealers Short",CFFDPSWS Index
+"OIL - CRUDE OIL, LIGHT SWEET Swap Dealers Spreading",CFFDPSWD Index
+"OIL - CRUDE OIL, LIGHT SWEET Managed Money Spread",CFFDPMMD Index
+"OIL - CRUDE OIL, LIGHT SWEET Other Reportables Long",CFFDPORL Index
+"OIL - CRUDE OIL, LIGHT SWEET Other Reportables Short",CFFDPORS Index
+"OIL - CRUDE OIL, LIGHT SWEET Other Reportables Spreading",CFFDPORD Index
+"OIL - CRUDE OIL, LIGHT SWEET Non Commercial Net Position",EN1FANCN Index
+METALS - CMX GOLD 1st Contract Price,GC1 Comdty
+METALS - CMX GOLD Non Comercial Long,CEI1GNCL Index
+METALS - CMX GOLD Non Comercial Short,CEI1GNCS Index
+METALS - CMX GOLD Non Comercial Spreading,CEI1GNCP Index
+METALS - CMX GOLD Commercial Long,CEI1GCOL Index
+METALS - CMX GOLD Commercial Short,CEI1GCOS Index
+METALS - CMX GOLD Total Long,CEI1GTLL Index
+METALS - CMX GOLD Total Short,CEI1GTLS Index
+METALS - CMX GOLD Open Interest,CEI1GOIN Index
+METALS - CMX GOLD Non Reportable Long,CEI1GNRL Index
+METALS - CMX GOLD Non Reportable Short,CEI1GNRS Index
+METALS - CMX GOLD Managed Money Long,CFFDUMML Index
+METALS - CMX GOLD Managed Money Short,CFFDUMMS Index
+METALS - CMX GOLD Producer Long,CFFDUPML Index
+METALS - CMX GOLD Producer Short,CFFDUPMS Index
+METALS - CMX GOLD Swap Dealers Long,CFFDUSWL Index
+METALS - CMX GOLD Swap Dealers Short,CFFDUSWS Index
+METALS - CMX GOLD Swap Dealers Spreading,CFFDUSWD Index
+METALS - CMX GOLD Managed Money Spread,CFFDUMMD Index
+METALS - CMX GOLD Other Reportables Long,CFFDUORL Index
+METALS - CMX GOLD Other Reportables Short,CFFDUORS Index
+METALS - CMX GOLD Other Reportables Spreading,CFFDUORD Index
+METALS - CMX GOLD Non Commercial Net Position,CEI1GNCN Index
+METALS - CMX SILVER 1st Contract Price,SI1 Comdty
+METALS - CMX SILVER Non Comercial Long,CEI1SNCL Index
+METALS - CMX SILVER Non Comercial Short,CEI1SNCS Index
+METALS - CMX SILVER Non Comercial Spreading,CEI1SNCP Index
+METALS - CMX SILVER Commercial Long,CEI1SCOL Index
+METALS - CMX SILVER Commercial Short,CEI1SCOS Index
+METALS - CMX SILVER Total Long,CEI1STLL Index
+METALS - CMX SILVER Total Short,CEI1STLS Index
+METALS - CMX SILVER Open Interest,CEI1SOIN Index
+METALS - CMX SILVER Non Reportable Long,CEI1SNRL Index
+METALS - CMX SILVER Non Reportable Short,CEI1SNRS Index
+METALS - CMX SILVER Managed Money Long,CFFDSMML Index
+METALS - CMX SILVER Managed Money Short,CFFDSMMS Index
+METALS - CMX SILVER Producer Long,CFFDSPML Index
+METALS - CMX SILVER Producer Short,CFFDSPMS Index
+METALS - CMX SILVER Swap Dealers Long,CFFDSSWL Index
+METALS - CMX SILVER Swap Dealers Short,CFFDSSWS Index
+METALS - CMX SILVER Swap Dealers Spreading,CFFDSSWD Index
+METALS - CMX SILVER Managed Money Spread,CFFDSMMD Index
+METALS - CMX SILVER Other Reportables Long,CFFDSORL Index
+METALS - CMX SILVER Other Reportables Short,CFFDSORS Index
+METALS - CMX SILVER Other Reportables Spreading,CFFDSORD Index
+METALS - CMX SILVER Non Commercial Net Position,CEI1SNCN Index
+METALS - CMX PLATINUM 1st Contract Price,PL1 Comdty
+METALS - CMX PLATINUM Non Comercial Long,NYM3PNCL Index
+METALS - CMX PLATINUM Non Comercial Short,NYM3PNCS Index
+METALS - CMX PLATINUM Non Comercial Spreading,NYM3PNCP Index
+METALS - CMX PLATINUM Commercial Long,NYM3PCOL Index
+METALS - CMX PLATINUM Commercial Short,NYM3PCOS Index
+METALS - CMX PLATINUM Total Long,NYM3PTLL Index
+METALS - CMX PLATINUM Total Short,NYM3PTLS Index
+METALS - CMX PLATINUM Open Interest,NYM3POIN Index
+METALS - CMX PLATINUM Non Reportable Long,NYM3PNRL Index
+METALS - CMX PLATINUM Non Reportable Short,NYM3PNRS Index
+METALS - CMX PLATINUM Managed Money Long,DFU3OMML Index
+METALS - CMX PLATINUM Managed Money Short,DFU3OMMS Index
+METALS - CMX PLATINUM Producer Long,DFU3OPML Index
+METALS - CMX PLATINUM Producer Short,DFU3OPMS Index
+METALS - CMX PLATINUM Swap Dealers Long,DFU3OSWL Index
+METALS - CMX PLATINUM Swap Dealers Short,DFU3OSWS Index
+METALS - CMX PLATINUM Swap Dealers Spreading,DFU3OSWD Index
+METALS - CMX PLATINUM Managed Money Spread,DFU3OMMD Index
+METALS - CMX PLATINUM Other Reportables Long,DFU3OORL Index
+METALS - CMX PLATINUM Other Reportables Short,DFU3OORS Index
+METALS - CMX PLATINUM Other Reportables Spreading,DFU3OORD Index
+METALS - CMX PLATINUM Non Commercial Net Position,NYM3PNCN Index
+METALS - CMX PALLADIUM 1st Contract Price,PA1 Comdty
+METALS - CMX PALLADIUM Non Comercial Long,NYM2PNCL Index
+METALS - CMX PALLADIUM Non Comercial Short,NYM2PNCS Index
+METALS - CMX PALLADIUM Non Comercial Spreading,NYM2PNCP Index
+METALS - CMX PALLADIUM Commercial Long,NYM2PCOL Index
+METALS - CMX PALLADIUM Commercial Short,NYM2PCOS Index
+METALS - CMX PALLADIUM Total Long,NYM2PTLL Index
+METALS - CMX PALLADIUM Total Short,NYM2PTLS Index
+METALS - CMX PALLADIUM Open Interest,NYM2POIN Index
+METALS - CMX PALLADIUM Non Reportable Long,NYM2PNRL Index
+METALS - CMX PALLADIUM Non Reportable Short,NYM2PNRS Index
+METALS - CMX PALLADIUM Managed Money Long,DFU3NMML Index
+METALS - CMX PALLADIUM Managed Money Short,DFU3NMMS Index
+METALS - CMX PALLADIUM Producer Long,DFU3NPML Index
+METALS - CMX PALLADIUM Producer Short,DFU3NPMS Index
+METALS - CMX PALLADIUM Swap Dealers Long,DFU3NSWL Index
+METALS - CMX PALLADIUM Swap Dealers Short,DFU3NSWS Index
+METALS - CMX PALLADIUM Swap Dealers Spreading,DFU3NSWD Index
+METALS - CMX PALLADIUM Managed Money Spread,DFU3NMMD Index
+METALS - CMX PALLADIUM Other Reportables Long,DFU3NORL Index
+METALS - CMX PALLADIUM Other Reportables Short,DFU3NORS Index
+METALS - CMX PALLADIUM Other Reportables Spreading,DFU3NORD Index
+METALS - CMX PALLADIUM Non Commercial Net Position,NYM2PNCN Index
+METALS - CMX  COPPER 1st Contract Price,HG1 Comdty
+METALS - CMX  COPPER Non Comercial Long,CEI1CNCL Index
+METALS - CMX  COPPER Non Comercial Short,CEI1CNCS Index
+METALS - CMX  COPPER Non Comercial Spreading,CEI1CNCP Index
+METALS - CMX  COPPER Commercial Long,CEI1CCOL Index
+METALS - CMX  COPPER Commercial Short,CEI1CCOS Index
+METALS - CMX  COPPER Total Long,CEI1CTLL Index
+METALS - CMX  COPPER Total Short,CEI1CTLS Index
+METALS - CMX  COPPER Open Interest,CEI1COIN Index
+METALS - CMX  COPPER Non Reportable Long,CEI1CNRL Index
+METALS - CMX  COPPER Non Reportable Short,CEI1CNRS Index
+METALS - CMX  COPPER Managed Money Long,CFFDTMML Index
+METALS - CMX  COPPER Managed Money Short,CFFDTMMS Index
+METALS - CMX  COPPER Producer Long,CFFDTPML Index
+METALS - CMX  COPPER Producer Short,CFFDTPMS Index
+METALS - CMX  COPPER Swap Dealers Long,CFFDTSWL Index
+METALS - CMX  COPPER Swap Dealers Short,CFFDTSWS Index
+METALS - CMX  COPPER Swap Dealers Spreading,CFFDTSWD Index
+METALS - CMX  COPPER Managed Money Spread,CFFDTMMD Index
+METALS - CMX  COPPER Other Reportables Long,CFFDTORL Index
+METALS - CMX  COPPER Other Reportables Short,CFFDTORS Index
+METALS - CMX  COPPER Other Reportables Spreading,CFFDTORD Index
+METALS - CMX  COPPER Non Commercial Net Position,CEI1CNCN Index
+SOFTS - ICE COTTON N2 1st Contract Price,CT1 Comdty
+SOFTS - ICE COTTON N2 Non Comercial Long,NYC1CNCL Index
+SOFTS - ICE COTTON N2 Non Comercial Short,NYC1CNCS Index
+SOFTS - ICE COTTON N2 Non Comercial Spreading,NYC1CNCP Index
+SOFTS - ICE COTTON N2 Commercial Long,NYC1CCOL Index
+SOFTS - ICE COTTON N2 Commercial Short,NYC1CCOS Index
+SOFTS - ICE COTTON N2 Total Long,NYC1CTLL Index
+SOFTS - ICE COTTON N2 Total Short,NYC1CTLS Index
+SOFTS - ICE COTTON N2 Open Interest,NYC1COIN Index
+SOFTS - ICE COTTON N2 Non Reportable Long,NYC1CNRL Index
+SOFTS - ICE COTTON N2 Non Reportable Short,NYC1CNRS Index
+SOFTS - ICE COTTON N2 Managed Money Long,CFFDJMML Index
+SOFTS - ICE COTTON N2 Managed Money Short,CFFDJMMS Index
+SOFTS - ICE COTTON N2 Producer Long,CFFDJPML Index
+SOFTS - ICE COTTON N2 Producer Short,CFFDJPMS Index
+SOFTS - ICE COTTON N2 Swap Dealers Long,CFFDJSWL Index
+SOFTS - ICE COTTON N2 Swap Dealers Short,CFFDJSWS Index
+SOFTS - ICE COTTON N2 Swap Dealers Spreading,CFFDJSWD Index
+SOFTS - ICE COTTON N2 Managed Money Spread,CFFDJMMD Index
+SOFTS - ICE COTTON N2 Other Reportables Long,CFFDJORL Index
+SOFTS - ICE COTTON N2 Other Reportables Short,CFFDJORS Index
+SOFTS - ICE COTTON N2 Other Reportables Spreading,CFFDJORD Index
+SOFTS - ICE COTTON N2 Non Commercial Net Position,NYC1CNCN Index
+SOFTS - ICE COFFEE C 1st Contract Price,KC1 Comdty
+SOFTS - ICE COFFEE C Non Comercial Long,CSC1FNCL Index
+SOFTS - ICE COFFEE C Non Comercial Short,CSC1FNCS Index
+SOFTS - ICE COFFEE C Non Comercial Spreading,CSC1FNCP Index
+SOFTS - ICE COFFEE C Commercial Long,CSC1FCOL Index
+SOFTS - ICE COFFEE C Commercial Short,CSC1FCOS Index
+SOFTS - ICE COFFEE C Total Long,CSC1FTLL Index
+SOFTS - ICE COFFEE C Total Short,CSC1FTLS Index
+SOFTS - ICE COFFEE C Open Interest,CSC1FOIN Index
+SOFTS - ICE COFFEE C Non Reportable Long,CSC1FNRL Index
+SOFTS - ICE COFFEE C Non Reportable Short,CSC1FNRS Index
+SOFTS - ICE COFFEE C Managed Money Long,CFFDMMML Index
+SOFTS - ICE COFFEE C Managed Money Short,CFFDMMMS Index
+SOFTS - ICE COFFEE C Producer Long,CFFDMPML Index
+SOFTS - ICE COFFEE C Producer Short,CFFDMPMS Index
+SOFTS - ICE COFFEE C Swap Dealers Long,CFFDMSWL Index
+SOFTS - ICE COFFEE C Swap Dealers Short,CFFDMSWS Index
+SOFTS - ICE COFFEE C Swap Dealers Spreading,CFFDMSWD Index
+SOFTS - ICE COFFEE C Managed Money Spread,CFFDMMMD Index
+SOFTS - ICE COFFEE C Other Reportables Long,CFFDMORL Index
+SOFTS - ICE COFFEE C Other Reportables Short,CFFDMORS Index
+SOFTS - ICE COFFEE C Other Reportables Spreading,CFFDMORD Index
+SOFTS - ICE COFFEE C Non Commercial Net Position,CSC1FNCN Index
+SOFTS - ICE SUGAR N11 1st Contract Price,SB1 Comdty
+SOFTS - ICE SUGAR N11 Non Comercial Long,CSC1SNCL Index
+SOFTS - ICE SUGAR N11 Non Comercial Short,CSC1SNCS Index
+SOFTS - ICE SUGAR N11 Non Comercial Spreading,CSC1SNCP Index
+SOFTS - ICE SUGAR N11 Commercial Long,CSC1SCOL Index
+SOFTS - ICE SUGAR N11 Commercial Short,CSC1SCOS Index
+SOFTS - ICE SUGAR N11 Total Long,NYM1ETLL Index
+SOFTS - ICE SUGAR N11 Total Short,NYM1ETLS Index
+SOFTS - ICE SUGAR N11 Open Interest,CSC1SOIN Index
+SOFTS - ICE SUGAR N11 Non Reportable Long,CSC1SNRL Index
+SOFTS - ICE SUGAR N11 Non Reportable Short,CSC1SNRS Index
+SOFTS - ICE SUGAR N11 Managed Money Long,CFFDLMML Index
+SOFTS - ICE SUGAR N11 Managed Money Short,CFFDLMMS Index
+SOFTS - ICE SUGAR N11 Producer Long,CFFDLPML Index
+SOFTS - ICE SUGAR N11 Producer Short,CFFDLPMS Index
+SOFTS - ICE SUGAR N11 Swap Dealers Long,CFFDLSWL Index
+SOFTS - ICE SUGAR N11 Swap Dealers Short,CFFDLSWS Index
+SOFTS - ICE SUGAR N11 Swap Dealers Spreading,CFFDLSWD Index
+SOFTS - ICE SUGAR N11 Managed Money Spread,CFFDLMMD Index
+SOFTS - ICE SUGAR N11 Other Reportables Long,CFFDLORL Index
+SOFTS - ICE SUGAR N11 Other Reportables Short,CFFDLORS Index
+SOFTS - ICE SUGAR N11 Other Reportables Spreading,CFFDLORD Index
+SOFTS - ICE SUGAR N11 Non Commercial Net Position,CSC1SNCN Index
+SOFTS - ICE FROZEN ORANGE JUICE 1st Contract Price,JO1 Comdty
+SOFTS - ICE FROZEN ORANGE JUICE Non Comercial Long,CAN1ONCL Index
+SOFTS - ICE FROZEN ORANGE JUICE Non Comercial Short,CAN1ONCS Index
+SOFTS - ICE FROZEN ORANGE JUICE Non Comercial Spreading,CAN1ONCP Index
+SOFTS - ICE FROZEN ORANGE JUICE Commercial Long,CAN1OCOL Index
+SOFTS - ICE FROZEN ORANGE JUICE Commercial Short,CAN1OCOS Index
+SOFTS - ICE FROZEN ORANGE JUICE Total Long,CAN1OTLL Index
+SOFTS - ICE FROZEN ORANGE JUICE Total Short,CAN1OTLS Index
+SOFTS - ICE FROZEN ORANGE JUICE Open Interest,CAN1OOIN Index
+SOFTS - ICE FROZEN ORANGE JUICE Non Reportable Long,CAN1ONRL Index
+SOFTS - ICE FROZEN ORANGE JUICE Non Reportable Short,CAN1ONRS Index
+SOFTS - ICE FROZEN ORANGE JUICE Managed Money Long,DFU2IMML Index
+SOFTS - ICE FROZEN ORANGE JUICE Managed Money Short,DFU2IMMS Index
+SOFTS - ICE FROZEN ORANGE JUICE Producer Long,DFU2IPML Index
+SOFTS - ICE FROZEN ORANGE JUICE Producer Short,DFU2IPMS Index
+SOFTS - ICE FROZEN ORANGE JUICE Swap Dealers Long,DFU2ISWL Index
+SOFTS - ICE FROZEN ORANGE JUICE Swap Dealers Short,DFU2ISWS Index
+SOFTS - ICE FROZEN ORANGE JUICE Swap Dealers Spreading,DFU2ISWD Index
+SOFTS - ICE FROZEN ORANGE JUICE Managed Money Spread,DFU2IMMD Index
+SOFTS - ICE FROZEN ORANGE JUICE Other Reportables Long,DFU2IORL Index
+SOFTS - ICE FROZEN ORANGE JUICE Other Reportables Short,DFU2IORS Index
+SOFTS - ICE FROZEN ORANGE JUICE Other Reportables Spreading,DFU2IORD Index
+SOFTS - ICE FROZEN ORANGE JUICE Non Commercial Net Position,CAN1ONCN Index
+SOFTS - ICE COCOA 1st Contract Price,CC1 Comdty
+SOFTS - ICE COCOA Non Comercial Long,CSC1CNCL Index
+SOFTS - ICE COCOA Non Comercial Short,CSC1CNCS Index
+SOFTS - ICE COCOA Non Comercial Spreading,CSC1CNCP Index
+SOFTS - ICE COCOA Commercial Long,CSC1CCOL Index
+SOFTS - ICE COCOA Commercial Short,CSC1CCOS Index
+SOFTS - ICE COCOA Total Long,CSC1CTLL Index
+SOFTS - ICE COCOA Total Short,CSC1CTLS Index
+SOFTS - ICE COCOA Open Interest,CSC1COIN Index
+SOFTS - ICE COCOA Non Reportable Long,CSC1CNRL Index
+SOFTS - ICE COCOA Non Reportable Short,CSC1CNRS Index
+SOFTS - ICE COCOA Managed Money Long,CFFDKMML Index
+SOFTS - ICE COCOA Managed Money Short,CFFDKMMS Index
+SOFTS - ICE COCOA Producer Long,CFFDKPML Index
+SOFTS - ICE COCOA Producer Short,CFFDKPMS Index
+SOFTS - ICE COCOA Swap Dealers Long,CFFDKSWL Index
+SOFTS - ICE COCOA Swap Dealers Short,CFFDKSWS Index
+SOFTS - ICE COCOA Swap Dealers Spreading,CFFDKSWD Index
+SOFTS - ICE COCOA Managed Money Spread,CFFDKMMD Index
+SOFTS - ICE COCOA Other Reportables Long,CFFDKORL Index
+SOFTS - ICE COCOA Other Reportables Short,CFFDKORS Index
+SOFTS - ICE COCOA Other Reportables Spreading,CFFDKORD Index
+SOFTS - ICE COCOA Non Commercial Net Position,CSC1CNCN Index
+SOFTS - NYSE LIFFE COCOA 1st Contract Price,QC1 COMDTY
+SOFTS - NYSE LIFFE COCOA Open Interest,LIFFAOIN Index
+SOFTS - NYSE LIFFE COCOA Non Reportable Long,LIFFANRL Index
+SOFTS - NYSE LIFFE COCOA Non Reportable Short,LIFFANRS Index
+SOFTS - NYSE LIFFE COCOA Managed Money Long,DLIFAMML Index
+SOFTS - NYSE LIFFE COCOA Managed Money Short,DLIFAMMS Index
+SOFTS - NYSE LIFFE COCOA Producer Long,DLIFAPML Index
+SOFTS - NYSE LIFFE COCOA Producer Short,DLIFAPMS Index
+SOFTS - NYSE LIFFE COCOA Swap Dealers Long,DLIFASWL Index
+SOFTS - NYSE LIFFE COCOA Swap Dealers Short,DLIFASWS Index
+SOFTS - NYSE LIFFE COCOA Swap Dealers Spreading,DLIFASWD Index
+SOFTS - NYSE LIFFE COCOA Managed Money Spread,DLIFAMMD Index
+SOFTS - NYSE LIFFE COCOA Other Reportables Long,DLIFAORL Index
+SOFTS - NYSE LIFFE COCOA Other Reportables Short,DLIFAORS Index
+SOFTS - NYSE LIFFE COCOA Other Reportables Spreading,DLIFAORD Index
+SOFTS - NYSE LIFFE ROBUSTA COFFE 1st Contract Price,DF1 COMDTY
+SOFTS - NYSE LIFFE ROBUSTA COFFE Open Interest,LIFFBOIN Index
+SOFTS - NYSE LIFFE ROBUSTA COFFE Non Reportable Long,LIFFBNRL Index
+SOFTS - NYSE LIFFE ROBUSTA COFFE Non Reportable Short,LIFFBNRS Index
+SOFTS - NYSE LIFFE ROBUSTA COFFE Managed Money Long,DLIFBMML Index
+SOFTS - NYSE LIFFE ROBUSTA COFFE Managed Money Short,DLIFBMMS Index
+SOFTS - NYSE LIFFE ROBUSTA COFFE Producer Long,DLIFBPML Index
+SOFTS - NYSE LIFFE ROBUSTA COFFE Producer Short,DLIFBPMS Index
+SOFTS - NYSE LIFFE ROBUSTA COFFE Swap Dealers Long,DLIFBSWL Index
+SOFTS - NYSE LIFFE ROBUSTA COFFE Swap Dealers Short,DLIFBSWS Index
+SOFTS - NYSE LIFFE ROBUSTA COFFE Swap Dealers Spreading,DLIFBSWD Index
+SOFTS - NYSE LIFFE ROBUSTA COFFE Managed Money Spread,DLIFBMMD Index
+SOFTS - NYSE LIFFE ROBUSTA COFFE Other Reportables Long,DLIFBORL Index
+SOFTS - NYSE LIFFE ROBUSTA COFFE Other Reportables Short,DLIFBORS Index
+SOFTS - NYSE LIFFE ROBUSTA COFFE Other Reportables Spreading,DLIFBORD Index
+FX - CME  BRITISH POUND STERLING 1st Contract Price,BP1 CURNCY
+FX - CME  BRITISH POUND STERLING Non Comercial Long,IMM5PNCL Index
+FX - CME  BRITISH POUND STERLING Non Comercial Short,IMM5PNCS Index
+FX - CME  BRITISH POUND STERLING Non Comercial Spreading,IMM5PNCP Index
+FX - CME  BRITISH POUND STERLING Commercial Long,IMM5PCOL Index
+FX - CME  BRITISH POUND STERLING Commercial Short,IMM5PCOS Index
+FX - CME  BRITISH POUND STERLING Total Long,IMM5PTLL Index
+FX - CME  BRITISH POUND STERLING Total Short,IMM5PTLS Index
+FX - CME  BRITISH POUND STERLING Open Interest,IMM5POIN Index
+FX - CME  BRITISH POUND STERLING Non Reportable Long,IMM5PNRL Index
+FX - CME  BRITISH POUND STERLING Non Reportable Short,IMM5PNRS Index
+FX - CME  BRITISH POUND STERLING Non Commercial Net Position,IMM5PNCN Index
+FX - CME EURO 1st Contract Price,EC1 CURNCY
+FX - CME EURO Non Comercial Long,IMMBENCL Index
+FX - CME EURO Non Comercial Short,IMMBENCS Index
+FX - CME EURO Non Comercial Spreading,IMMBENCP Index
+FX - CME EURO Commercial Long,IMMBECOL Index
+FX - CME EURO Commercial Short,IMMBECOS Index
+FX - CME EURO Total Long,IMMBETLL Index
+FX - CME EURO Total Short,IMMBETLS Index
+FX - CME EURO Open Interest,IMMBEOIN Index
+FX - CME EURO Non Reportable Long,IMMBENRL Index
+FX - CME EURO Non Reportable Short,IMMBENRS Index
+FX - CME EURO Non Commercial Net Position,IMMBENCN Index
+FX -CME CANADIAN DOLLAR 1st Contract Price,CD1 CURNCY
+FX -CME CANADIAN DOLLAR Non Comercial Long,IMM3CNCL Index
+FX -CME CANADIAN DOLLAR Non Comercial Short,IMM3CNCS Index
+FX -CME CANADIAN DOLLAR Non Comercial Spreading,IMM3CNCP Index
+FX -CME CANADIAN DOLLAR Commercial Long,IMM3CCOL Index
+FX -CME CANADIAN DOLLAR Commercial Short,IMM3CCOS Index
+FX -CME CANADIAN DOLLAR Total Long,IMM3CTLL Index
+FX -CME CANADIAN DOLLAR Total Short,IMM3CTLS Index
+FX -CME CANADIAN DOLLAR Open Interest,IMM3COIN Index
+FX -CME CANADIAN DOLLAR Non Reportable Long,IMM3CNRL Index
+FX -CME CANADIAN DOLLAR Non Reportable Short,IMM3CNRS Index
+FX -CME CANADIAN DOLLAR Non Commercial Net Position,IMM3CNCN Index
+FX - CME MEXICAN PESO 1st Contract Price,PE1 CURNCY
+FX - CME MEXICAN PESO Non Comercial Long,IMM6MNCL Index
+FX - CME MEXICAN PESO Non Comercial Short,IMM6MNCS Index
+FX - CME MEXICAN PESO Non Comercial Spreading,IMM6MNCP Index
+FX - CME MEXICAN PESO Commercial Long,IMM6MCOL Index
+FX - CME MEXICAN PESO Commercial Short,IMM6MCOS Index
+FX - CME MEXICAN PESO Total Long,IMM6MTLL Index
+FX - CME MEXICAN PESO Total Short,IMM6MTLS Index
+FX - CME MEXICAN PESO Open Interest,IMM6MOIN Index
+FX - CME MEXICAN PESO Non Reportable Long,IMM6MNRL Index
+FX - CME MEXICAN PESO Non Reportable Short,IMM6MNRS Index
+FX - CME MEXICAN PESO Non Commercial Net Position,IMM6MNCN Index
+FX - CME AUSTRALIAN DOLLAR 1st Contract Price,AD1 CURNCY
+FX - CME AUSTRALIAN DOLLAR Non Comercial Long,IMM6ANCL Index
+FX - CME AUSTRALIAN DOLLAR Non Comercial Short,IMM6ANCS Index
+FX - CME AUSTRALIAN DOLLAR Non Comercial Spreading,IMM6ANCP Index
+FX - CME AUSTRALIAN DOLLAR Commercial Long,IMM6ACOL Index
+FX - CME AUSTRALIAN DOLLAR Commercial Short,IMM6ACOS Index
+FX - CME AUSTRALIAN DOLLAR Total Long,IMM6ATLL Index
+FX - CME AUSTRALIAN DOLLAR Total Short,IMM6ATLS Index
+FX - CME AUSTRALIAN DOLLAR Open Interest,IMM6AOIN Index
+FX - CME AUSTRALIAN DOLLAR Non Reportable Long,IMM6ANRL Index
+FX - CME AUSTRALIAN DOLLAR Non Reportable Short,IMM6ANRS Index
+FX - CME AUSTRALIAN DOLLAR Non Commercial Net Position,IMM6ANCN Index
+FX - CME JAPANESE YEN 1st Contract Price,JY1 CURNCY
+FX - CME JAPANESE YEN Non Comercial Long,IMM5JNCL Index
+FX - CME JAPANESE YEN Non Comercial Short,IMM5JNCS Index
+FX - CME JAPANESE YEN Non Comercial Spreading,IMM5JNCP Index
+FX - CME JAPANESE YEN Commercial Long,IMM5JCOL Index
+FX - CME JAPANESE YEN Commercial Short,IMM5JCOS Index
+FX - CME JAPANESE YEN Total Long,IMM5JTLL Index
+FX - CME JAPANESE YEN Total Short,IMM5JTLS Index
+FX - CME JAPANESE YEN Open Interest,IMM5JOIN Index
+FX - CME JAPANESE YEN Non Reportable Long,IMM5JNRL Index
+FX - CME JAPANESE YEN Non Reportable Short,IMM5JNRS Index
+FX - CME JAPANESE YEN Non Commercial Net Position,IMM5JNCN Index
+FX - CME NEW ZEALAND DOLLARS 1st Contract Price,NV1 CURNCY
+FX - CME NEW ZEALAND DOLLARS Non Comercial Long,IMM6ZNCL Index
+FX - CME NEW ZEALAND DOLLARS Non Comercial Short,IMM6ZNCS Index
+FX - CME NEW ZEALAND DOLLARS Non Comercial Spreading,IMM6ZNCP Index
+FX - CME NEW ZEALAND DOLLARS Commercial Long,IMM6ZCOL Index
+FX - CME NEW ZEALAND DOLLARS Commercial Short,IMM6ZCOS Index
+FX - CME NEW ZEALAND DOLLARS Total Long,IMM6ZTLL Index
+FX - CME NEW ZEALAND DOLLARS Total Short,IMM6ZTLS Index
+FX - CME NEW ZEALAND DOLLARS Open Interest,IMM6ZOIN Index
+FX - CME NEW ZEALAND DOLLARS Non Reportable Long,IMM6ZNRL Index
+FX - CME NEW ZEALAND DOLLARS Non Reportable Short,IMM6ZNRS Index
+FX - CME NEW ZEALAND DOLLARS Non Commercial Net Position,IMM6ZNCN Index
+FX - CME SWISS FRANC 1st Contract Price,SF1 Curncy
+FX - CME SWISS FRANC Non Comercial Long,IMM4SNCL Index
+FX - CME SWISS FRANC Non Comercial Short,IMM4SNCS Index
+FX - CME SWISS FRANC Non Comercial Spreading,IMM4SNCP Index
+FX - CME SWISS FRANC Commercial Long,IMM4SCOL Index
+FX - CME SWISS FRANC Commercial Short,IMM4SCOS Index
+FX - CME SWISS FRANC Total Long,IMM4STLL Index
+FX - CME SWISS FRANC Total Short,IMM4STLS Index
+FX - CME SWISS FRANC Open Interest,IMM4SOIN Index
+FX - CME SWISS FRANC Non Reportable Long,IMM2SNRL Index
+FX - CME SWISS FRANC Non Reportable Short,IMM4SNRS Index
+FX - CME SWISS FRANC Non Commercial Net Position,IMM4SNCN Index
+FX - CME BRAZILIAN REAL 1st Contract Price,BR1 CURNCY
+FX - CME BRAZILIAN REAL Non Comercial Long,IMM1VNCL Index
+FX - CME BRAZILIAN REAL Non Comercial Short,IMM1VNCS Index
+FX - CME BRAZILIAN REAL Non Comercial Spreading,IMM1VNCP Index
+FX - CME BRAZILIAN REAL Commercial Long,IMM1VCOL Index
+FX - CME BRAZILIAN REAL Commercial Short,IMM1VCOS Index
+FX - CME BRAZILIAN REAL Total Long,IMM1VTLL Index
+FX - CME BRAZILIAN REAL Total Short,IMM1VTLS Index
+FX - CME BRAZILIAN REAL Open Interest,IMM1VOIN Index
+FX - CME BRAZILIAN REAL Non Reportable Long,IMM1VNRL Index
+FX - CME BRAZILIAN REAL Non Reportable Short,IMM1VNRS Index
+FX - CME BRAZILIAN REAL Non Commercial Net Position,IMM1VNCN Index
+FX - ICE US DOLLAR 1st Contract Price,DX1 Curncy
+FX - ICE US DOLLAR Non Comercial Long,NYC2UNCL Index
+FX - ICE US DOLLAR Non Comercial Short,NYC2UNCS Index
+FX - ICE US DOLLAR Non Comercial Spreading,NYC2UNCP Index
+FX - ICE US DOLLAR Commercial Long,NYC2UCOL Index
+FX - ICE US DOLLAR Commercial Short,NYC2UCOS Index
+FX - ICE US DOLLAR Total Long,NYC2UTLL Index
+FX - ICE US DOLLAR Total Short,NYC2UTLS Index
+FX - ICE US DOLLAR Open Interest,NYC2UOIN Index
+FX - ICE US DOLLAR Non Reportable Long,NYC2UNRL Index
+FX - ICE US DOLLAR Non Reportable Short,NYC2UNRS Index
+FX - ICE US DOLLAR Non Commercial Net Position,NYC2UNCN Index
+STOCK - CME S&P 500 STOCK INDEX 1st Contract Price,SP1 Index
+STOCK - CME S&P 500 STOCK INDEX Non Comercial Long,IMM2SNCL Index
+STOCK - CME S&P 500 STOCK INDEX Non Comercial Short,IMM2SNCS Index
+STOCK - CME S&P 500 STOCK INDEX Non Comercial Spreading,IMM2SNCP Index
+STOCK - CME S&P 500 STOCK INDEX Commercial Long,IMM2SCOL Index
+STOCK - CME S&P 500 STOCK INDEX Commercial Short,IMM2SCOS Index
+STOCK - CME S&P 500 STOCK INDEX Total Long,IMM2STLL Index
+STOCK - CME S&P 500 STOCK INDEX Total Short,IMM2STLS Index
+STOCK - CME S&P 500 STOCK INDEX Open Interest,IMM2SOIN Index
+STOCK - CME S&P 500 STOCK INDEX Non Reportable Long,IMM4SNRL Index
+STOCK - CME S&P 500 STOCK INDEX Non Reportable Short,IMM2SNRS Index
+STOCK - CME S&P 500 STOCK INDEX Non Commercial Net Position,IMM2SNCN Index
+STOCK - CME E-MINI S&P 500 1st Contract Price,ES1 Index
+STOCK - CME E-MINI S&P 500 Non Comercial Long,IMM0ENCL Index
+STOCK - CME E-MINI S&P 500 Non Comercial Short,IMM0ENCS Index
+STOCK - CME E-MINI S&P 500 Non Comercial Spreading,IMM0ENCP Index
+STOCK - CME E-MINI S&P 500 Commercial Long,IMM0ECOL Index
+STOCK - CME E-MINI S&P 500 Commercial Short,IMM0ECOS Index
+STOCK - CME E-MINI S&P 500 Total Long,IMM0ETLL Index
+STOCK - CME E-MINI S&P 500 Total Short,IMM0ETLS Index
+STOCK - CME E-MINI S&P 500 Open Interest,IMM0EOIN Index
+STOCK - CME E-MINI S&P 500 Non Reportable Long,IMM0ENRL Index
+STOCK - CME E-MINI S&P 500 Non Reportable Short,IMM0ENRS Index
+STOCK - CME E-MINI S&P 500 Non Commercial Net Position,IMM0ENCN Index
+STOCK - CME NASDAQ 100 Mini 1st Contract Price,NQ1 Index
+STOCK - CME NASDAQ 100 Mini Non Comercial Long,IMM3NNCL Index
+STOCK - CME NASDAQ 100 Mini Non Comercial Short,IMM3NNCS Index
+STOCK - CME NASDAQ 100 Mini Non Comercial Spreading,IMM3NNCP Index
+STOCK - CME NASDAQ 100 Mini Commercial Long,IMM3NCOL Index
+STOCK - CME NASDAQ 100 Mini Commercial Short,IMM3NCOS Index
+STOCK - CME NASDAQ 100 Mini Total Long,IMM3NTLL Index
+STOCK - CME NASDAQ 100 Mini Total Short,IMM3NTLS Index
+STOCK - CME NASDAQ 100 Mini Open Interest,IMM3NOIN Index
+STOCK - CME NASDAQ 100 Mini Non Reportable Long,IMM3NNRL Index
+STOCK - CME NASDAQ 100 Mini Non Reportable Short,IMM3NNRS Index
+STOCK - CME NASDAQ 100 Mini Non Commercial Net Position,IMM3NNCN Index
+STOCK - CBOT DJIA MINI 1st Contract Price,DM1 Index
+STOCK - CBOT DJIA MINI Non Comercial Long,CBT1DNCL Index
+STOCK - CBOT DJIA MINI Non Comercial Short,CBT1DNCS Index
+STOCK - CBOT DJIA MINI Non Comercial Spreading,CBT1DNCP Index
+STOCK - CBOT DJIA MINI Commercial Long,CBT1DCOL Index
+STOCK - CBOT DJIA MINI Commercial Short,CBT1DCOS Index
+STOCK - CBOT DJIA MINI Total Long,CBT1DTLL Index
+STOCK - CBOT DJIA MINI Total Short,CBT1DTLS Index
+STOCK - CBOT DJIA MINI Open Interest,CBT1DOIN Index
+STOCK - CBOT DJIA MINI Non Reportable Long,CBT1DNRL Index
+STOCK - CBOT DJIA MINI Non Reportable Short,CBT1DNRS Index
+STOCK - CBOT DJIA MINI Non Commercial Net Position,CBT1DNCN Index
+FI - CBOT 2-YR US TREASURY NOTE 1st Contract Price,TU1 comdty
+FI - CBOT 2-YR US TREASURY NOTE Non Comercial Long,CBT42NCL Index
+FI - CBOT 2-YR US TREASURY NOTE Non Comercial Short,CBT42NCS Index
+FI - CBOT 2-YR US TREASURY NOTE Non Comercial Spreading,CBT42NCP Index
+FI - CBOT 2-YR US TREASURY NOTE Commercial Long,CBT42COL Index
+FI - CBOT 2-YR US TREASURY NOTE Commercial Short,CBT42COS Index
+FI - CBOT 2-YR US TREASURY NOTE Total Long,CBT42TLL Index
+FI - CBOT 2-YR US TREASURY NOTE Total Short,CBT42TLS Index
+FI - CBOT 2-YR US TREASURY NOTE Open Interest,CBT42OIN Index
+FI - CBOT 2-YR US TREASURY NOTE Non Reportable Long,CBT42NRL Index
+FI - CBOT 2-YR US TREASURY NOTE Non Reportable Short,CBT42NRS Index
+FI - CBOT 2-YR US TREASURY NOTE Non Commercial Net Position,CBT42NCN Index
+FI - CBOT  5 YR US TREASURY NOTES 1st Contract Price,FV1 Comdty
+FI - CBOT  5 YR US TREASURY NOTES Non Comercial Long,CBT55NCL Index
+FI - CBOT  5 YR US TREASURY NOTES Non Comercial Short,CBT55NCS Index
+FI - CBOT  5 YR US TREASURY NOTES Non Comercial Spreading,CBT55NCP Index
+FI - CBOT  5 YR US TREASURY NOTES Commercial Long,CBT55COL Index
+FI - CBOT  5 YR US TREASURY NOTES Commercial Short,CBT55COS Index
+FI - CBOT  5 YR US TREASURY NOTES Total Long,CBT55TLL Index
+FI - CBOT  5 YR US TREASURY NOTES Total Short,CBT55TLS Index
+FI - CBOT  5 YR US TREASURY NOTES Open Interest,CBT55OIN Index
+FI - CBOT  5 YR US TREASURY NOTES Non Reportable Long,CBT55NRL Index
+FI - CBOT  5 YR US TREASURY NOTES Non Reportable Short,CBT55NRS Index
+FI - CBOT  5 YR US TREASURY NOTES Non Commercial Net Position,CBT55NCN Index
+FI - CBOT 10 YR US TREASURY NOTES 1st Contract Price,TY1 Comdty
+FI - CBOT 10 YR US TREASURY NOTES Non Comercial Long,CBT4TNCL Index
+FI - CBOT 10 YR US TREASURY NOTES Non Comercial Short,CBT4TNCS Index
+FI - CBOT 10 YR US TREASURY NOTES Non Comercial Spreading,CBT4TNCP Index
+FI - CBOT 10 YR US TREASURY NOTES Commercial Long,CBT4TCOL Index
+FI - CBOT 10 YR US TREASURY NOTES Commercial Short,CBT4TCOS Index
+FI - CBOT 10 YR US TREASURY NOTES Total Long,CBT4TTLL Index
+FI - CBOT 10 YR US TREASURY NOTES Total Short,CBT4TTLS Index
+FI - CBOT 10 YR US TREASURY NOTES Open Interest,CBT4TOIN Index
+FI - CBOT 10 YR US TREASURY NOTES Non Reportable Long,CBT4TNRL Index
+FI - CBOT 10 YR US TREASURY NOTES Non Reportable Short,CBT4TNRS Index
+FI - CBOT 10 YR US TREASURY NOTES Non Commercial Net Position,CBT4TNCN Index
+FI - CBOT 30 YR US TREASURY NOTES 1st Contract Price,US1 Comdty
+FI - CBOT 30 YR US TREASURY NOTES Non Comercial Long,CBT3TNCL Index
+FI - CBOT 30 YR US TREASURY NOTES Non Comercial Short,CBT3TNCS Index
+FI - CBOT 30 YR US TREASURY NOTES Non Comercial Spreading,CBT3TNCP Index
+FI - CBOT 30 YR US TREASURY NOTES Commercial Long,CBT3TCOL Index
+FI - CBOT 30 YR US TREASURY NOTES Commercial Short,CBT3TCOS Index
+FI - CBOT 30 YR US TREASURY NOTES Total Long,CBT3TTLL Index
+FI - CBOT 30 YR US TREASURY NOTES Total Short,CBT3TTLS Index
+FI - CBOT 30 YR US TREASURY NOTES Open Interest,CBT3TOIN Index
+FI - CBOT 30 YR US TREASURY NOTES Non Reportable Long,CBT3TNRL Index
+FI - CBOT 30 YR US TREASURY NOTES Non Reportable Short,CBT3TNRS Index
+FI - CBOT 30 YR US TREASURY NOTES Non Commercial Net Position,CBT3TNCN Index
+FI - CBOT ULTRA-LONG U.S. TREASURY BONDS 1st Contract Price,WN1 Comdty
+FI - CBOT ULTRA-LONG U.S. TREASURY BONDS Non Comercial Long,CBT3BNCL Index
+FI - CBOT ULTRA-LONG U.S. TREASURY BONDS Non Comercial Short,CBT3BNCS Index
+FI - CBOT ULTRA-LONG U.S. TREASURY BONDS Non Comercial Spreading,CBT3BNCP Index
+FI - CBOT ULTRA-LONG U.S. TREASURY BONDS Commercial Long,CBT3BCOL Index
+FI - CBOT ULTRA-LONG U.S. TREASURY BONDS Commercial Short,CBT3BCOS Index
+FI - CBOT ULTRA-LONG U.S. TREASURY BONDS Total Long,CBT3BTLL Index
+FI - CBOT ULTRA-LONG U.S. TREASURY BONDS Total Short,CBT3BTLS Index
+FI - CBOT ULTRA-LONG U.S. TREASURY BONDS Open Interest,CBT3BOIN Index
+FI - CBOT ULTRA-LONG U.S. TREASURY BONDS Non Reportable Long,CBT3BNRL Index
+FI - CBOT ULTRA-LONG U.S. TREASURY BONDS Non Reportable Short,CBT3BNRS Index
+FI - CBOT ULTRA-LONG U.S. TREASURY BONDS Non Commercial Net Position,CBT3BNCN Index
+FI - CME 3-MONTH EURODOLLARS 1st Contract Price,ED1 COMDTY
+FI - CME 3-MONTH EURODOLLARS Non Comercial Long,IMM13NCL Index
+FI - CME 3-MONTH EURODOLLARS Non Comercial Short,IMM13NCS Index
+FI - CME 3-MONTH EURODOLLARS Non Comercial Spreading,IMM13NCP Index
+FI - CME 3-MONTH EURODOLLARS Commercial Long,IMM13COL Index
+FI - CME 3-MONTH EURODOLLARS Commercial Short,IMM13COS Index
+FI - CME 3-MONTH EURODOLLARS Total Long,IMM13TLL Index
+FI - CME 3-MONTH EURODOLLARS Total Short,IMM13TLS Index
+FI - CME 3-MONTH EURODOLLARS Open Interest,IMM13OIN Index
+FI - CME 3-MONTH EURODOLLARS Non Reportable Long,IMM13NRL Index
+FI - CME 3-MONTH EURODOLLARS Non Reportable Short,IMM13NRS Index
+FI - CME 3-MONTH EURODOLLARS Non Commercial Net Position,IMM13NCN Index

@@ -1,0 +1,96 @@
+Ticker,Field,des
+SHIF1W   Index,PX_LAST,Shibor 7D
+SHIF1M   Index,PX_LAST,Shibor 1M
+SHIF1Y   Index,PX_LAST,Shibor 1Y
+CNRR007 Index,PX_LAST,R7
+CNRRDR07 Index,PX_LAST,DR7
+CNRR001 Index,PX_LAST,R1
+CNRRDR01 Index,PX_LAST,DR1
+CINR7P1Y Index,PX_LAST,CNY onshore IRS 1y
+PBOC7P   Index,PX_LAST,7D Reverse Repo Rate
+PBOC7L   Index,PX_LAST,R7 volume
+CFEBBV1W Index,PX_LAST,1Y MLF
+CNLIERR% Index,PX_LAST,Excess Reserve Ratio
+CNMS1YOY Index,PX_LAST,M1
+CNTBH1 Index,PX_LAST,NCD 1y rate
+GCNY3M Index,PX_LAST,CGB 3m Bill
+CZINOMNF Index,PX_LAST,OMO Net Injection
+HIHDO/N Index,PX_LAST,Hibor ON
+HIHD01M Index,PX_LAST,Hibor 1M
+HIHD12M Index,PX_LAST,Hibor 1Y
+HKMAPF16 Index,PX_LAST,HKMA PLP
+HKMAIR16 Index,PX_LAST,HKMA Intraday
+FEDL01   Index,PX_LAST,Fed Fund Rate
+SOFRRATE Index,PX_LAST,SOFR
+RRPONTSY Index,PX_LAST,FED ONRRP volume
+TSFR1M Index,PX_LAST,Term 1M SOFR
+TSFR12M Index,PX_LAST,Term 12M SOFR
+DCP1M Index,PX_LAST,AA Comercial Paper 1M
+USN10YBC Index,PX_LAST,Treasury Auction bid to cover
+USB2YTL Index,PX_LAST,Treasury Auction 2y tail
+USN10YTL Index,PX_LAST,Treasury Auction 10yr tail
+USB2DBA% Index,PX_LAST,Treasury Auction Indirect 2y
+USB2PDA% Index,PX_LAST,Treasury Auction direct 2y
+USB2IBA% Index,PX_LAST,Treasury Auction dealer
+FARBAST  Index,PX_LAST,FED BS
+MMFA Index,PX_LAST,US MMF AUM
+EURR002W Index,PX_LAST,ECB main refinancing rate
+DELIDFRT Index,PX_LAST,ECB deposit facility rate
+EUORDEPO Index,PX_LAST,ECB Marginal Lending
+ESTRON Index,PX_LAST,ESTR ON
+TKY2 Comdty,PX_LAST,ESTR 3M 2nd contract
+ECBCPSPP Index,PX_LAST,ECB Eurosystem Public Sector Purchase Programme »
+ER3 Comdty,PX_LAST,EURIbor 3M 3rd Contract
+EUR003M Index,PX_LAST,EURIBOR 3M
+EUR001W Index,PX_LAST,EURIBOR 1W
+ECBCCSPP Index,PX_LAST,ECB Eurosystem Corp Sector Purchase Programme »
+EBBSTOTA Index,PX_LAST,ECB BS
+EUMRER   Index,PX_LAST,ECB Minimum Reserve Excess Reserves »
+TONARON Index,PX_LAST,TONAR
+JGBBSRATIO Index,PX_LAST,JGB BOJ Ratio
+JNA10YBC Index,PX_LAST,JGB Bid to Cover
+JGB10T G Index,PX_LAST,JGB 10y tail
+BJACTOTL Index,PX_LAST,BOJ BS
+JCALLON Index,PX_LAST,Call Rate Overnight
+JOA1 Comdty,PX_LAST,Tonar 1st
+SONIO/N Index,PX_LAST,SONIA
+UKBRBASE Index,PX_LAST,BOE base
+SFI2 Comdty,PX_LAST,Sonia 2nd future
+RBATCTR Index,PX_LAST,AUD Cash Rate
+BBSW3M Index,PX_LAST,BBSW 3m
+ADBB1m Curncy,PX_LAST,1m Bank Bill
+IB2 Comdty,PX_LAST,30D Bank bill future 2nd
+ADSWAP1Q Curncy,PX_LAST,BBSW3m 1Y Swao
+NZOCR Index,PX_LAST,OCR
+NDBB3M Curncy,PX_LAST,bank bill 3m
+ZB2 Comdty,PX_LAST,bank bill 3m 2nd future
+KWCDC Curncy,PX_LAST,3M CD
+KRFRRATE Curncy,PX_LAST,KOFR ON
+KWSWNI1 Curncy,PX_LAST,KRW NDIRS 1Y
+NOWA Index,PX_LAST,NOWA
+NKS3M BGN Curncy,PX_LAST,NOWA 3m Swap
+SRFXON3 Index,PX_LAST,SAFRON
+SSY2 Comdty,PX_LAST,SAFRON 2nd future
+CABROVER Index,PX_LAST,CAD ON
+CDSOA Curncy,PX_LAST,CORRA 1m
+COR2 Comdty,PX_LAST,CORRA 2nd future
+INRPYLDP Index,PX_LAST,INR Repo Rate
+IN003M Index,PX_LAST,3m Mibor
+IRDR1T CCIL Curncy,PX_LAST,INR Call Rate
+IN00O/N Index,PX_LAST,Mibor ON
+IRSWOF BGN Curncy,PX_LAST,Mibor 6m Swap
+JIINONT Index,PX_LAST,Jibor ON Indonia
+JIIN3M Index,PX_LAST,Jibor 3M
+IHSWOOF BGN Curncy,PX_LAST,Jibor ON Indonia 6M
+SARPRT   Index,PX_LAST,SARB Repo
+JIBA3M Index,PX_LAST,JIBAR 3m
+TUBR1WRA Index,PX_LAST,TRY 1w Repo
+BISTTREF Index,PX_LAST,TRY TLREF ON
+MTLREF3M Index,PX_LAST,TRY TLREF 3M
+PPCBOND Index,PX_LAST,BSP O/N RRP
+PHPORRF Curncy,PX_LAST,BSP O/N RRP 6M Swap
+SIBCSORA Index,PX_LAST,SORA
+SDSOAF Curncy,PX_LAST,6m SORA
+TAIBOR1M Index,PX_LAST,Taibor 1M
+TAIBOR3M Index,PX_LAST,Taibor 3M
+TDSF30D Index,PX_LAST,Taibill 3m fix

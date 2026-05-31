@@ -1,0 +1,102 @@
+Name,BBG_Ticker,Field
+US CPI YoY,CPI YOY Index,PX_LAST
+US CPI MoM,CPI CHNG Index,PX_LAST
+US Core CPI YoY,CPI XYOY Index,PX_LAST
+US Core CPI MoM,CPI XCHG Index,PX_LAST
+US PCE YoY,PCE CYOY Index,PX_LAST
+US PCE MoM,PCE CMOM Index,PX_LAST
+US PPI YoY,PPI YOY Index,PX_LAST
+US GDP YoY,GDP CYOY Index,PX_LAST
+US Non-Farm Payroll,NFP TCH Index,PX_LAST
+US wage growth,INDDWUSY Index,PX_LAST
+US Unemployment Rate,USURTOT Index,PX_LAST
+US Initial Jobless Claims,INJCJC Index,PX_LAST
+US Trade Balance,USTBTOT Index,PX_LAST
+US Fiscal Deficit,FDDSGDP Index,PX_LAST
+US Housing Price,SPCS20   Index,PX_LAST
+US Michegen,CONSSENT Index,PX_LAST
+US Confidence Index,CONCCONF Index,PX_LAST
+US 30yr Mortgage Rate,NMCMFR30 Index,PX_LAST
+US Durable Orders ex-Transport MoM,DGNOXTCH Index,PX_LAST
+US Retail Sales MoM,RSTAMOM Index,PX_LAST
+US PMI Manufacturing,NAPMPMI Index,PX_LAST
+US Labor Force Participation,PRUSTOT Index,PX_LAST
+US Housing Starts Quarterly,FANNHSST Index,PX_LAST
+US New Home Sales,NHSLTOT Index,PX_LAST
+US Building Permits,NHSPSTOT Index,PX_LAST
+US Existing Home Sales,USHBMIDX Index,PX_LAST
+US Corporate Expenditure,SBOICAPX Index,PX_LAST
+France PMI,MPMIFRMA Index,PX_LAST
+German PMI,MPMIDEMA Index,PX_LAST
+UK PMI,MPMIGBMA Index,PX_LAST
+EU CPI YoY,EHPIEU   Index,PX_LAST
+EU CPI YoY Harmonised,ECCPEMUY Index,PX_LAST
+EU CPI MoM,ECCPEMUM Index,PX_LAST
+EU Sentiment,EUESEMU  Index,PX_LAST
+EU ZEW Sentiment,GRZECURR Index,PX_LAST
+EU PPI,EUPPEMUY Index,PX_LAST
+EU GDP YoY,EUGNEMUY Index,PX_LAST
+Eurozone Retail Sales,RSWAEMUY Index,PX_LAST
+Eurozone Consumer Confidence,EUCCEMU  Index,PX_LAST
+UK Housing Price,UKLHUKY  Index,PX_LAST
+JP Industrial Production YoY,JNIPYOY  Index,PX_LAST
+JP CPI YoY,JNPIY    Index,PX_LAST
+JP Core CPI YoY,EHCXJP   Index,PX_LAST
+JP BoP Current Account Balance,ECOCJPN  Index,PX_LAST
+JP Retail Sales,JNRSYOY Index,PX_LAST
+JP GDP YoY,JGDOQOQ  Index,PX_LAST
+JP Jobs to Applicant Ratio,JBTARATE Index,PX_LAST
+JP Tankan business condition,JNTGALLI Index,PX_LAST
+China CPI,CNCPIYOY Index,PX_LAST
+China PPI,CHEFTYOY Index,PX_LAST
+China PMI,CPMINDX  Index,PX_LAST
+China M2 YoY,CNMS2YOY Index,PX_LAST
+China Trade Balance,CNTSTCN  Index,PX_LAST
+China FX Reserve,WIRACHIN Index,PX_LAST
+China Total Social Financing,CNTFYOY Index,PX_LAST
+China Industrial Production,CNLNASF  Index,PX_LAST
+China GDP YoY,CNGDPYOY Index,PX_LAST
+China Fixed Asset Investment,CNFAESTY Index,PX_LAST
+China Retail Sales,CNRSCYOY Index,PX_LAST
+China Housing Price,CHHECC1Y Index,PX_LAST
+China New Yuan Loans,CNLNNEW  Index,PX_LAST
+AUD CPI YoY,ACPMYOY Index,PX_LAST
+NZD CPI YoY,NZCPIYOY Index,PX_LAST
+KRW CPI YoY,KOCPIYOY Index,PX_LAST
+CAD CPI YoY,COCPIYOY Index,PX_LAST
+NOK CPI YoY,NOCPIYOY Index,PX_LAST
+UK CPI,UKRPCJYR Index,PX_LAST
+CHF CPI YoY,SZCPIYOY Index,PX_LAST
+India CPI YoY,INFUTOTY Index,PX_LAST
+Indonesia CPI YoY,IDCPIY Index,PX_LAST
+Taiwan CPI YoY,TWCPIYOY Index,PX_LAST
+PHP CPI YoY,PHC2II Index,PX_LAST
+ZAR CPI YoY,SACPIYOY Index,PX_LAST
+TRY CPI YoY,TUCPIY Index,PX_LAST
+Thailand CPI YoY,THCPIYOY Index,PX_LAST
+AUD GDP YoY,AUNAGDPY Index,PX_LAST
+NZD GDP YoY,NANTGDPY Index,PX_LAST
+KRW GDP YoY,KOGDPYOY Index,PX_LAST
+CAD GDP YoY,CAGDPYOY Index,PX_LAST
+NOK GDP YoY,NOGDCOSY Index,PX_LAST
+CHF GDP YoY,SZGDPCYY Index,PX_LAST
+India GDP YoY,IGQREGDY Index,PX_LAST
+Indonesia GDP YoY,IDGDPY Index,PX_LAST
+Taiwan GDP YoY,TWGDCONY Index,PX_LAST
+PHP GDP YoY,PHGDPYOY Index,PX_LAST
+ZAR GDP YoY,SAGDPYOY Index,PX_LAST
+TRY GDP YoY,TUGPIGDY Index,PX_LAST
+Thailand GDP YoY,THG PQY Index,PX_LAST
+AUD Unemployment Rate,AULFUNEM Index,PX_LAST
+NZD Unemployment Rate,NZLFUNER Index,PX_LAST
+KRW Unemployment Rate,KOEAUERS Index,PX_LAST
+CAD Unemployment Rate,CANLXEMR Index,PX_LAST
+NOK Unemployment Rate,NOLBRATE Index,PX_LAST
+CHF Unemployment Rate,SZUEUEA Index,PX_LAST
+India Unemployment Rate,INUNCIA Index,PX_LAST
+Indonesia Unemployment Rate,IDEMUNE% Index,PX_LAST
+Taiwan Unemployment Rate,TWLFADJ Index,PX_LAST
+PHP Unemployment Rate,PHLFUERT Index,PX_LAST
+ZAR Unemployment Rate,SAUERATQ Index,PX_LAST
+TRY Unemployment Rate,TULSUR Index,PX_LAST
+Thailand Unemployment Rate,THLMUERT Index,PX_LAST

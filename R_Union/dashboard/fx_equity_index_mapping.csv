@@ -1,0 +1,38 @@
+Currency,Country/Region,Equity Index,Bloomberg Ticker
+USD,United States,S&P 500,SPX Index
+EUR,Eurozone,Euro Stoxx 50,SX5E Index
+JPY,Japan,Nikkei 225,NKY Index
+GBP,United Kingdom,FTSE 100,UKX Index
+CHF,Switzerland,SMI (Swiss Market Index),SMI Index
+AUD,Australia,S&P/ASX 200,AS51 Index
+NZD,New Zealand,S&P/NZX 50,NZ50 Index
+CAD,Canada,S&P/TSX Composite,SPTSX Index
+SEK,Sweden,OMX Stockholm 30,OMX Index
+NOK,Norway,OBX Index,OBX Index
+CNY,China Mainland,SSE Composite,SHCOMP Index
+CNH,China Offshore,Hang Seng Index,HSI Index
+HKD,Hong Kong,Hang Seng Index,HSI Index
+SGD,Singapore,Straits Times Index,FSSTI Index
+KRW,South Korea,KOSPI Index,KOSPI Index
+TWD,Taiwan,TAIEX Index,TWSE Index
+INR,India,Nifty 50,NIFTY Index
+IDR,Indonesia,Jakarta Composite Index,JCI Index
+MYR,Malaysia,FTSE Bursa KLCI,FBMKLCI Index
+THB,Thailand,SET Index,SET Index
+PHP,Philippines,PSEi Index,PCOMP Index
+BRL,Brazil,Ibovespa Index,IBOV Index
+MXN,Mexico,IPC Index,MEXBOL Index
+CLP,Chile,IPSA Index,IPSA Index
+COP,Colombia,COLCAP Index,COLCAP Index
+PEN,Peru,S&P/BVL Peru General Index,SPBLPGPT Index
+ARS,Argentina,MERVAL Index,MERVAL Index
+TRY,Turkey,Borsa Istanbul 100,XU100 Index
+ZAR,South Africa,FTSE/JSE All Share Index,JALSH Index
+ILS,Israel,TA-35 Index,TA-35 Index
+PLN,Poland,WIG20 Index,WIG20 Index
+CZK,Czech Republic,PX Index,PX Index
+HUF,Hungary,BUX Index,BUX Index
+RUB,Russia,MOEX Russia Index,IMOEX Index
+AED,United Arab Emirates,DFM General Index,DFMGI Index
+SAR,Saudi Arabia,Tadawul All Share Index,SASEIDX Index
+EGP,Egypt,EGX 30 Index,EGX30 Index

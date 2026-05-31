@@ -1,0 +1,446 @@
+ticker,DES
+SPX Index,United States S&P 500 INDEX
+NDX Index,United States NASDAQ 100 STOCK INDX
+SHSZ300 Index,China CSI 300 INDEX
+SHCOMP Index,China SHANGHAI SE COMPOSITE
+HSI Index,Hong Kong SAR China HANG SENG INDEX
+NKY Index,Japan NIKKEI 225
+TPX Index,Japan TOPIX INDEX (TOKYO)
+KOSPI Index,South Korea KOSPI INDEX
+RTY Index,United States RUSSELL 2000 INDEX
+UKX Index,United Kingdom FTSE 100 INDEX
+DAX Index,Germany DAX INDEX
+CAC Index,France CAC 40 INDEX
+SX5E Index,European Euro Stoxx 50 Pr
+TWSE Index,Taiwan TAIWAN TAIEX INDEX
+JCI Index,Indonesia JAKARTA COMPOSITE INDEX
+NIFTY Index,India Nifty 50
+STI Index,Singapore Straits Times Index STI
+AS51 Index,Australia S&P/ASX 200 INDEX
+SPTSX60 Index,Canada S&P/TSX 60 INDEX
+OMX Index,Sweden OMX STOCKHOLM 30 INDEX
+OBX Index,Norway OBX STOCK INDEX
+NZSE50FF Index,New Zealand S&P/NZX 50 Index
+SMI Index,Switzerland SWISS MARKET INDEX
+PCOMP Index,Philippines PSEi - PHILIPPINE SE IDX
+ATX Index,Austria AUSTRIAN TRADED ATX INDX
+BEL20 Index,Belgium BEL 20 INDEX
+SPTSX Index,Canada S&P/TSX COMPOSITE INDEX
+KFX Index,Denmark OMX COPENHAGEN 20 INDEX
+HEX Index,Finland OMX HELSINKI INDEX
+ASE Index,Greece Athex Composite Share Pr
+ISEQ Index,Ireland ISEQAll-Share
+TA-35 Index,Israel TA-35 Index
+FTSEMIB Index,Italy FTSE MIB INDEX
+AEX Index,Netherlands AEX-Index
+NZSE50FG Index,New Zealand S&P/NZX 50 Index Gross
+PSI20 Index,Portugal PSI 20 INDEX
+IBEX Index,Spain IBEX 35 INDEX
+SENSEX Index,India SENSEX
+FBMKLCI Index,Malaysia FTSE Bursa Malaysia KLCI
+PX Index,Czechia PRAGUE STOCK EXCH INDEX
+BUX Index,Hungary BUDAPEST STOCK EXCH INDX
+WIG Index,Poland WSE WIG INDEX
+IMOEX Index,Russia MOEX Russia Index
+XU100 Index,Turkey BIST 100 INDEX
+MERVAL Index,Argentina S&P MERVAL TR ARS
+IBOV Index,Brazil BRAZIL IBOVESPA INDEX
+IPSA Index,Chile S&P/CLX IPSA (CLP) TR
+COLCAP Index,Colombia MSCI COLCAP INDEX
+MEXBOL Index,Mexico S&P/BMV IPC
+SASEIDX Index,Saudi Arabia TADAWUL ALL SHARE INDEX
+JALSH Index,South Africa FTSE/JSE AFRICA ALL SHR
+DFMGI Index,United Arab Emirates DFM GENERAL INDEX
+INDU Index,United States DOW JONES INDUS. AVG
+CCMP Index,United States NASDAQ COMPOSITE
+MXNUPESE Index,Peru MXNUPESE
+WORLD Index,Region BBG World Lrg/Mid Cap PR
+WIG20 Index,Poland WIG 20
+TUSISE Index,Tunisia Tunis SE TUNINDEX
+SBITOP Index,Slovenia Slovenian Blue Chip Idx
+SX5P Index,European STXE 50 (EUR) Pr
+SET Index,Thailand STOCK EXCH OF THAI INDEX
+CSEALL Index,Sri Lanka SRI LANKA COLOMBO ALL SH
+SOFIX Index,Bulgaria SOFIX INDEX
+SKSM Index,Slovakia SLOVAK SHARE INDEX
+SPBLPGPT Index,Peru S&P/BVLPeruGeneralTRPEN
+NZSE Index,New Zealand S&P NZX All Index
+RTSI$ Index,Russia RTS Index
+DSM Index,Qatar QE Index
+VILSE Index,Lithuania OMX VILNIUS OMXV
+TALSE Index,Estonia OMX TALLINN OMXT
+RIGSE Index,Latvia OMX RIGA OMXR
+HEX25 Index,Finland OMX HELSINKI 25 INDEX
+NZX20 Index,India Nifty 50          Nov20
+NSEASI Index,Kenya Nairobi All Share
+NGSEINDX Index,Nigeria NGX ALL SHR
+MSM30 Index,Oman MSX30 Index
+MSETOP Index,Mongolia MSE Top 20 Index
+MONEX Index,Montenegro MONEX INDEX
+SEMDEX Index,Mauritius MAURITIUS STOCK EXCHANGE
+MOSENEW Index,Morocco MASI Free Float Index
+MALTEX Index,Malta MALTA STOCK EXCHANGE IND
+LUSEIDX Index,Zambia Lusaka Stock Exchange Al
+LSXC Index,Laos Laos Composite Index
+LUXXX Index,Luxembourg LUXEMBOURG LuxX INDEX
+KZKAK Index,Kazakhstan Kazakhstan KASE Stock Ex
+KWSEPM Index,Kuwait KWSE Premier Mkt
+KSE100 Index,Pakistan KSE-100 INDEX
+JMSMX Index,Jamaica JSE MARKET INDEX
+VNINDEX Index,Vietnam HO CHI MINH STOCK INDEX
+HSCEI Index,Hong Kong SAR China HANG SENG CHINA ENT INDX
+GGSECI Index,Ghana GSE Composite Index
+CYSMMAPA Index,Cyprus GENERAL MARKET INDEX CSE
+FTN098 Index,Namibia FTSE NSX Overall Index
+ADSMI Index,United Arab Emirates FTSE ADX GENERAL INDEX
+EGX30 Index,Egypt EGX 30 INDEX
+CRO Index,Croatia CROATIA ZAGREB CROBEX
+BGSMDC Index,Botswana Botswana Gaborone Dom
+BET Index,Romania BUCHAREST BET INDEX
+BE500 Index,European BLOOMBERG EUROPEAN 500
+BLOM Index,Lebanon BLOM STOCK INDEX
+XU030 Index,Turkey BIST 30 Index
+BELEX15 Index,Serbia BELEX15 INDEX
+BHSEASI Index,Bahrain BB ALL SHARE INDEX
+JOSMGNFF Index,Jordan AMMAN SE GENERAL INDEX
+VALUA Index,United States Value Line Arithmetic
+MAR Index,Argentina S&PMERVALArgentinaTR ARS
+SPTSXVEN Index,Canada S&P/TSX VENTURE COMP IDX
+TXEQ Index,Canada S&P/TSX EQUITY INDEX
+INTER10 Index,Chile S&P/CLX INTER-10 CLP TR
+IGPA Index,Chile S&P/CLX IGPA (CLP) TR
+IBG Index,Argentina S&P/BYMAArgenGenTR ARS
+BURCAP Index,Argentina S&P/BYMA Burcap TR ARS
+SPBL25PT Index,Peru S&P/BVLLIMA25TRPEN
+IMC30 Index,Mexico S&P/BMV MidCap Select 30
+IRT Index,Mexico S&P/BMV IRT
+INMEX Index,Mexico S&P/BMV INMEX
+SML Index,United States S&P 600 SMALLCAP INDEX
+MID Index,United States S&P 400 MIDCAP INDEX
+SPR Index,United States S&P 1500 Composite Index
+OEX Index,United States S&P 100 INDEX
+RAY Index,United States RUSSELL 3000 INDEX
+RIY Index,United States RUSSELL 1000 INDEX
+UTY Index,United States PHILA UTILITY INDEX
+SOX Index,United States PHILA SEMICONDUCTOR INDX
+XAU Index,United States PHILA GOLD & SILVER INDX
+OSX Index,United States OIL SERVICE SECTOR INDEX
+NYLID Index,United States NYSE WORLD LEADERS INDX
+NYID Index,United States NYSE U.S. 100 INDEX
+NYYID Index,United States NYSE TMT INDEX
+NYIID Index,United States NYSE INTERNATIONAL 100
+NYP Index,United States NYSE HEALTHCARE INDEX
+NYK Index,United States NYSE FINANCIAL INDEX
+NYA Index,United States NYSE COMPOSITE INDEX
+XOI Index,United States NYSE Arca Oil
+XMI Index,United States NYSE Arca Major Market
+XII Index,United States NYSE Arca Institutional
+XCI Index,United States NYSE Arca Computer Tech
+XAX Index,United States NYSE AMER COM
+CTRN Index,United States NASDAQ TRANSPORTATION IX
+CUTL Index,United States NASDAQ TELECOMM INDEX
+CFIN Index,United States NASDAQ OTHER FINANCIAL
+CINS Index,United States NASDAQ INSURANCE INDEX
+CIND Index,United States NASDAQ INDUSTRIAL INDEX
+NDF Index,United States NASDAQ FINANCIAL INDEX
+IXK Index,United States NASDAQ COMPUTER INDEX
+NBI Index,United States NASDAQ BIOTECH INDEX
+CBNK Index,United States NASDAQ BANK INDEX
+QMI Index,United States NASDAQ 100 PRE-MKT IDX
+QIV Index,United States NASDAQ 100 AFTER HOUR IX
+BKX Index,United States KBW BANK INDEX
+FTBIVA Index,Mexico FTSE BIVA PR
+UTIL Index,United States DOW JONES UTILITY AVG
+TRAN Index,United States DOW JONES TRANS. AVG
+COMP Index,United States DOW JONES COMP. AVG
+DWCF Index,United States DJTSM US
+COLSC Index,Colombia Colombia COLSC index
+COLIR Index,Colombia Colombia COLIR Index
+COLEQTY Index,Colombia Colombia COLEQTY  Index
+CHSMLCAP Index,Chile CHILE SMALL CAP INDEX
+CHLRGCAP Index,Chile CHILE LARGE CAP INDEX
+CHILE65 Index,Chile CHILE 65 INDEX
+BVPSBVPS Index,Panama Bolsa de Panama General
+IVBX2 Index,Brazil BRAZIL VAL/BOV 2 TIER IX
+IBX50 Index,Brazil BRAZIL IBrX-50 INDEX
+IBX Index,Brazil BRAZIL IBrX INDEX
+IBOVIEE Index,Brazil BRAZIL ELECTRIC.ENRGY IX
+IGCX Index,Brazil BRAZIL CORP GOV INDEX
+BSX Index,United States BERMUDA STOCK EXCHANGE
+BBREIT Index,United States BBG US REITS
+SWIG80 Index,Poland WSE sWIG80 INDEX
+MIDWIG Index,Poland WSE mWIG40 INDEX
+DARSDSEI Index,Tanzania Tanzania All Share Index
+NMDP Index,Germany TECHLGY ALL SHARE PRF IX
+TDXP Index,Germany TECDAX PERFORMANCE INDEX
+TA-125 Index,Israel TA-125 Index
+SXXP Index,European STXE 600 (EUR) Pr
+EUETMP Index,European STX EUEnlrg TM (EUR) Pr
+EUE15P Index,European STX EUEnlrg 15 (EUR) Pr
+SPI Index,Switzerland SPI SWISS PERFORMANCE IX
+SPIEXX Index,Switzerland SPI EXTRA PRICE RETURN
+MADX Index,Spain SPAIN MA  MADRID INDEX
+SMIM Index,Switzerland SMIM PRICE INDEX
+SLI Index,Switzerland SLI SWISS LEADER INDEX
+SBF120 Index,France SBF 120 INDEX
+SASX10 Index,Bosnia & Herzegovina SASE Free Market 10 Idx
+SPEURO Index,European S&P EUROPE 350 INDEX
+SPEU Index,European S&P EURO INDEX
+CRTX Index,Russia RUSSIAN TRADED INDEX
+QETR Index,Qatar QE Total Return Index
+QEAS Index,Qatar QE All Share Index
+BVLX Index,Portugal PSI All-Share Index GR
+PASISI Index,Palestinian Territories PSE Al Quds
+PXAP Index,Germany PRIME ALL SHARE PRF IDX
+PFTS Index,Ukraine PFTS Index
+OSESX Index,Norway OSE SMALL CAP INDEX
+OSEFX Index,Norway OSE MUTUAL FUND INDEX
+OSEBX Index,Norway OSE BENCHMARK INDEX
+OSEAX Index,Norway OSE ALL SHARE INDEX
+HEXP Index,Finland OMXHCap
+SAX Index,Sweden OMX Stockholm All-Share
+SBX Index,Sweden OMX STOCKHOLM BENCHMARK
+OMXO20 Index,Norway OMX Oslo 20 Index
+OMXO20GI Index,Norway OMX Oslo 20 GI Index
+ICEXI Index,Iceland OMX Iceland All-Share PR
+KAX Index,Denmark OMX COPENHAGEN INDEX
+OMXC20CP Index,Denmark OMX COPENHAGEN 20 CAP
+OBXP Index,Norway OBX PRICE INDEX
+KNSMIDX Index,Kenya Nairobi SE 20 Share
+NTX Index,European NEW EUROPE BLUE CHIP IX
+MSPE Index,Region MSCI PAN-EURO
+MSER Index,Region MSCI EURO
+MIDP Index,Germany MIDCAP MRKT PERF INDEX
+MDAX Index,Germany MDAX PERF INDEX
+MBI Index,North Macedonia MBI 10 Index
+MOSEMDX Index,Morocco MADEX Free Float Index
+LUXXR Index,Luxembourg LUXEMBOURG LuxX RETURN
+KWSEMM Index,Kuwait KWSE Main Mkt
+CHTX Index,Hungary HUNGARIAN TRADED INDEX
+HDAX Index,Germany HDAX INDEX
+CDAX Index,Germany GERM CDAX  PERFORMANCE
+FTEF80 Index,European FTSEurofirst 80  Index
+FTEFC1 Index,European FTSEurofirst 100 Index
+E300 Index,European FTSEUROFIRST 300 INDEX
+TOP40 Index,South Africa FTSE/JSE AFRICA TOP40 IX
+INDI25 Index,South Africa FTSE/JSE AFRICA IND25 IX
+FTSEM Index,Greece FTSE/ASE MIDCAP INDEX
+FTASE Index,Greece FTSE/ASE Large Cap
+T1X Index,United Kingdom FTSE techMARK Focus Ix
+SMX Index,United Kingdom FTSE SMALLCAP INDEX
+DUAE Index,United Arab Emirates FTSE NASDAQ DUB UAE 20
+ITSTAR Index,Italy FTSE Italia STAR Index
+ITMC Index,Italy FTSE Italia Mid Cap Ind
+ITLMS Index,Italy FTSE Italia All-Share
+E100 Index,European FTSE EUROTOP 100 INDEX
+ASX Index,United Kingdom FTSE ALL-SHARE INDEX
+AXX Index,United Kingdom FTSE AIM ALL SHARE INDEX
+NMX Index,United Kingdom FTSE 350 INDEX
+MCX Index,United Kingdom FTSE 250 INDEX
+N150 Index,European EURONEXT TOP 150 INDEX
+N100 Index,European EURONEXT TOP 100 INDEX
+SXXE Index,European ESTX (EUR) Pr
+HERMES Index,Egypt EGYPT HERMES INDEX
+TR20I Index,Turkey DJ TURKEY TITANS 20
+CH30 Index,Switzerland DJ SWISS TITANS 30 S(CHF)
+SE30 Index,Sweden DJ SWEDEN TITANS 30 SEK
+ES30 Index,Spain DJ SPAIN TITANS 30 (EUR)
+IT30 Index,Italy DJ ITALY TITANS 30 (EUR)
+CLXP Index,Germany CLASSIC ALL SHARE PRF IX
+CS90 Index,France CAC Small Index
+CN20 Index,France CAC NEXT 20 INDEX
+CM100 Index,France CAC Mid 60 Index
+MS190 Index,France CAC Mid & Small Index
+SBF250 Index,France CAC All-Tradable
+PAX Index,France CAC ALLSHARES INDEX
+BIRS Index,Bosnia & Herzegovina Bosnia BIRS Index
+BELEXLIN Index,Serbia BELEXline Index
+BELSTK Index,Belgium BEL All-Share NR
+BWORLDEU Index,Region BBG EMEA WORLD INDEX
+WBI Index,Austria AUSTRIAN VIENNA STOCK EX
+ATXPRIME Index,Austria AUSTRIAN ATX PRIME INDEX
+AMX Index,Netherlands AMSTERDAM MIDKAP INDEX
+TSE2 Index,Japan TSE2 TOPIX 2ND SECT INDX
+TSEREIT Index,Japan TSE REIT INDEX
+TSEMOTHR Index,Japan TSE Growth Market 250
+TPXSM Index,Japan TOPIX SMALL INDEX (TSE)
+TPXM400 Index,Japan TOPIX MID 400 INDX (TSE)
+TPXL70 Index,Japan TOPIX LARGE 70 IDX (TSE)
+TPXC30 Index,Japan TOPIX CORE 30 IDX (TSE)
+TPX500 Index,Japan TOPIX 500 INDEX (TSE)
+TPX100 Index,Japan TOPIX 100 INDEX (TSE)
+SET50 Index,Thailand THAI SET 50 INDEX
+TWOTCI Index,Taiwan TAIWAN TPEx EXCHANGE
+SICOM Index,China Shenzhen Component Index
+SZ399330 Index,China Shenzhen 100 Index
+SZ399005 Index,China SZSE SME 100 Index
+SX40 Index,India SX40
+SSE50 Index,China SSE 50 Index
+SSE180 Index,China SSE 180 Index
+SZCOMP Index,China SHENZHEN SE COMPOSITE IX
+SZBSHR Index,China SHENZHEN SE B SHARE INDX
+SZASHR Index,China SHENZHEN SE A SHARE INDX
+SHBSHR Index,China SHANGHAI SE B SHARE INDX
+SHASHR Index,China SHANGHAI SE A SHARE INDX
+SHNCOMP Index,China SHANGHAI G-SHARES
+NZSX15G Index,New Zealand S&P/NZX 15 Index Gross
+NZSE10 Index,New Zealand S&P/NZX 10 Index
+HKSPLC25 Index,Hong Kong SAR China S&P/HKEx LargeCap Index
+HKSPGEM Index,Hong Kong SAR China S&P/HKEx GEM Index
+AS52 Index,Australia S&P/ASX 300 INDEX
+SAXCME Index,Hong Kong SAR China S&P ASIA 50 INDEX CME
+NKYJQ Index,Japan NIKKEI JASDAQ
+NKY500 Index,Japan NIKKEI 500
+NEY Index,Japan NIKKEI 300 INDEX
+MXAPEXA Index,Region MSCI ASIA APEX 50
+KSE Index,Pakistan KSE INDEX
+KRX100 Index,South Korea KRX 100 INDEX
+KOSPI2 Index,South Korea KOSPI 200 INDEX
+KOSDAQ Index,South Korea KOSDAQ INDEX
+KOSPI50 Index,South Korea KOREA KOSPI 50 INDEX
+KOSPI100 Index,South Korea KOREA KOSPI 100 INDEX
+KSE30 Index,Pakistan KARACHI 30 INDEX
+JPNK400 Index,Japan JPX Nikkei Index 400
+JSDA Index,Japan JASDAQ: STOCK INDEX
+LQ45 Index,Indonesia JAKARTA LQ-45 INDEX
+HSFML25 Index,Hong Kong SAR China HS China (HK-listed) 30
+HSML100 Index,Hong Kong SAR China HS China (HK-listed) 100
+VHINDEX Index,Vietnam HNX INDEX
+H-FIN Index,Hong Kong SAR China HANG SENG SCHK H-FINANCIALS
+HSHK35 Index,Hong Kong SAR China HANG SENG HK 35 INDEX
+HSCI Index,Hong Kong SAR China HANG SENG COMPOSITE INDX
+HSCCI Index,Hong Kong SAR China HANG SENG CHINA AFF.CRP
+TW50 Index,Taiwan FTSE TWSE Taiwan 50 Indx
+FSTAS Index,Singapore FTSE ST ALL SHARE INDEX
+FBMEMAS Index,Malaysia FTSE BURSA MALAYSIA EMAS
+DSEX Index,Bangladesh DSE Broad Index
+DS30 Index,Bangladesh DSE 30 Index
+SZ399006 Index,China ChiNext Index
+SH000905 Index,China CSI Smallcap 500 Index
+SHCSI100 Index,China CSI A100 Index - Shanghai
+SZSMEC Index,China CHINA SHENZ SM EN CO IDX
+SZ399550 Index,China CCTV 50 INDEX
+BSE500 Index,India BSE500
+BSE200 Index,India BSE200
+BSE100 Index,India BSE100
+AS30 Index,Australia ALL ORDINARIES INDX
+B500 Index,United States BBG 500
+US Index,United States BBG US L/MC PR
+AGGE Index,United States BBG US Agg Eq Index PR
+BCA60P Index,Canada BBG Canada 60 PR
+MXPRL Index,Mexico BBG Mexico L/MC PR
+BRPRL Index,Brazil BBG Brazil L/MC PR
+CLPL Index,Chile BBG Chile L/MC PR
+IBVC Index,Venezuela VENEZUELA STOCK MKT INDX
+PEL Index,Peru BBG Peru L/MC PR
+COL Index,Colombia BBG Colombia L/MC PR
+JMJMX Index,Jamaica JSE Junior Mkt Indx
+BEU50P Index,Region BBG Eurozone 50 PR
+BGB100 Index,United Kingdom BBG UK 100 PR
+BDE40PR Index,Germany BBG Germany 40 PR
+BFR40PR Index,France BBG France 40 PR
+BES35PR Index,Spain BBG Spain 35 PR
+CHL Index,Switzerland BBG Switzer L/MC PR
+DIT40P Index,Italy BBG Italia 40 PR
+PTL Index,Portugal BBG Portugal L/MC PR
+IEL Index,Ireland BBG Ireland L/MC PR
+NLL Index,Netherlands BBG Nether L/MC PR
+BEL Index,Belgium BBG Belgium L/MC PR
+DKL Index,Denmark BBG Denmark L/MC PR
+OMXC25 Index,Denmark OMX Copenhagen 25 Index
+FIL Index,Finland BBG Finland L/MC PR
+NOL Index,Norway BBG Norway L/MC PR
+SEL Index,Sweden BBG Sweden L/MC PR
+ATL Index,Austria BBG Austria L/MC PR
+GRL Index,Greece BBG Greece L/MC PR
+PLL Index,Poland BBG Poland L/MC PR
+CZL Index,Czechia BBG Czech L/MC PR
+HULSP Index,Hungary BBG Hungary LMS PR USD
+TRL Index,Turkey BBG Turkey L/MC PR
+ZAL Index,South Africa BBG South Africa L/MC PR
+EGLSP Index,Egypt BBG Egypt LMS PR USD
+KWL Index,Kuwait BBG Kuwait L/MC PR
+ILL Index,Israel BBG Israel L/MC PR
+SAL Index,Saudi Arabia BBG Saudi L/MC PR
+QAL Index,Qatar BBG Qatar L/MC PR
+AEL Index,United Arab Emirates BBG UAE L/MC PR
+FADSM15 Index,United Arab Emirates FTSE ADX 15 Index
+APACD Index,Region BBG APAC DM L/MC PR
+ASIAD Index,Region BBG Asia DM L/M PR
+BJP500P Index,Japan BBG Japan 500 PR
+TSES Index,Japan TSE Standard Market
+TSEG Index,Japan TSE Growth Market
+TSEP Index,Japan TSE Prime Market
+JPXP150 Index,Japan JPX Prime 150
+HKPL Index,Hong Kong SAR China BBG HK L/MC PR
+CNL Index,China BBG China L/MC PR
+CBSE50 Index,China CBSE 50
+XIN0I Index,China FTSE China 50 Index HKD
+TWL Index,Taiwan BBG Taiwan L/MC PR
+KRL Index,South Korea BBG S Korea L/MC PR
+AUL Index,Australia BBG Austral L/MC PR
+NZPL Index,New Zealand BBG NZ L/MC PR
+PKL Index,Pakistan BBG Pakistan L/MC PR
+THL Index,Thailand BBG Thailand L/MC PR
+IDL Index,Indonesia BBG Indones L/MC PR
+INL Index,India BBG India L/MC PR
+SGPL Index,Singapore BBG Singap L/MC PR
+MYL Index,Malaysia BBG Malaysia L/MC PR
+PHL Index,Philippines BBG Philipp L/MC PR
+NKA Index,Japan NIKKEI 225  (OSE) Dec25
+NIA Index,Singapore NIKKEI 225  (SGX) Dec25
+NXA Index,United States NIKKEI 225  (CME) Dec25
+TPA Index,Japan TOPIX INDX FUTR   Dec25
+TKLLI Index,Japan TOKYO LARGE SIZED INDEX
+TKMLI Index,Japan TOKYO MEDIUM SIZED INDEX
+TKSLI Index,Japan TOKYO SMALL SIZED INDEX
+TPXG Index,Japan TOPIX Growth
+TPXV Index,Japan TOPIX Value
+TPX500G Index,Japan TOPIX 500 Growth
+TPX500V Index,Japan TOPIX 500 Value
+TPXSMG Index,Japan TOPIX small Growth
+TPXSMV Index,Japan TOPIX small Value
+TPELMH Index,Japan TOPIX ELECTRIC APPL INDX
+TPTRAN Index,Japan TOPIX TRANSPORT EQUIP IX
+TPNBNK Index,Japan TOPIX BANKS INDEX
+TPNCHM Index,Japan TOPIX CHEMICALS INDEX
+TPCOMM Index,Japan TOPIX INFO & COMM INDEX
+TPWSAL Index,Japan TOPIX WHOLESALE TRD IND
+TPMACH Index,Japan TOPIX MACHINERY INDEX
+TPELEC Index,Japan TOPIX ELEC POWR & GAS IX
+TPPHRM Index,Japan TOPIX PHARMACEUTICAL IND
+TPRETL Index,Japan TOPIX RETAIL TRADE INDEX
+TPLAND Index,Japan TOPIX LAND TRANSPRT INDX
+TPFOOD Index,Japan TOPIX FOODS INDEX
+TPINSU Index,Japan TOPIX INSURANCE INDEX
+TPIRON Index,Japan TOPIX IRON & STEEL INDEX
+TPREAL Index,Japan TOPIX REAL ESTATE INDEX
+TPPROD Index,Japan TOPIX OTHER PRODUCTS IDX
+TPCONT Index,Japan TOPIX CONSTRUCTION INDEX
+TPSERV Index,Japan TOPIX SERVICES INDEX
+TPSECR Index,Japan TOPIX SEC&CMDTY FUTR IDX
+TPPREC Index,Japan TOPIX PREC INSTRUMENT IX
+TPNMET Index,Japan TOPIX NONFER METAL INDEX
+TPGLAS Index,Japan TOPIX GLSS & CRMC PRD IX
+TPTEXT Index,Japan TOPIX TXTL & APPRL INDEX
+TPOIL Index,Japan TOPIX OIL & COAL PROD IX
+TPFINC Index,Japan TOPIX OTHER FINC BUS IDX
+TPMART Index,Japan TOPIX MARINE TRAN INDEX
+TPMETL Index,Japan TOPIX METAL PRODUCTS IDX
+TPRUBB Index,Japan TOPIX RUBBER PRODUCTS IX
+TPMINN Index,Japan TOPIX MINING INDEX
+TPPAPR Index,Japan TOPIX PULP & PAPER INDEX
+TPAIR Index,Japan TOPIX AIR TRANSPORT INDX
+TPWARE Index,Japan TOPIX WARE&HARB TRNS IDX
+TPFISH Index,Japan TOPIX FISH/AGR/FRST INDX
+JNMVSHIN Index,Japan Japan Shares Bought on Margin
+JNMVPBV Index,Japan Japan Outstanding Marging Tran
+JNMVPSV Index,Japan Japan Outstanding Margin Trans
+JNPE225E Index,Japan Japan Price/Earn EST 225P/E
+JNPE225 Index,Japan Japan Price/Earnings Ratio Nik
+JNPB225 Index,Japan Japan Price/Book Ratio Nikkei
+TTMP1 Index,Japan TOK PRIME: TOTAL MKT VALUE
+TTMP2 Index,Japan TOK STD: TOTAL MKT VALUE
+TTMPM Index,Japan TOK GRW TOTAL MKT VAL
+TAV1S Index,Japan TOK AP VOL: PRIME
+TAAV1S Index,Japan TOK PRIME: APPROX VALU TRD
