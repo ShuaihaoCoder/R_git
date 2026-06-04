@@ -1,0 +1,10 @@
+name: eco-screener
+title:
+username: shuaihao-eco-screener
+account: shuaihao-eco-screener
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 17462648
+bundleId: 12079098
+url: https://shuaihao-eco-screener.shinyapps.io/eco-screener/
+version: 1
