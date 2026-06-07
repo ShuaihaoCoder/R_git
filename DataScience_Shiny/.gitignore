@@ -1,0 +1,6 @@
+R_library/
+.RData
+.Rhistory
+.Rproj.user/
+rsconnect/
+shiny_*.log

@@ -1,0 +1,61 @@
+body {
+  background: #f7f8fa;
+}
+
+.app-shell {
+  max-width: 1480px;
+  margin: 0 auto;
+}
+
+.method-header {
+  padding: 12px 0 4px 0;
+}
+
+.method-title {
+  font-size: 26px;
+  font-weight: 700;
+  color: #1f2933;
+}
+
+.method-subtitle {
+  color: #586274;
+  margin-top: 4px;
+}
+
+.note-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  margin: 12px 0;
+}
+
+.note-box {
+  background: #ffffff;
+  border: 1px solid #dde3ea;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.note-box h4 {
+  margin: 0 0 6px 0;
+  font-size: 14px;
+  color: #304156;
+}
+
+.note-box p {
+  margin: 0;
+  color: #4b5563;
+  line-height: 1.45;
+}
+
+.code-box pre {
+  background: #111827;
+  color: #e5e7eb;
+  border-radius: 8px;
+  padding: 14px;
+}
+
+.small-muted {
+  color: #6b7280;
+  font-size: 13px;
+}
