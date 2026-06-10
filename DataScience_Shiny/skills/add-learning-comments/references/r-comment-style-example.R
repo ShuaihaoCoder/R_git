@@ -14,7 +14,7 @@ find_project_dir <- function() {
   script_arg <- grep("^--file=", commandArgs(trailingOnly = FALSE), value = TRUE)
 
   # 如果只找到一条文件路径信息，sub() 删除其中的 "--file="，留下实际的 .R 文件路径。
-  # 如果没有找到，显示NULL，说明用户是在 R console 中用 source() 运行，而不是在 command line 输入 Rscript.exe。
+  # 如果没有找到，显示 NULL，说明用户是在 R console 中用 source() 运行。
   rscript_file <- if (length(script_arg) == 1) {
     sub("^--file=", "", script_arg)
   } else {
