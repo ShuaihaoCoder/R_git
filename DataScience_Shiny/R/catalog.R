@@ -1,4 +1,16 @@
+# ============================================================
+# Method catalog, notes, source mapping, and navigator network
+# ============================================================
+# 整体功能：
+# 本文件不运行统计模型，而是描述网页有哪些方法、如何解释和如何导航。
+
+# get_method_catalog()
+# 功能：定义网页左侧两级目录和每个方法的唯一 ID。
+# 参数：无。
+# 返回：data.frame；category 是一级目录，method_id 是连接全项目的唯一键，
+# method_name 是显示名称，example_id 是传给 run_example() 的案例 ID。
 get_method_catalog <- function() {
+  # 每行定义一个网页方法；相同 category 会在左侧选择器中组成同一组。
   data.frame(
     category = c(
       "Statistical Relationship", "Statistical Relationship", "Statistical Relationship",
@@ -40,9 +52,14 @@ get_method_catalog <- function() {
   )
 }
 
+# get_source_method_map()
+# 功能：把原 DataScience.R 中的具体代码段映射到 Shiny 方法页面。
+# 参数：无。
+# 返回：data.frame；记录源代码行号、原方法、目标 method_id 和映射理由。
 get_source_method_map <- function() {
   # 中文说明：这里把原始 DataScience.R 的代码段映射到 Shiny 百科里的方法页面。
   # 目标是让网页能回答：原脚本里的每个 data science 方法，到底应该去哪个 tab 查。
+  # 每行把一个原脚本代码段连接到一个现有 method_id。
   data.frame(
     source_lines = c(
       "64-147", "64-147", "64-147", "64-147", "64-147",
@@ -201,7 +218,12 @@ get_source_method_map <- function() {
   )
 }
 
+# get_method_notes()
+# 功能：返回方法页面顶部的英文学习说明。
+# 参数 method_id：get_method_catalog() 中定义的唯一方法 ID。
+# 返回：包含 when/assumptions/inputs/outputs/interpretation 的命名字符向量。
 get_method_notes <- function(method_id) {
+  # notes 使用 method_id 作为名称，保存每个方法的五类学习说明。
   notes <- list(
     independence_test = c(
       when = "Use when both variables are categorical and you want to know whether their distributions are independent.",
@@ -373,6 +395,7 @@ get_method_notes <- function(method_id) {
     )
   )
 
+  # 返回当前方法说明；找不到 method_id 时使用 Linear Regression 作为默认值。
   notes[[method_id]] %||% notes$linear_regression
 }
 
@@ -380,7 +403,15 @@ get_method_notes <- function(method_id) {
   if (is.null(x)) y else x
 }
 
+# get_method_network()
+# 功能：定义 Method Navigator 的节点和箭头。
+# 参数：无。
+# 返回：list(nodes, edges)。
+# nodes 中 id 是节点唯一 ID，label 是显示文字，group 控制样式，
+# method_id 决定方法节点点击后跳转到哪个页面；非方法节点的 method_id 为 NA。
+# edges 中 from/to 是箭头起点和终点，arrows = "to" 表示箭头方向。
 get_method_network <- function() {
+  # nodes 定义网络图中可以看到和点击的节点。
   nodes <- data.frame(
     id = c(
       "start", "categorical_pair", "continuous_pair", "time_ordered", "many_variables", "binary_target",
@@ -409,6 +440,7 @@ get_method_network <- function() {
     stringsAsFactors = FALSE
   )
 
+  # edges 使用节点 id 定义箭头连接关系。
   edges <- data.frame(
     from = c(
       "start", "start", "start", "start", "start", "start", "start",
@@ -431,5 +463,6 @@ get_method_network <- function() {
     stringsAsFactors = FALSE
   )
 
+  # 返回 visNetwork() 需要的节点表和连接表。
   list(nodes = nodes, edges = edges)
 }

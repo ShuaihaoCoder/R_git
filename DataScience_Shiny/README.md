@@ -41,6 +41,11 @@ C:/Program Files/R/R-4.5.2/bin/Rscript.exe
 - `data/`: copied `WIDE_*` data files.
 - `www/`: CSS.
 
+Detailed documentation:
+
+- `PROJECT_STRUCTURE.md`: explains every file and directory.
+- `CODE_GUIDE.md`: contains architecture diagrams, function connections, return values, and worked execution examples.
+
 ## Notes
 
 The first version focuses on a searchable personal encyclopedia:
