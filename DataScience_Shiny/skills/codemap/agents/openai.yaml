@@ -1,0 +1,4 @@
+interface:
+  display_name: "Code Map"
+  short_description: "根据代码规模绘制清晰的中文知识网络与运行路线图"
+  default_prompt: "Use $codemap to create a Chinese code map that matches this project complexity."

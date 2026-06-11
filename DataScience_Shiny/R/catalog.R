@@ -399,6 +399,8 @@ get_method_notes <- function(method_id) {
   notes[[method_id]] %||% notes$linear_regression
 }
 
+# 自定义空值默认操作符：x 为 NULL 时返回 y，否则返回 x。
+# get_method_notes() 用它在找不到 method_id 时提供默认说明。
 `%||%` <- function(x, y) {
   if (is.null(x)) y else x
 }
@@ -419,7 +421,8 @@ get_method_network <- function() {
       "independence_test", "correlation", "partial_correlation", "linear_regression",
       "logistic_regression", "poisson_glm", "anova", "ancova", "manova", "arima",
       "sarima", "garch", "var", "granger", "pca", "efa", "rolling_pca",
-      "power_analysis", "bayesian_scenario"
+      "power_analysis", "bayesian_scenario", "polynomial_regression", "subset_regression",
+      "confusion_matrix", "roc", "cluster"
     ),
     label = c(
       "Data Question", "Categorical vs Categorical", "Continuous vs Continuous", "Time Ordered Data",
@@ -428,15 +431,17 @@ get_method_network <- function() {
       "Independence Test", "Correlation", "Partial Correlation", "Linear Regression",
       "Logistic Regression", "Poisson GLM", "ANOVA", "ANCOVA", "MANOVA", "ARIMA",
       "SARIMA", "ARCH / GARCH", "VAR", "Granger", "PCA", "EFA", "Rolling PCA",
-      "Power Analysis", "Bayesian Scenario"
+      "Power Analysis", "Bayesian Scenario", "Polynomial Regression", "Subset Regression",
+      "Confusion Matrix", "ROC", "Cluster Examples"
     ),
     group = c(
-      "question", rep("data_type", 6), rep("goal", 4), rep("method", 19)
+      "question", rep("data_type", 6), rep("goal", 4), rep("method", 24)
     ),
     method_id = c(rep(NA, 11), "independence_test", "correlation", "partial_correlation",
                   "linear_regression", "logistic_regression", "poisson_glm", "anova",
                   "ancova", "manova", "arima", "sarima", "garch", "var", "granger",
-                  "pca", "efa", "rolling_pca", "power_analysis", "bayesian_scenario"),
+                  "pca", "efa", "rolling_pca", "power_analysis", "bayesian_scenario",
+                  "polynomial_regression", "subset_regression", "confusion_matrix", "roc", "cluster"),
     stringsAsFactors = FALSE
   )
 
@@ -448,7 +453,8 @@ get_method_network <- function() {
       "binary_target", "count_target", "group_question", "group_question", "group_question",
       "time_ordered", "time_ordered", "time_ordered", "time_ordered",
       "forecasting", "forecasting", "volatility", "dynamic_system", "dynamic_system",
-      "many_variables", "many_variables", "many_variables", "start"
+      "many_variables", "many_variables", "many_variables", "start",
+      "continuous_pair", "continuous_pair", "binary_target", "binary_target", "many_variables"
     ),
     to = c(
       "categorical_pair", "continuous_pair", "time_ordered", "many_variables", "binary_target",
@@ -457,7 +463,8 @@ get_method_network <- function() {
       "logistic_regression", "poisson_glm", "anova", "ancova", "manova",
       "forecasting", "volatility", "dynamic_system", "granger",
       "arima", "sarima", "garch", "var", "bayesian_scenario",
-      "pca", "efa", "rolling_pca", "power_analysis"
+      "pca", "efa", "rolling_pca", "power_analysis",
+      "polynomial_regression", "subset_regression", "confusion_matrix", "roc", "cluster"
     ),
     arrows = "to",
     stringsAsFactors = FALSE

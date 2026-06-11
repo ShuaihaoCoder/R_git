@@ -1,0 +1,12 @@
+body { background: #f3f6f9; }
+.navbar { box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+.sidebar-panel { background: #ffffff; border-radius: 10px; padding: 14px; box-shadow: 0 2px 10px rgba(0,0,0,.06); }
+.metric-card { background: #ffffff; border-radius: 10px; padding: 14px 18px; margin-bottom: 12px; box-shadow: 0 2px 10px rgba(0,0,0,.06); }
+.metric-card h4 { color: #52616b; margin: 0 0 6px 0; font-size: 13px; text-transform: uppercase; }
+.metric-card .value { font-size: 25px; font-weight: 650; color: #14213d; }
+.proxy-banner { background: #fff4d6; border-left: 5px solid #e6a700; padding: 10px 14px; margin-bottom: 12px; border-radius: 5px; }
+.official-banner { background: #e6f4ea; border-left: 5px solid #2e7d32; padding: 10px 14px; margin-bottom: 12px; border-radius: 5px; }
+.small-note { color: #667; font-size: 12px; }
+.explanation-card { background: #eef5fb; border-left: 5px solid #1f4e78; border-radius: 6px; padding: 12px 16px; margin: 12px 0 18px 0; }
+.explanation-card h4 { color: #1f4e78; font-size: 15px; margin: 0 0 6px 0; }
+.explanation-card p { margin: 0; line-height: 1.5; }

@@ -17,6 +17,10 @@ Then open:
 http://127.0.0.1:7411
 ```
 
+`run_app.R` first precomputes all 24 case studies. The terminal prints
+`Precomputing case 01/24` through `24/24`, then Chrome opens automatically.
+After the page opens, sidebar and Method Navigator clicks read prepared results directly.
+
 If Shiny is installed in your normal R library, this also works:
 
 ```r
@@ -40,23 +44,41 @@ C:/Program Files/R/R-4.5.2/bin/Rscript.exe
 - `R/`: package checks, data loading, method catalog, network metadata, and examples.
 - `data/`: copied `WIDE_*` data files.
 - `www/`: CSS.
+- `UIimprove/`: original-reference plot gallery, manifest, generated PNG files, and gallery generator.
 
 Detailed documentation:
 
 - `PROJECT_STRUCTURE.md`: explains every file and directory.
 - `CODE_GUIDE.md`: contains architecture diagrams, function connections, return values, and worked execution examples.
+- `UIimprove/reference_plot_gallery.html`: compares every active original-reference plot with the current App plots.
 
 ## Notes
 
-The first version focuses on a searchable personal encyclopedia:
+The current version provides a searchable, runnable personal encyclopedia:
 
-- two-level method index,
+- expandable two-level method index,
 - complete `DataScience.R` source-method mapping table,
 - clickable method navigator network,
 - English method explanations,
 - financial / macro case backgrounds,
-- variable explanations,
+- case-specific variable explanations,
 - reusable code snippets,
-- selected live examples.
+- complete live case studies for all 24 catalog methods,
+- multiple plots, result tables, tests, and step-by-step interpretation,
+- a short dedicated explanation below every plot,
+- keyword search across methods, categories, variables, plot titles, and original reference methods,
+- startup-time precomputation of all 24 cases, instant cached navigation, and a fixed runtime progress bar.
+
+## Complete Case Coverage
+
+| Category | Methods | Main presentation |
+|---|---|---|
+| Statistical Relationship | Independence, Correlation, Partial Correlation | Contingency results, heatmaps, scatterplots, controlled relationships |
+| Regression Models | Linear, Polynomial, Subset | Fitted relationships, residuals, coefficients, model comparison |
+| Group Comparison | ANOVA, ANCOVA, MANOVA | Group distributions, Tukey comparisons, adjusted relationships, joint outcomes |
+| Generalized Models | Poisson, Logistic, Confusion Matrix, ROC | Count diagnostics, probabilities, classification errors, AUC |
+| Time Series | ARIMA, SARIMA, ARCH/GARCH, VAR, Granger | ACF/PACF, forecasts, volatility, dynamic systems, predictive information |
+| Dimension Reduction | EFA, PCA, Rolling PCA, Cluster | Loadings, scores, explained variance, changing structure, grouping |
+| Decision & Probability | Power, Bayesian Scenario | Power curves, posterior probabilities, expected and realized outcomes |
 
 No existing files outside this folder are edited.

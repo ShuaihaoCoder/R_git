@@ -1,5 +1,14 @@
 # DataScience Shiny 项目结构说明
 
+## Complete Case Study Upgrade
+
+当前网页目录中的 24 个方法都连接到可运行案例，不再使用空图或 placeholder。
+
+- `R/case_helpers.R`：统一案例返回结构，并提供共享数据、检验、VAR、GARCH、ROC 和绘图 helper。
+- `R/examples_complete.R`：实现全部 24 个方法的完整案例；每个案例返回背景、问题、步骤、多图、多表、检验、代码和结论。
+- `app.R`：提供可展开左侧目录、网络图跳转、首次计算缓存、固定进度条和动态多结果展示。
+- `R/examples.R`：保留第一版案例函数作为参考；当前网页不再加载它，避免旧版 `run_example()` 覆盖关系造成混淆。
+
 ## 1. 项目目标
 
 `DataScience_Shiny` 是一个独立的 R Shiny 项目，用来整理和展示
@@ -72,7 +81,7 @@ DataScience_Shiny/
 - 处理点击网络图节点后跳转到对应方法页面的逻辑。
 
 `app.R` 本身主要负责网页组织，不应该放大量模型计算代码。模型计算应放在
-`R/examples.R` 中。
+`R/examples_complete.R` 中，公共案例工具放在 `R/case_helpers.R` 中。
 
 ### `run_app.R`
 
@@ -280,11 +289,12 @@ method_id = "arima"
 - Method Navigator 中的 ARIMA 节点。
 - ARIMA 方法说明。
 - `DataScience.R` 中 ARIMA 代码段的 Source Map。
-- `examples.R` 中的 ARIMA 案例函数。
+- `examples_complete.R` 中的 ARIMA 案例函数。
 
-### `R/examples.R`
+### `R/case_helpers.R` 和 `R/examples_complete.R`
 
-负责运行案例、生成模型、结果表和图表。
+`case_helpers.R` 负责公共案例结构、共享数据准备和统计 helper；
+`examples_complete.R` 负责运行全部 24 个案例、生成模型、结果表、检验和多张图。
 
 主要入口：
 
@@ -298,30 +308,24 @@ method_id = "arima"
 list(
   title = "...",
   background = "...",
+  question = "...",
+  variables = variable_table,
+  steps = step_table,
+  plots = list(...),
+  tables = list(...),
+  tests = test_table,
+  model_summary = "...",
   code = "...",
-  table = result_table,
-  plot = plot_object,
-  model_summary = "..."
+  conclusion = "..."
 )
 ```
 
-当前已经实现可运行案例的方法包括：
+当前目录中的全部 24 个方法都已经实现可运行案例。
 
-- Linear Regression
-- Polynomial Regression
-- Correlation
-- Partial Correlation
-- Logistic Regression
-- ARIMA
-- PCA
-- Bayesian Scenario Analysis
-
-其他方法目前使用 `method_placeholder()`：
-
-- 网页中仍然可以找到方法目录和原脚本映射。
-- 可以看到方法说明。
-- 暂时不会运行完整实时案例。
-- 以后可以从 `DataScience_original_reference.R` 中整理代码并补充。
+- 每个案例至少返回一张真实图、一张结果表、分析步骤、变量解释和最终结论。
+- 适合统计检验的方法同时返回原假设、统计量、p-value 和英文解释。
+- Time Series、VAR、GARCH、EFA、PCA 和 Bayes 等案例会返回多张诊断或结果图。
+- 网页不再使用 `method_placeholder()` 或空图占位内容。
 
 ---
 
@@ -404,7 +408,10 @@ run_app.R
         |     |-- 生成 Method Navigator 网络图
         |     `-- 生成 DataScience.R Source Map
         |
-        |-- source R/examples.R
+        |-- source R/case_helpers.R
+        |     `-- 公共案例结构与 helper
+        |
+        |-- source R/examples_complete.R
         |     `-- run_example(example_id, data_bundle)
         |
         `-- www/styles.css
@@ -422,7 +429,7 @@ run_app.R
         |
         |-- catalog.R: 找到对应 DataScience.R Source Map
         |
-        |-- examples.R: 根据 example_id 运行案例
+        |-- examples_complete.R: 根据 example_id 运行完整案例
         |
         `-- app.R: 展示背景、变量、图表、表格、模型摘要和代码
 ```
@@ -491,11 +498,11 @@ stationarity_test = c(
 
 ### 第五步：增加案例
 
-在 `R/examples.R` 中：
+在 `R/examples_complete.R` 中：
 
-1. 创建 `run_stationarity_test_example(data_bundle)`。
+1. 创建 `case_stationarity_test(data_bundle)`。
 2. 在 `run_example()` 的 `switch()` 中加入映射。
-3. 返回标准案例 list。
+3. 使用 `new_case()` 返回完整案例 list。
 
 完成后，`app.R` 不需要额外增加单独页面。网页会根据 catalog 和案例函数自动展示。
 
@@ -531,8 +538,10 @@ meaning = "Daily change in the Canada 10-year yield."
 
 - `R/catalog.R`
   - 增加方法、说明、网络图和 Source Map。
-- `R/examples.R`
+- `R/examples_complete.R`
   - 增加或优化可运行案例。
+- `R/case_helpers.R`
+  - 增加多个案例共同使用的数据、检验或绘图 helper。
 - `R/data_loader.R`
   - 增加公共数据准备函数和变量解释。
 - `www/styles.css`

@@ -27,7 +27,8 @@ source(file.path(project_dir, "R", "packages.R"))
 use_project_library(project_dir)
 source(file.path(project_dir, "R", "data_loader.R"))
 source(file.path(project_dir, "R", "catalog.R"))
-source(file.path(project_dir, "R", "examples.R"))
+source(file.path(project_dir, "R", "case_helpers.R"))
+source(file.path(project_dir, "R", "examples_complete.R"))
 
 # 自动检查并加载案例需要的 packages。
 load_required_packages(project_dir = project_dir)
@@ -56,9 +57,9 @@ allx_data <- data_bundle$allx
 cad_market_data <- prepare_cad_market_data(data_bundle)
 
 # 中文说明：运行一个示例，查看回归结果。
-# run_example() 返回标准案例 list；$table 取其中的结果表。
+# run_example() 返回完整案例 list；$tables 是该案例的多个结果表。
 linear_regression_result <- run_example("linear_regression", data_bundle)
-print(linear_regression_result$table)
+print(linear_regression_result$tables)
 
 # 中文说明：更多方法目录可通过 get_method_catalog() 查看。
 # method_catalog 列出网页中全部一级分类、具体方法和对应 example_id。
