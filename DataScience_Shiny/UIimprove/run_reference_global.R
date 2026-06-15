@@ -24,6 +24,12 @@ for (reference_index in seq_along(reference_expressions)) {
   eval(reference_expressions[[reference_index]], envir = .GlobalEnv)
 }
 
+reference_callback_names <- getTaskCallbackNames()
+reference_workspace_callback <- which(reference_callback_names == "vsc.workspace")
+if (length(reference_workspace_callback)) {
+  removeTaskCallback(reference_workspace_callback[[1]])
+}
+
 message(
   "REFERENCE COMPLETE: ",
   length(reference_expressions),
@@ -32,5 +38,7 @@ message(
   "; summary_df=",
   exists("summary_df", envir = .GlobalEnv, inherits = FALSE),
   "; final_table=",
-  exists("final_table", envir = .GlobalEnv, inherits = FALSE)
+  exists("final_table", envir = .GlobalEnv, inherits = FALSE),
+  "; vsc.workspace removed=",
+  length(reference_workspace_callback) > 0
 )

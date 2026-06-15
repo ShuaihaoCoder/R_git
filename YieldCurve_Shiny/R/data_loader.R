@@ -69,17 +69,19 @@ historical_curve_names <- function(wide_rates) {
 }
 
 # resolve_historical_curve_date()
-# 用户选的日期未必有该条曲线的报价。本函数从该日期开始向前寻找，
-# 返回最近一个至少有三个有效期限点的日期，供拟合和历史比较继续使用。
+# 用户选的日期未必有该条曲线的报价。本函数按日期距离从近到远寻找，
+# 返回最近一个至少有三个有效期限点的日期；距离相同时优先使用较早日期。
 resolve_historical_curve_date <- function(wide_rates, matched_columns, requested_date,
                                           minimum_points = 3) {
   requested_date <- as.Date(requested_date)
-  eligible_rows <- which(wide_rates$date <= requested_date)
-  if (length(eligible_rows) == 0) {
-    stop("No historical data is available on or before ", requested_date, ".", call. = FALSE)
-  }
+  if (is.na(requested_date)) stop("Historical date is required.", call. = FALSE)
 
-  for (row_index in rev(eligible_rows)) {
+  # 先比较与请求日期相差多少天；若前后两个日期距离相同，future_flag 让较早日期排在前面。
+  distance_days <- abs(as.numeric(wide_rates$date - requested_date))
+  future_flag <- wide_rates$date > requested_date
+  candidate_rows <- order(distance_days, future_flag, wide_rates$date)
+
+  for (row_index in candidate_rows) {
     values <- suppressWarnings(as.numeric(unlist(
       wide_rates[row_index, matched_columns, drop = FALSE],
       use.names = FALSE
@@ -89,7 +91,7 @@ resolve_historical_curve_date <- function(wide_rates, matched_columns, requested
     }
   }
 
-  stop("No date on or before ", requested_date, " has enough valid observations for this curve.", call. = FALSE)
+  stop("No date has enough valid observations for this curve.", call. = FALSE)
 }
 
 extract_historical_curve <- function(wide_rates, curve_name, date) {
@@ -166,14 +168,20 @@ prepare_curve_fit <- function(market, mode, curve_name, date = NULL,
 # build_history_comparison()
 # 对每一个 curve × date 组合提取历史报价，并以每条曲线自己的 base_date 为基准
 # 计算相同 tenor 的变化。返回长表，直接用于多曲线、多日期图和明细表。
-build_history_comparison <- function(wide_rates, curve_names, dates, base_date) {
+build_history_comparison <- function(wide_rates, curve_names, dates, base_date,
+                                     max_combinations = 30, progress_callback = NULL) {
   curve_names <- unique(as.character(curve_names))
   dates <- sort(unique(as.Date(dates)))
   base_date <- as.Date(base_date)
   if (length(curve_names) == 0 || length(dates) == 0) stop("Select at least one curve and one date.", call. = FALSE)
   if (!base_date %in% dates) stop("Base date must be one of the selected dates.", call. = FALSE)
+  combination_count <- length(curve_names) * length(dates)
+  if (combination_count > max_combinations) {
+    stop("History comparison has ", combination_count, " curve/date combinations; maximum is ", max_combinations, ".", call. = FALSE)
+  }
 
   rows <- list()
+  completed <- 0
   for (curve_name in curve_names) {
     base_points <- extract_historical_curve(wide_rates, curve_name, base_date)
     names(base_points)[names(base_points) == "rate"] <- "base_rate"
@@ -193,6 +201,10 @@ build_history_comparison <- function(wide_rates, curve_names, dates, base_date) 
         change_bp = decimal_to_bp(merged$rate - merged$base_rate),
         stringsAsFactors = FALSE
       )
+      completed <- completed + 1
+      if (is.function(progress_callback)) {
+        progress_callback(completed, combination_count, curve_name, requested_date)
+      }
     }
   }
   do.call(rbind, rows)

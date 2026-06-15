@@ -15,22 +15,29 @@ load_required_packages()
 source(file.path("R", "data_loader.R"), encoding = "UTF-8")
 source(file.path("R", "catalog.R"), encoding = "UTF-8")
 source(file.path("R", "case_helpers.R"), encoding = "UTF-8")
+source(file.path("R", "selected_plots.R"), encoding = "UTF-8")
 source(file.path("R", "examples_complete.R"), encoding = "UTF-8")
 
+options(digits = 4, scipen = 0)
 project_dir <- normalizePath(getwd(), winslash = "/", mustWork = TRUE)
 data_dir <- file.path(project_dir, "data")
 method_catalog <- get_method_catalog()
 source_method_map <- get_source_method_map()
 method_network <- get_method_network()
+selected_plot_requests <- get_selected_plot_requests(file.path(project_dir, "UIimprove", "plot_manifest_toKeep.csv"))
 
-# data_cache 和 example_cache 保存在 app session 外部，因此同一 R 进程中的网页连接可以复用结果。
+# Session-external environments let all browser connections reuse prepared results.
 data_cache <- new.env(parent = emptyenv())
 example_cache <- new.env(parent = emptyenv())
+plot_file_cache <- new.env(parent = emptyenv())
+runtime_plot_dir <- file.path(tempdir(), paste0("datascience-shiny-plots-", Sys.getpid()))
+dir.create(runtime_plot_dir, recursive = TRUE, showWarnings = FALSE)
+shiny::addResourcePath("runtime-plots", runtime_plot_dir)
 
 # preload_all_examples()
-# 功能：网页打开前一次性读取数据并运行全部案例，让之后的侧栏和网络图点击直接显示结果。
-# catalog 提供 method_id 和 example_id；每个完成的案例以 method_id 为名称放入 example_cache。
-preload_all_examples <- function(catalog, data_dir, data_cache, example_cache) {
+# Role: calculate all cases and render every plot before the webpage opens.
+preload_all_examples <- function(catalog, data_dir, data_cache, example_cache,
+                                 plot_file_cache, runtime_plot_dir, selected_plot_requests) {
   message("Loading shared WIDE_* data before opening the webpage...")
   data_bundle <- load_wide_data(data_dir)
   assign("bundle", data_bundle, envir = data_cache)
@@ -43,15 +50,20 @@ preload_all_examples <- function(catalog, data_dir, data_cache, example_cache) {
 
     message(sprintf("Precomputing case %02d/%02d: %s", index, total_examples, method_name))
     result <- run_example(example_id, data_bundle)
+    result <- enrich_case_with_selected_plots(method_id, result, data_bundle, selected_plot_requests)
     assign(method_id, result, envir = example_cache)
+    assign(method_id, render_case_plot_cache(method_id, result, runtime_plot_dir), envir = plot_file_cache)
   }
 
   message("All case studies are ready. Opening the webpage...")
   invisible(TRUE)
 }
 
-# 这一步在 shinyApp() 启动浏览器之前完成；网页出现后，24 个方法都能直接读取结果。
-preload_all_examples(method_catalog, data_dir, data_cache, example_cache)
+# Complete startup preparation before Shiny accepts browser connections.
+preload_all_examples(
+  method_catalog, data_dir, data_cache, example_cache,
+  plot_file_cache, runtime_plot_dir, selected_plot_requests
+)
 
 # build_method_search_index()
 # 功能：把目录说明、原始代码映射、案例变量和图名合并成搜索文字，并记录匹配原因。
@@ -335,11 +347,14 @@ server <- function(input, output, session) {
     progress$set(value = 35, message = paste("Running", selected_catalog_row()$method_name), detail = "Preparing data and model.")
 
     set_runtime("Running case study", paste("Preparing", selected_catalog_row()$method_name, "data and model."), 35)
-    result <- run_example(selected_catalog_row()$example_id, get("bundle", envir = data_cache))
+    data_bundle <- get("bundle", envir = data_cache)
+    result <- run_example(selected_catalog_row()$example_id, data_bundle)
+    result <- enrich_case_with_selected_plots(current_method, result, data_bundle, selected_plot_requests)
     progress$set(value = 85, detail = "Preparing plots, tables, tests, and teaching explanations.")
     set_runtime("Building presentation", "Preparing plots, tables, tests, and teaching explanations.", 85)
-    # assign() 使用 method_id 作为缓存名称，保存该方法的完整案例结果。
+    # Replace only the selected method's case and PNG cache.
     assign(current_method, result, envir = example_cache)
+    assign(current_method, render_case_plot_cache(current_method, result, runtime_plot_dir), envir = plot_file_cache)
     set_runtime("Ready", paste("Completed:", selected_catalog_row()$method_name), 100, FALSE)
     result
   })
@@ -442,40 +457,45 @@ server <- function(input, output, session) {
     DT::datatable(selected_case()$steps, rownames = FALSE, options = list(dom = "t", pageLength = 10))
   })
 
-  # plot_gallery 为当前案例的每张图创建独立输出；标题下方提供教学解释。
+  # The gallery reads startup-rendered PNGs, so changing methods does not rerun models or plots.
   output$plot_gallery <- renderUI({
     current_case <- selected_case()
-    plots <- current_case$plots
+    current_method <- selected_method()
+    plot_files <- get(current_method, envir = plot_file_cache, inherits = FALSE)
     plot_notes <- current_case$plot_notes
+    visual_sections <- current_case$visual_sections
     tagList(
       tags$h3(class = "section-title", "Visual Analysis"),
-      tags$div(
-        class = "plot-gallery",
-        lapply(seq_along(plots), function(index) {
-          plot_id <- paste0("case_plot_", index)
-          plot_object <- plots[[index]]
-          local({
-            current_id <- plot_id
-            current_plot <- plot_object
-            output[[current_id]] <- renderPlot(current_plot, res = 110)
-          })
-          # 每张图放进独立 card，并在图下显示案例创建时生成并校验过的专用说明。
-          bslib::card(
-            bslib::card_header(names(plots)[index]),
-            plotOutput(plot_id, height = "360px"),
-              tags$p(class = "plot-explanation", plot_notes[[names(plots)[index]]])
+      tagList(lapply(names(visual_sections), function(section_name) {
+        section_plots <- visual_sections[[section_name]]
+        tags$section(
+          class = "visual-section",
+          tags$h4(class = "visual-section-title", section_name),
+          tags$div(
+            class = "plot-gallery",
+            lapply(section_plots, function(plot_name) {
+              plot_url <- paste0(
+                "runtime-plots/", current_method, "/", basename(plot_files[[plot_name]]),
+                "?version=", rerun_counter()
+              )
+              bslib::card(
+                bslib::card_header(plot_name),
+                tags$img(src = plot_url, class = "case-plot-image", alt = plot_name),
+                tags$p(class = "plot-explanation", plot_notes[[plot_name]])
+              )
+            })
           )
-        })
-      )
+        )
+      }))
     )
   })
 
   output$test_table <- DT::renderDT({
-    # scrollX = TRUE 允许检验解释较长时横向滚动，避免挤压页面。
-    DT::datatable(selected_case()$tests, rownames = FALSE, options = list(pageLength = 10, scrollX = TRUE))
+    # Horizontal scrolling preserves readable explanations on narrow screens.
+    DT::datatable(format_display_table(selected_case()$tests), rownames = FALSE, options = list(pageLength = 10, scrollX = TRUE))
   })
 
-  # table_gallery 按案例实际返回的表格数量，逐一生成反馈结果表格。
+  # Build one formatted result table card for every table returned by the case.
   output$table_gallery <- renderUI({
     tables <- selected_case()$tables
     tagList(
@@ -489,7 +509,7 @@ server <- function(input, output, session) {
             current_id <- table_id
             current_table <- table_object
             output[[current_id]] <- DT::renderDT({
-              DT::datatable(current_table, rownames = TRUE, options = list(pageLength = 8, scrollX = TRUE))
+              DT::datatable(format_display_table(current_table), rownames = TRUE, options = list(pageLength = 8, scrollX = TRUE))
             })
           })
           bslib::card(bslib::card_header(names(tables)[index]), DT::DTOutput(table_id))

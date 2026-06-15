@@ -231,26 +231,48 @@ case_regression <- function(data_bundle, polynomial = FALSE) {
 }
 
 # case_subset_regression()
-# 功能：枚举候选变量组合，以 AIC/BIC/调整后 R² 选择较简洁的回归模型。
+# Role: compare every predictor subset and identify an economical regression.
 case_subset_regression <- function(data_bundle) {
   cad <- as.data.frame(prepare_cad_market_data(data_bundle))
   predictors <- c("TSXC_ret", "delta10y", "CAD_ON", "X10Y")
-  # combn() 生成所有不同大小的变量组合；unlist(..., recursive = FALSE) 保留每个组合为独立向量。
+  # Generate every predictor combination while keeping each subset as a vector.
   combinations <- unlist(lapply(seq_along(predictors), function(size) combn(predictors, size, simplify = FALSE)), recursive = FALSE)
-  # 对每个候选组合拟合一次回归，并保存用于比较复杂度和拟合效果的指标。
+  # Fit every candidate and retain both fit and complexity metrics.
   rows <- lapply(combinations, function(items) {
     fit <- stats::lm(stats::reformulate(items, "USDCAD_ret"), data = cad)
     data.frame(model = paste(items, collapse = " + "), variables = length(items), AIC = AIC(fit), BIC = BIC(fit), adjusted_R2 = summary(fit)$adj.r.squared)
   })
   comparison <- do.call(rbind, rows)
   comparison <- comparison[order(comparison$BIC), ]
-  # strsplit() 把最佳模型文字拆回变量名，再由 reformulate() 重新生成回归公式。
+  # Rebuild the lowest-BIC formula from its stored predictor names.
   best_fit <- stats::lm(stats::reformulate(strsplit(comparison$model[1], " \\+ ")[[1]], "USDCAD_ret"), data = cad)
 
-  metric_plot <- ggplot2::ggplot(comparison, ggplot2::aes(BIC, adjusted_R2, color = factor(variables), label = model)) +
+  top_models <- head(comparison, 3)
+  bic_range <- diff(range(comparison$BIC))
+  top_models$label_x <- max(comparison$BIC) + pmax(bic_range, 1) * 0.12
+  top_models$label_y <- seq(max(comparison$adjusted_R2), min(comparison$adjusted_R2), length.out = 3)
+  top_models$label <- paste0(ifelse(seq_len(nrow(top_models)) == 1, "Best BIC: ", ""), top_models$model)
+
+  metric_plot <- ggplot2::ggplot(comparison, ggplot2::aes(BIC, adjusted_R2, color = factor(variables))) +
     ggplot2::geom_point(size = 3) +
-    ggplot2::geom_text(data = head(comparison, 3), hjust = 0, nudge_x = 2, size = 3) +
-    ggplot2::labs(title = "Subset Model Trade-off", color = "Variables") +
+    ggplot2::geom_segment(
+      data = top_models,
+      ggplot2::aes(x = BIC, y = adjusted_R2, xend = label_x, yend = label_y),
+      arrow = grid::arrow(length = grid::unit(0.12, "inches")),
+      color = "#667085",
+      inherit.aes = FALSE
+    ) +
+    ggplot2::geom_label(
+      data = top_models,
+      ggplot2::aes(label_x, label_y, label = label),
+      hjust = 0,
+      size = 3,
+      color = "#243447",
+      fill = "white",
+      inherit.aes = FALSE
+    ) +
+    ggplot2::scale_x_continuous(expand = ggplot2::expansion(mult = c(0.05, 0.65))) +
+    ggplot2::labs(title = "Subset Model Trade-off", subtitle = "Arrows identify the three lowest-BIC models", color = "Variables") +
     standard_theme()
   coefficient_plot <- ggplot2::ggplot(broom_like_coefficients(best_fit)[-1, ], ggplot2::aes(estimate, reorder(term, estimate))) +
     ggplot2::geom_col(fill = "#335C67") +

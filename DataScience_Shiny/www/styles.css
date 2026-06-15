@@ -205,6 +205,22 @@ body {
   gap: 12px;
 }
 
+.visual-section {
+  margin-top: 16px;
+}
+
+.visual-section-title {
+  color: #243447;
+  font-size: 16px;
+  margin: 0 0 8px;
+}
+
+.case-plot-image {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
 .plot-explanation {
   color: #586274;
   font-size: 13px;

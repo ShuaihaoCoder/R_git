@@ -76,7 +76,7 @@ flowchart TB
     Names["historical_curve_names()<br/>生成历史曲线下拉框"]
     Select["extract_historical_curve(curve_name, requested_date)"]
     Columns["matched_columns<br/>例如 USD SOFR OIS 的 24 个期限列"]
-    Resolve["resolve_historical_curve_date()<br/>向前找最近有效日期"]
+    Resolve["resolve_historical_curve_date()<br/>前后寻找最近有效日期<br/>同距离优先较早日"]
     Points["clean_curve_points()<br/>tenor + decimal rate"]
     Attr["附加 requested_date / effective_date"]
 
@@ -90,7 +90,7 @@ flowchart TB
 ```text
 用户请求：EUR ESTR OIS，2025-10-22
 该日有效期限点不足
-resolve_historical_curve_date() 向前寻找
+resolve_historical_curve_date() 按前后日期距离寻找
 返回：最近一个至少有 3 个有效点的 effective_date
 网页显示：Requested: 2025-10-22 | Effective: 实际日期
 ```
@@ -301,7 +301,7 @@ flowchart TB
     Extract["extract_historical_curve()<br/>寻找 EUR ESTR OIS 的期限列"]
     Columns["matched_columns<br/>24 个期限列"]
     Requested["检查 2025-10-22<br/>有效点不足"]
-    Resolve["resolve_historical_curve_date()<br/>向前逐日寻找"]
+    Resolve["resolve_historical_curve_date()<br/>按日期距离寻找最近有效日"]
     Effective["effective_date = 2025-10-21<br/>24 个有效点"]
     Fits["current_fits()<br/>NS RMSE = 4.06 bp"]
     Banner["页面显示 Proxy analytics"]
@@ -562,8 +562,8 @@ tenor、observed_percent、fitted_percent、residual_bp
 
 ```text
 input$history_curves = USD SOFR OIS, AUD COR OIS, EUR ESTR OIS
-input$history_dates = 2025-09-23, 2025-10-21, 2025-10-22
 input$history_base_date = 2025-09-23
+history_compare_dates() = 2025-10-21, 2025-10-22
 ```
 
 ```mermaid

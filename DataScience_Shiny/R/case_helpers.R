@@ -5,17 +5,18 @@
 # 所有案例都使用同一套结构，app.R 才能循环展示多张图、多张表和教学步骤。
 
 # new_case()
-# 功能：把一个统计方法的背景、步骤、图、表和检验整理成统一案例。
-# plots/tables 使用命名 list；名称会直接成为网页中对应结果的标题。
+# Role: package a method's background, steps, plots, tables, and tests into the
+# shared structure that app.R can display consistently.
 new_case <- function(title, background, question, objective, variables, steps,
                      plots, tables, tests, model_summary, code, conclusion,
-                     plot_notes = NULL) {
-  # 没有手工提供说明时，根据图名和实际图层生成专用说明；说明名称必须和 plots 完全对应。
+                     plot_notes = NULL, visual_sections = NULL) {
+  # Build missing notes automatically and require one same-named note per plot.
   if (is.null(plot_notes)) plot_notes <- build_plot_notes(plots)
   if (!identical(names(plot_notes), names(plots)) || any(!nzchar(plot_notes))) {
     stop("Every case plot must have a non-empty, same-named plot note.", call. = FALSE)
   }
-  # list() 保留不同类型的结果对象；app.R 会按字段名称分别放入对应网页区域。
+  if (is.null(visual_sections)) visual_sections <- list("Visual Analysis" = names(plots))
+  # app.R reads each named field into its matching dashboard section.
   list(
     title = title,
     background = background,
@@ -25,6 +26,7 @@ new_case <- function(title, background, question, objective, variables, steps,
     steps = steps,
     plots = plots,
     plot_notes = plot_notes,
+    visual_sections = visual_sections,
     tables = tables,
     tests = tests,
     model_summary = model_summary,
@@ -48,11 +50,11 @@ teaching_steps <- function(...) {
 }
 
 # test_result()
-# 功能：把不同统计检验整理为统一列，方便学生横向比较原假设和结论。
+# Role: normalize different statistical tests into one comparable result row.
 test_result <- function(test, null_hypothesis, statistic, p_value, interpretation = NULL) {
-  # [1] 只保留第一个统计量和 p-value，避免命名向量影响网页表格。
+  # Keep the first scalar value and preserve full precision until display time.
   p_value <- as.numeric(p_value)[1]
-  # 使用 5% 显著性水平自动生成统一结论；NA 表示该项只是诊断指标而非正式 p-value。
+  # Use a shared 5% decision rule; NA marks a diagnostic without a formal p-value.
   conclusion <- if (is.na(p_value)) {
     "Review the reported statistic."
   } else if (p_value < 0.05) {
@@ -63,8 +65,8 @@ test_result <- function(test, null_hypothesis, statistic, p_value, interpretatio
   data.frame(
     test = test,
     null_hypothesis = null_hypothesis,
-    statistic = round(as.numeric(statistic)[1], 4),
-    p_value = round(p_value, 6),
+    statistic = as.numeric(statistic)[1],
+    p_value = p_value,
     conclusion = conclusion,
     interpretation = if (is.null(interpretation)) conclusion else interpretation,
     stringsAsFactors = FALSE
