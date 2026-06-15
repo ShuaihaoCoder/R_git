@@ -1922,7 +1922,8 @@ fevd_df <- as.data.frame(fevd_res$delta10y)
 fevd_df$h <- 1:nrow(fevd_df)
 
 fevd_long <- reshape2::melt(fevd_df, id.vars="h")
-while (!is.null(dev.list())) dev.off()
+# Keep the active VS Code graphics device open when this file is sourced.
+# Closing every device here makes later plots fall back to a locked Rplots.pdf.
 FEVD_VAR_Decomp=ggplot(fevd_long, aes(h, value, fill=variable)) +
   geom_area(alpha=0.8) +
   scale_y_continuous(labels=scales::percent) +
