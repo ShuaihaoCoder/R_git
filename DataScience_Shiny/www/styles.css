@@ -221,6 +221,60 @@ body {
   height: auto;
 }
 
+.plot-open-button {
+  background: transparent;
+  border: 0;
+  cursor: zoom-in;
+  display: block;
+  padding: 0;
+  width: 100%;
+}
+
+.plot-open-button:focus-visible,
+.plot-open-text:focus-visible {
+  outline: 3px solid rgba(51, 92, 103, 0.35);
+  outline-offset: 3px;
+}
+
+.plot-card-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding: 8px 12px 0;
+}
+
+.plot-open-text {
+  background: #edf6f4;
+  border: 1px solid #b8d9d4;
+  border-radius: 6px;
+  color: #285065;
+  cursor: zoom-in;
+  font-size: 13px;
+  padding: 5px 9px;
+}
+
+.interactive-badge {
+  background: #e9f6ff;
+  border: 1px solid #b7def6;
+  border-radius: 999px;
+  color: #285065;
+  float: right;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 8px;
+}
+
+.modal-plot-image {
+  display: block;
+  height: auto;
+  max-height: 78vh;
+  object-fit: contain;
+  width: 100%;
+}
+
+.modal-plot-note {
+  padding: 10px 0 0;
+}
+
 .plot-explanation {
   color: #586274;
   font-size: 13px;

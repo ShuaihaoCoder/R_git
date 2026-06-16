@@ -1,5 +1,9 @@
 # YieldCurve Trader Dashboard 代码线路图
 
+> 当前版本使用 applied-result 模式：sidebar 输入只是草稿；点击各页面的
+> `Apply/Calculate` 按钮后，才把输入锁定并替换该页面最后一次成功结果。
+> 输入变化或计算失败时旧图表继续保留，页面内嵌进度条显示 pending/running/success/error。
+
 这份线路图按“代码实际如何运行”来讲，而不是只列出函数定义。
 
 - `input$...`：用户在浏览器中选择或输入的值。

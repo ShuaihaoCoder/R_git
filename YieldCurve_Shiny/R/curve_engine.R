@@ -77,9 +77,10 @@ fit_curve <- function(tenor, rates, method = c("nelson_siegel", "spline"),
       ns_yield(t, parameters[["beta0"]], parameters[["beta1"]], parameters[["beta2"]], parameters[["tau"]])
     }
   } else {
-    # smooth.spline() 直接穿过或靠近市场点；cv=TRUE 让 R 自动选择平滑程度。
-    # 部分市场曲线会让自动搜索过程打印非致命的 spar 警告；结果仍有效，因此安静处理。
-    spline_model <- suppressWarnings(stats::smooth.spline(points$tenor, points$rate, cv = TRUE))
+    # smooth.spline() 用固定 spar 做交易员界面上的平滑参考线。
+    # 早前的 cv=TRUE 会在部分真实曲线上向控制台打印 spar-finding 噪音，
+    # 虽然不是致命错误，但会让 Shiny 运行日志看起来像后台失控；固定 spar 可以避免这种误导。
+    spline_model <- stats::smooth.spline(points$tenor, points$rate, spar = 0.6)
     parameters <- c(df = spline_model$df, spar = spline_model$spar)
     predict_function <- function(t) {
       stats::predict(spline_model, x = pmax(as.numeric(t), min(points$tenor)))$y

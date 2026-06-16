@@ -28,8 +28,8 @@ expected_counts <- c(
   linear_regression = 3,
   polynomial_regression = 2,
   subset_regression = 2,
-  anova = 9,
-  ancova = 6
+  anova = 8,
+  ancova = 5
 )
 
 catalog <- get_method_catalog()
@@ -45,6 +45,7 @@ for (method_id in names(expected_counts)) {
   stopifnot(length(case$plots) == expected_counts[[method_id]])
   stopifnot(identical(names(case$plots), names(case$plot_notes)))
   stopifnot(all(nzchar(case$plot_notes)))
+  stopifnot(all(case$interactive_plots %in% names(case$plots)))
   stopifnot(setequal(unlist(case$visual_sections, use.names = FALSE), names(case$plots)))
   stopifnot(length(files) == expected_counts[[method_id]])
   stopifnot(all(file.exists(files)))
@@ -52,5 +53,14 @@ for (method_id in names(expected_counts)) {
 
   message(method_id, ": ", length(files), " valid PNG files")
 }
+
+anova_case <- enrich_case_with_selected_plots("anova", run_example("anova", data_bundle), data_bundle, requests)
+ancova_case <- enrich_case_with_selected_plots("ancova", run_example("ancova", data_bundle), data_bundle, requests)
+stopifnot("US 10Y Yield Trend" %in% names(anova_case$plots))
+stopifnot(!"10Y yield timeline" %in% names(anova_case$plots))
+stopifnot(!"NFP quartile density ridges" %in% names(anova_case$plots))
+stopifnot(!"ANCOVA parallel-slope comparison" %in% names(ancova_case$plots))
+stopifnot("US 10Y Yield Trend" %in% anova_case$interactive_plots)
+stopifnot("Original FX-rate relationship" %in% enrich_case_with_selected_plots("independence_test", run_example("independence_test", data_bundle), data_bundle, requests)$interactive_plots)
 
 message("Selected dashboard plot integration validation passed.")

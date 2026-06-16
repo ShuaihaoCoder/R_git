@@ -16,6 +16,7 @@ required_packages <- c(
   "DT",
   "data.table",
   "ggplot2",
+  "jsonlite",
   "plotly",
   "visNetwork",
   "zoo"

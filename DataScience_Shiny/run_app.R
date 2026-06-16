@@ -79,6 +79,59 @@ source(file.path(project_dir, "R", "packages.R"), encoding = "UTF-8")
 # 这两个函数来自 R/packages.R。use_project_library() 会把 project_dir/R_library/R-当前版本
 # 放到 .libPaths() 最前面，让 R 优先从该文件夹寻找 packages；后者把缺少的 packages 安装进去。
 use_project_library(project_dir)
+
+# loaded_package_conflicts()
+# 作用：检查当前 R session 里是否已经加载了项目外的同名 package。
+# 为什么需要：VSCode 里反复 source 文件时，plotly 可能已经占用了旧 data.table；
+# 此时 R 不能在同一个 session 里把 data.table 换成项目 library 里的版本。
+loaded_package_conflicts <- function(packages, project_dir) {
+  project_library <- normalizePath(project_library_path(project_dir), winslash = "/", mustWork = FALSE)
+  loaded <- loadedNamespaces()
+  conflicts <- vapply(
+    intersect(packages, loaded),
+    function(package) {
+      package_path <- tryCatch(
+        normalizePath(find.package(package), winslash = "/", mustWork = FALSE),
+        error = function(error) ""
+      )
+      if (!nzchar(package_path)) return("")
+      if (startsWith(package_path, project_library)) return("")
+      paste0(package, " loaded from ", package_path)
+    },
+    character(1)
+  )
+  conflicts[nzchar(conflicts)]
+}
+
+# run_in_clean_rscript()
+# 作用：当前 R session 已经有 package 冲突时，另外开一个干净 Rscript 进程启动网页。
+# 这样你仍然 source 这个文件，但真正的 Shiny 会在没有旧 package 占用的新 R 进程里运行。
+run_in_clean_rscript <- function(project_dir) {
+  script_path <- file.path(project_dir, "run_app.R")
+  rscript_path <- file.path(R.home("bin"), "Rscript.exe")
+  if (!file.exists(rscript_path)) {
+    rscript_path <- file.path(R.home("bin"), "Rscript")
+  }
+  message("Current VSCode R session already has package conflicts.")
+  message("Starting DataScience_Shiny in a clean Rscript process instead...")
+  system2(
+    rscript_path,
+    args = shQuote(script_path),
+    wait = FALSE,
+    env = c("DATASCIENCE_SHINY_CLEAN_CHILD=1")
+  )
+  message("A clean Shiny process is starting. Open http://127.0.0.1:7411 after it finishes precomputing cases.")
+  invisible(TRUE)
+}
+
+conflicting_packages <- loaded_package_conflicts(required_packages, project_dir)
+if (length(conflicting_packages) > 0 && !identical(Sys.getenv("DATASCIENCE_SHINY_CLEAN_CHILD"), "1")) {
+  message("Detected loaded packages that cannot be safely replaced inside this R session:")
+  message(paste("- ", conflicting_packages, collapse = "\n"))
+  run_in_clean_rscript(project_dir)
+  return(invisible(TRUE))
+}
+
 install_missing_packages(required_packages, project_dir)
 
 # message() 在 console 显示项目路径、R 版本和 package 文件夹，方便确认实际运行环境。

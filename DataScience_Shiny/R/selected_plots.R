@@ -24,17 +24,15 @@ selected_plot_notes <- function() {
     "Correlation versus partial correlation" = "Each point compares one ordinary correlation on the horizontal axis with its partial correlation on the vertical axis. Distance from the dashed 45-degree line shows how much the relationship changes after controlling for the other variables.",
     "Original partial correlation matrix" = "This matrix shows relationships after linearly controlling for the remaining variables. Strong positive and negative cells identify relationships that remain after shared market exposure is removed.",
     "Significant partial correlations" = "This heatmap keeps partial correlations with p-values below 0.05 and colors nonsignificant cells grey. Red indicates positive controlled relationships, purple indicates negative relationships, and stronger color means a larger absolute effect.",
-    "10Y yield timeline" = "This timeline provides the yield-level background before ANOVA grouping. The line follows the US 10-year rate through time, while color identifies the yield-rank regime.",
+    "US 10Y Yield Trend" = "This timeline provides the yield-level background before ANOVA grouping. The single line shows the full US 10-year rate path through time, so the first read is the broad trend rather than a color-coded regime split.",
     "Log-transformed NFP timeline" = "NFP is log-transformed here to reduce the visual influence of extreme payroll observations. Bar height and color show the transformed labor-market signal through time.",
     "NFP quartile boxplot" = "NFP observations are divided at the 0%, 25%, 50%, 75%, and 100% quantiles. Each box summarizes the distribution of 10-year yield changes inside one NFP quartile.",
-    "NFP quartile violin distribution" = "The violin width shows where yield-change observations are concentrated within each NFP quartile. The embedded boxplot summarizes the median and middle half of each distribution.",
-    "NFP quartile density ridges" = "Each panel shows the yield-change density for one NFP quartile. Similar shapes imply comparable distributions; shifts in the peaks or tails suggest regime differences.",
+    "NFP quartile violin distribution" = "The violin width shows where yield-change observations are concentrated within each NFP quartile. The embedded boxplot summarizes the median and middle half, making it the main distribution chart for this case.",
     "Tukey HSD intervals" = "Tukey HSD tests the null hypothesis that each pair of NFP-group means is equal while controlling the family-wise error rate. A confidence interval crossing zero is not significant; an interval entirely on one side of zero identifies a significant pairwise difference.",
     "Raw NFP-risk interaction" = "This chart tests whether the relationship between NFP category and mean yield change differs across Risk categories. Points are observed cell means, lines connect the same Risk group, and error bars show one standard error; nonparallel lines indicate interaction.",
     "Adjusted NFP-risk interaction" = "This chart shows model-adjusted mean yield changes for each NFP-Risk combination. Unlike the raw interaction chart, the points come from the fitted additive model; the lines therefore emphasize estimated main effects after model adjustment.",
     "Yield-level interaction by NFP and Risk" = "This interaction plot asks whether NFP effects on the 10-year yield depend on Risk category. Each point is a group mean and each line follows one Risk category; clearly nonparallel lines warn that the effects interact.",
     "ANCOVA slope check with uncertainty" = "ANCOVA assumes a broadly comparable Risk-yield slope across NFP groups. Points are observations and fitted lines with confidence bands show each group relationship; visibly different slopes indicate that the parallel-slope assumption is weak.",
-    "ANCOVA parallel-slope comparison" = "This focused slope comparison removes confidence bands so differences between fitted group slopes are easier to see. Approximately parallel lines support standard ANCOVA; crossings or strongly different slopes suggest an interaction model is more appropriate.",
     "ANCOVA variance distribution" = "This plot checks whether yield variability is reasonably similar across NFP groups. Similar violin widths and boxplot spreads support equal variance; noticeably different spreads indicate heteroskedasticity.",
     "ANCOVA adjusted means" = "These are NFP-group yield estimates evaluated at the same average Risk level. Differences that remain after this adjustment suggest NFP relates to 10-year yields through more than the Risk channel alone."
   )
@@ -50,12 +48,27 @@ selected_visual_sections <- function(method_id, plot_names) {
     linear_regression = list("Observed Relationship" = c("Observed relationship", "Original FX-equity relationship"), "Model Diagnostics" = "Residual diagnostics"),
     polynomial_regression = list("Observed Relationship" = "Observed relationship", "Model Diagnostics" = "Residual diagnostics"),
     subset_regression = list("Model Selection" = c("Model trade-off", "Selected coefficients")),
-    anova = list("Data Preparation" = c("10Y yield timeline", "Log-transformed NFP timeline", "NFP quartile boxplot"), "Group Distributions" = c("Group distributions", "NFP quartile violin distribution", "NFP quartile density ridges"), "Pairwise Inference" = "Tukey HSD intervals", "NFP-Risk Interaction" = c("Raw NFP-risk interaction", "Adjusted NFP-risk interaction")),
-    ancova = list("Interaction and Assumptions" = c("Yield-level interaction by NFP and Risk", "ANCOVA slope check with uncertainty", "ANCOVA parallel-slope comparison", "ANCOVA variance distribution", "Residual diagnostics"), "Adjusted Comparison" = "ANCOVA adjusted means")
+    anova = list("Data Preparation" = c("US 10Y Yield Trend", "Log-transformed NFP timeline", "NFP quartile boxplot"), "Group Distributions" = c("Group distributions", "NFP quartile violin distribution"), "Pairwise Inference" = "Tukey HSD intervals", "NFP-Risk Interaction" = c("Raw NFP-risk interaction", "Adjusted NFP-risk interaction")),
+    ancova = list("Interaction and Assumptions" = c("Yield-level interaction by NFP and Risk", "ANCOVA slope check with uncertainty", "ANCOVA variance distribution", "Residual diagnostics"), "Adjusted Comparison" = "ANCOVA adjusted means")
   )
   sections <- section_map[[method_id]]
   if (is.null(sections)) return(list("Visual Analysis" = plot_names))
   lapply(sections, function(names_in_section) intersect(names_in_section, plot_names))
+}
+
+# selected_interactive_plots()
+# Role: keep Plotly limited to plots where hover and zoom add clear value.
+selected_interactive_plots <- function(method_id, plot_names) {
+  interactive_map <- list(
+    independence_test = "Original FX-rate relationship",
+    correlation = c("Original correlation matrix", "Correlation heatmap", "Key pair scatterplot"),
+    partial_correlation = c("Original partial correlation matrix", "Partial correlation heatmap", "Significant partial correlations"),
+    linear_regression = c("Observed relationship", "Original FX-equity relationship"),
+    anova = "US 10Y Yield Trend"
+  )
+  selected <- interactive_map[[method_id]]
+  if (is.null(selected)) selected <- character(0)
+  intersect(selected, plot_names)
 }
 
 # build_selected_reference_plots()
@@ -114,9 +127,9 @@ build_selected_reference_plots <- function(method_id, data_bundle) {
   }
   if (method_id == "anova") {
     macro$NFP_log <- sign(macro$NFP) * log1p(abs(macro$NFP))
-    macro$yield_rank <- cut(macro$US10Y, breaks = stats::quantile(macro$US10Y, seq(0, 1, 0.25), na.rm = TRUE), include.lowest = TRUE)
-    plots[["10Y yield timeline"]] <- ggplot2::ggplot(macro, ggplot2::aes(date, US10Y, color = yield_rank)) +
-      ggplot2::geom_line(linewidth = 0.65) + ggplot2::labs(title = "US 10Y Yield Timeline", x = NULL, y = "US OIS 10Y", color = "Yield quartile") + standard_theme()
+    plots[["US 10Y Yield Trend"]] <- ggplot2::ggplot(macro, ggplot2::aes(date, US10Y)) +
+      ggplot2::geom_line(linewidth = 0.75, color = "#335C67") +
+      ggplot2::labs(title = "US 10Y Yield Trend", x = NULL, y = "US OIS 10Y") + standard_theme()
     plots[["Log-transformed NFP timeline"]] <- ggplot2::ggplot(macro, ggplot2::aes(date, NFP_log, fill = NFP_log)) +
       ggplot2::geom_col() + ggplot2::scale_fill_gradient2(low = "#2B6CB0", mid = "grey90", high = "#C2410C") +
       ggplot2::labs(title = "Log-transformed NFP Through Time", x = NULL, y = "Signed log(1 + |NFP|)", fill = NULL) + standard_theme()
@@ -125,9 +138,6 @@ build_selected_reference_plots <- function(method_id, data_bundle) {
     plots[["NFP quartile violin distribution"]] <- ggplot2::ggplot(macro, ggplot2::aes(NFP_cat, change_10y, fill = NFP_cat)) +
       ggplot2::geom_violin(alpha = 0.65) + ggplot2::geom_boxplot(width = 0.12, outlier.shape = NA, show.legend = FALSE) +
       ggplot2::labs(title = "Distribution of 10Y Yield Change by NFP Quartile", x = "NFP quartile", y = "10Y yield change") + standard_theme()
-    plots[["NFP quartile density ridges"]] <- ggplot2::ggplot(macro, ggplot2::aes(change_10y, fill = NFP_cat)) +
-      ggplot2::geom_density(alpha = 0.65, show.legend = FALSE) + ggplot2::facet_grid(NFP_cat ~ ., scales = "free_y") +
-      ggplot2::labs(title = "Density of 10Y Yield Change by NFP Quartile", x = "10Y yield change", y = "Density") + standard_theme()
     fit <- stats::aov(change_10y ~ NFP_cat, data = macro)
     tukey <- as.data.frame(stats::TukeyHSD(fit)$NFP_cat)
     tukey$comparison <- rownames(tukey)
@@ -152,9 +162,6 @@ build_selected_reference_plots <- function(method_id, data_bundle) {
     plots[["ANCOVA slope check with uncertainty"]] <- ggplot2::ggplot(macro, ggplot2::aes(Risk, US10Y, color = NFP_cat)) +
       ggplot2::geom_point(alpha = 0.18) + ggplot2::geom_smooth(method = "lm", se = TRUE) +
       ggplot2::labs(title = "ANCOVA Slope Check with Confidence Bands", y = "US OIS 10Y") + standard_theme()
-    plots[["ANCOVA parallel-slope comparison"]] <- ggplot2::ggplot(macro, ggplot2::aes(Risk, US10Y, color = NFP_cat)) +
-      ggplot2::geom_point(alpha = 0.12) + ggplot2::geom_smooth(method = "lm", se = FALSE, linewidth = 1.1) +
-      ggplot2::labs(title = "Parallel-Slope Assumption Check", y = "US OIS 10Y") + standard_theme()
     plots[["ANCOVA variance distribution"]] <- ggplot2::ggplot(macro, ggplot2::aes(NFP_cat, US10Y, fill = NFP_cat)) +
       ggplot2::geom_violin(alpha = 0.6) + ggplot2::geom_boxplot(width = 0.12, outlier.shape = NA, show.legend = FALSE) +
       ggplot2::labs(title = "Yield Variance Across NFP Regimes", x = "NFP quartile", y = "US OIS 10Y") + standard_theme()
@@ -185,6 +192,7 @@ enrich_case_with_selected_plots <- function(method_id, case, data_bundle, select
   covered <- unique(selected_requests$method_id)
   if (!method_id %in% covered) {
     case$visual_sections <- list("Visual Analysis" = names(case$plots))
+    case$interactive_plots <- selected_interactive_plots(method_id, names(case$plots))
     return(case)
   }
   current_decisions <- selected_requests[selected_requests$method_id == method_id & selected_requests$source == "Current App", , drop = FALSE]
@@ -197,6 +205,7 @@ enrich_case_with_selected_plots <- function(method_id, case, data_bundle, select
   case$plots <- c(case$plots, rebuilt$plots)
   case$plot_notes <- c(case$plot_notes, rebuilt$notes)
   case$visual_sections <- selected_visual_sections(method_id, names(case$plots))
+  case$interactive_plots <- selected_interactive_plots(method_id, names(case$plots))
   case
 }
 

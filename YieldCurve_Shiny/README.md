@@ -16,11 +16,13 @@ sidebar 输入、真实运行结果和独立 Mermaid 路线图。
 
 ## Pages
 
+- 每个主要页面都有独立 `Apply/Calculate` 按钮；修改输入后保留旧结果，点击按钮才重新计算。
+- 页面内嵌进度条显示计算阶段，不使用让整页变灰的遮罩进度条。
 - **Curve Explorer**：观察正式 zero curve 或历史 Proxy，比较 Nelson-Siegel 与 Spline、RMSE 和参数。
-- **History & Changes**：Curve 标签可用 `X` 删除；Base Date 独立用日历选择，Compare Date 从日历逐个加入并可单独删除。
-- **Forward Calculator**：独立选择曲线，计算 annual、continuous 或 simple compounding 的 forward。
-- **Carry & Roll / Single Trade**：独立选择曲线，查看单笔分解、spot curve、stacked bar、热力图和 DV01 P&L。
-- **Carry & Roll / Curve Trade**：计算 Steepener、Flattener、Long-belly Fly、Short-belly Fly；默认 DV01-neutral，也可手动调整腿部 DV01。
+- **History & Changes**：Curve 标签可用 `X` 删除；Base Date 独立；最多运行 30 个 Curve×Date 组合。
+- **Forward Calculator**：独立选择曲线和 Historical Date，并显示 Requested/Effective Date。
+- **Carry & Roll / Single Trade**：正值绿色、负值红色；Hold 顺序固定为 `1M, 3M, 6M, 1Y`。
+- **Carry & Roll / Curve Trade**：显示每条 Leg 的 Carry/Roll 分解；默认 DV01-neutral，也可手动调整腿部 DV01。
 - **Diagnostics**：检查市场点、拟合点、残差和模型口径。
 
 ## Analytics Policy
@@ -31,6 +33,7 @@ sidebar 输入、真实运行结果和独立 Mermaid 路线图。
 - 历史曲线在请求日期数据不足时，自动选择前后距离最近的有效日期；距离相同时优先较早日期。
 - 金额 P&L 是 `direction-adjusted total bp * user-provided DV01` 的估算。
 - 当前版本不实现 Bloomberg 刷新、严格多曲线 bootstrap 或票息债现金流重估。
+- 所有展示数字最多两位小数；输入框仍允许更高精度。
 
 ## Tests
 

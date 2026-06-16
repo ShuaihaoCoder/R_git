@@ -402,6 +402,19 @@ server <- function(input, output, session) {
       open_method(node_row$method_id)
     }
   })
+
+  observeEvent(input$open_plot_modal, {
+    plot_request <- input$open_plot_modal
+    showModal(modalDialog(
+      title = plot_request$title,
+      tags$img(src = plot_request$src, class = "modal-plot-image", alt = plot_request$title),
+      tags$p(class = "plot-explanation modal-plot-note", plot_request$note),
+      easyClose = TRUE,
+      size = "xl",
+      footer = modalButton("Close")
+    ))
+  }, ignoreInit = TRUE)
+
   # 用户点击网络图中的 VAR 节点时，下面 visEvents() 中的 JavaScript 会把节点 ID "var"
   # 写入 input$method_network_node；这个输出函数再根据 nodes/edges 生成网页中的网络图。
   output$method_network <- visNetwork::renderVisNetwork({
@@ -464,6 +477,7 @@ server <- function(input, output, session) {
     plot_files <- get(current_method, envir = plot_file_cache, inherits = FALSE)
     plot_notes <- current_case$plot_notes
     visual_sections <- current_case$visual_sections
+    interactive_plots <- current_case$interactive_plots %||% character(0)
     tagList(
       tags$h3(class = "section-title", "Visual Analysis"),
       tagList(lapply(names(visual_sections), function(section_name) {
@@ -474,13 +488,46 @@ server <- function(input, output, session) {
           tags$div(
             class = "plot-gallery",
             lapply(section_plots, function(plot_name) {
+              plot_index <- match(plot_name, names(current_case$plots))
               plot_url <- paste0(
                 "runtime-plots/", current_method, "/", basename(plot_files[[plot_name]]),
                 "?version=", rerun_counter()
               )
+              modal_payload <- jsonlite::toJSON(
+                list(title = plot_name, src = plot_url, note = plot_notes[[plot_name]], nonce = as.numeric(Sys.time())),
+                auto_unbox = TRUE
+              )
+              open_button <- tags$button(
+                type = "button",
+                class = "plot-open-text",
+                onclick = paste0("Shiny.setInputValue('open_plot_modal', ", modal_payload, ", {priority: 'event'});"),
+                "Open larger image"
+              )
+              if (plot_name %in% interactive_plots) {
+                plotly_id <- paste0("interactive_plot_", current_method, "_", plot_index)
+                local({
+                  current_id <- plotly_id
+                  current_plot <- current_case$plots[[plot_name]]
+                  output[[current_id]] <- plotly::renderPlotly({
+                    plotly::ggplotly(current_plot, tooltip = c("x", "y", "fill", "colour")) |>
+                      plotly::config(displaylogo = FALSE)
+                  })
+                })
+                return(bslib::card(
+                  bslib::card_header(tagList(plot_name, tags$span(class = "interactive-badge", "Interactive"))),
+                  plotly::plotlyOutput(plotly_id, height = "390px"),
+                  tags$div(class = "plot-card-actions", open_button),
+                  tags$p(class = "plot-explanation", plot_notes[[plot_name]])
+                ))
+              }
               bslib::card(
                 bslib::card_header(plot_name),
-                tags$img(src = plot_url, class = "case-plot-image", alt = plot_name),
+                tags$button(
+                  type = "button",
+                  class = "plot-open-button",
+                  onclick = paste0("Shiny.setInputValue('open_plot_modal', ", modal_payload, ", {priority: 'event'});"),
+                  tags$img(src = plot_url, class = "case-plot-image", alt = plot_name)
+                ),
                 tags$p(class = "plot-explanation", plot_notes[[plot_name]])
               )
             })

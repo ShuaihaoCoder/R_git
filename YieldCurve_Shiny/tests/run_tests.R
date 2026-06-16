@@ -90,6 +90,7 @@ shiny::testServer(server, {
   assert_true(nrow(applied_trade()$calculation$detail) == 2, "Applied Trade failed")
   assert_true(all(vapply(c("curve", "history", "forward", "carry", "trade"), function(page) status[[page]]$type == "success", logical(1))), "Progress did not complete")
   assert_true(identical(levels(applied_carry()$matrix$hold_label), c("1M", "3M", "6M", "1Y")), "Hold order failed")
+  assert_true(identical(levels(applied_carry()$matrix$tenor_label), c("1Y", "2Y", "3Y", "5Y", "7Y", "10Y", "15Y", "20Y", "30Y")), "Tenor order failed")
 
   old_forward <- applied_forward()$result$forward_percent
   old_carry <- applied_carry()$single$total_bp
@@ -108,6 +109,13 @@ shiny::testServer(server, {
   assert_true(isTRUE(applied_forward()$bundle$proxy), "Historical Forward Proxy failed")
   assert_true(applied_forward()$result$effective_date[[1]] == "2025-10-21", "Forward effective date failed")
   assert_true(isTRUE(applied_carry()$bundle$proxy), "Historical Carry Proxy failed")
+  successful_forward <- applied_forward()$result$forward_percent
+  session$setInputs(forward_start = 5, forward_end = 1, calculate_forward = 3)
+  session$flushReact()
+  assert_close(applied_forward()$result$forward_percent, successful_forward, message = "Failed calculation should retain old Forward")
+  assert_true(status$forward$type == "error", "Failed calculation should show error status")
+  session$setInputs(forward_start = 1, forward_end = 5, calculate_forward = 4)
+  session$flushReact()
 
   session$setInputs(trade_structure = "long_belly_fly", trade_short_dv01 = 5000, trade_belly_dv01 = 10000, trade_long_dv01 = 5000)
   session$flushReact()
@@ -123,6 +131,12 @@ shiny::testServer(server, {
     output$trade_leg_table, output$trade_leg_pnl_plot, output$trade_component_plot, output$diagnostics_table
   )
   assert_true(all(vapply(rendered_outputs, function(value) !is.null(value), logical(1))), "Output rendering failed")
+  previous_carry_total <- applied_carry()$single$total_bp
+  session$setInputs(open_carry_stacked_plot = 1)
+  session$flushReact()
+  assert_true(identical(large_plot_id(), "carry_stacked_plot"), "Large plot modal id failed")
+  assert_true(identical(applied_carry()$single$total_bp, previous_carry_total), "Large plot changed applied result")
+  assert_true(!is.null(output$large_plot), "Large plot rendering failed")
   session$setInputs(refresh_data = 1)
   session$flushReact()
   assert_true(!is.null(applied_curve()), "Refresh should retain results")

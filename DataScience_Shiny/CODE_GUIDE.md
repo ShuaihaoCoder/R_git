@@ -1,5 +1,740 @@
 # DataScience Shiny 代码导引图
 
+> 最新版更新：2026-06-16
+> 这一版把新加入的 `R/selected_plots.R`、`tests/` 验证脚本、`UIimprove/plot_manifest_toKeep.csv` 已选图片流程，以及启动时 PNG 缓存机制都放进路线图。下面先看当前真实运行链路；旧版详细说明保留在后面作为补充。
+
+---
+
+## 0. 当前项目一眼看懂
+
+这个项目现在有三条路线：
+
+1. **正式网页路线**：你平时在 VSCode 跑 `run_app.R`，最后打开 Shiny dashboard。
+2. **图片选择路线**：`UIimprove/plot_manifest_toKeep.csv` 决定哪些原始图进入 dashboard，`R/selected_plots.R` 负责重新运行背后的绘图算法。
+3. **验证路线**：`tests/` 里的脚本检查代码能不能解析、图片数量对不对、缓存是不是按预期工作。
+
+```mermaid
+%%{init: {'flowchart': {'nodeSpacing': 60, 'rankSpacing': 95}, 'themeVariables': {'fontSize': '17px'}}}%%
+flowchart TB
+    User["你在 VSCode 运行<br/>run_app.R"]
+    Run["run_app.R<br/>找到 DataScience_Shiny<br/>准备 package library<br/>启动 Shiny"]
+    App["app.R<br/>真正的网页入口<br/>UI + server + 预计算 + 缓存"]
+
+    Packages["R/packages.R<br/>项目 package 环境"]
+    Catalog["R/catalog.R<br/>24 个方法目录<br/>方法说明<br/>网络图 metadata"]
+    Loader["R/data_loader.R<br/>读取 data/WIDE_*<br/>准备公共数据"]
+    Helpers["R/case_helpers.R<br/>统一 case 结构<br/>公共图表 / 检验 / 数据 helper"]
+    Examples["R/examples_complete.R<br/>24 个 method 的真实案例"]
+    Selected["R/selected_plots.R<br/>读取 CSV 选择<br/>重建已选原始图<br/>渲染临时 PNG"]
+
+    Data["data/WIDE_*<br/>项目数据库"]
+    KeepCSV["UIimprove/plot_manifest_toKeep.csv<br/>Comment 列决定保留哪些图"]
+    Cache["内存缓存<br/>data_cache / example_cache / plot_file_cache"]
+    TempPNG["临时 PNG 文件夹<br/>tempdir()/datascience-shiny-plots-*"]
+    Browser["浏览器 dashboard<br/>sidebar / Method Navigator / Method Detail"]
+
+    Tests["tests/<br/>parse / selected plots / startup cache 验证"]
+
+    User --> Run
+    Run -- "project_dir" --> Packages
+    Packages -- "packages loaded" --> App
+    Run -- "shiny::runApp(project_dir)" --> App
+
+    App -- "get_method_catalog(), get_method_network()" --> Catalog
+    App -- "load_wide_data(data_dir)" --> Loader
+    Loader -- "readRDS()" --> Data
+    Loader -- "data_bundle" --> App
+
+    App -- "run_example(example_id, data_bundle)" --> Examples
+    Examples -- "调用公共 helper" --> Helpers
+    Helpers -- "标准化 plots / tables / tests" --> Examples
+    Examples -- "base case list" --> App
+
+    App -- "get_selected_plot_requests(csv_path)" --> Selected
+    Selected -- "读取 Comment 规则" --> KeepCSV
+    App -- "enrich_case_with_selected_plots(method_id, case, data_bundle)" --> Selected
+    Selected -- "case + 已选原始图 + visual_sections" --> App
+    App -- "render_case_plot_cache(method_id, case)" --> Selected
+    Selected -- "PNG paths" --> TempPNG
+
+    App -- "bundle + case + PNG path" --> Cache
+    Cache -- "output$plot_gallery / output$table_gallery / output$method_header" --> Browser
+
+    Tests -. "直接 source 当前运行文件并检查结果" .-> App
+    Tests -. "检查 selected plots 和 PNG" .-> Selected
+```
+
+### 当前最重要的变量
+
+| 变量 | 在哪里产生 | 里面是什么 | 后面影响什么 |
+|---|---|---|---|
+| `project_dir` | `run_app.R/find_project_dir()` | `C:/Users/PC/Desktop/R_git/DataScience_Shiny` | package 路径、data 路径、Shiny 启动目录 |
+| `data_bundle` | `load_wide_data(data_dir)` | `rates/fx/vol/eco/cftc/mm/eq/comm/credit/allx` 等数据表 | 24 个案例、已选原始图重建 |
+| `method_catalog` | `get_method_catalog()` | 24 个方法的分类、名称、`method_id`、`example_id` | 左侧目录、当前方法、预计算循环 |
+| `selected_plot_requests` | `get_selected_plot_requests()` | CSV 中有 Comment 的图片行，以及 `keep=TRUE/FALSE` | 决定 Independence 到 ANCOVA 哪些图进 dashboard |
+| `example_cache` | `app.R` 预计算时写入 | 每个 `method_id` 对应一个完整 case list | 普通点击方法时直接读，不重新跑模型 |
+| `plot_file_cache` | `render_case_plot_cache()` 写入 | 每个 `method_id` 对应一组临时 PNG 路径 | `plot_gallery` 用 `<img>` 直接显示 |
+| `selected_method()` | 用户点击 sidebar / search / network 后改变 | 当前打开的方法，例如 `"correlation"` | 标题、说明、图、表、Source Map 全部切换 |
+| `rerun_counter()` | 点击 `Re-run case` 后加 1 | 用来通知当前页面刷新图片 URL | 只重新计算当前 method，不动其他缓存 |
+
+---
+
+## 1. 怎么启动：从 VSCode 到网页
+
+你平时只需要运行：
+
+```r
+source("C:/Users/PC/Desktop/R_git/DataScience_Shiny/run_app.R")
+```
+
+或者在 VSCode 里打开 `run_app.R` 后 source 当前文件。
+
+```mermaid
+%%{init: {'sequence': {'actorMargin': 65, 'messageMargin': 50}, 'themeVariables': {'fontSize': '16px'}}}%%
+sequenceDiagram
+    participant U as 你 / VSCode
+    participant R as run_app.R
+    participant P as R/packages.R
+    participant A as app.R
+    participant L as R/data_loader.R
+    participant E as R/examples_complete.R
+    participant S as R/selected_plots.R
+    participant B as Chrome / Browser
+
+    U->>R: source(".../run_app.R")
+    R->>R: find_project_dir()
+    R-->>R: project_dir = DataScience_Shiny
+    R->>P: source("R/packages.R")
+    R->>P: use_project_library(project_dir)
+    R->>P: install_missing_packages(required_packages, project_dir)
+    R->>A: shiny::runApp(project_dir, port = 7411)
+
+    A->>L: load_wide_data(data_dir)
+    L-->>A: data_bundle
+
+    loop 24 个方法
+        A->>E: run_example(example_id, data_bundle)
+        E-->>A: base case
+        A->>S: enrich_case_with_selected_plots(method_id, base case, data_bundle, selected_plot_requests)
+        S-->>A: enriched case
+        A->>S: render_case_plot_cache(method_id, enriched case, runtime_plot_dir)
+        S-->>A: PNG file paths
+        A->>A: 写入 example_cache + plot_file_cache
+    end
+
+    A-->>B: Listening on http://127.0.0.1:7411
+    B-->>U: 打开 dashboard
+```
+
+### 初始运行时变量怎么变
+
+```text
+启动前：
+data_cache      = 空
+example_cache   = 空
+plot_file_cache = 空
+
+app.R 预计算后：
+data_cache$bundle                  = 10 个 WIDE_* 数据表
+example_cache$linear_regression     = Linear Regression 完整 case
+example_cache$correlation           = Correlation 完整 case
+...
+plot_file_cache$correlation         = 4 个临时 PNG 路径
+plot_file_cache$anova               = 9 个临时 PNG 路径
+
+网页打开时：
+selected_method() = "linear_regression"
+runtime$percent   = 100
+```
+
+---
+
+## 2. 正式运行文件关系图
+
+这一张只画当前 dashboard 真正会执行的文件。
+
+```mermaid
+%%{init: {'flowchart': {'nodeSpacing': 55, 'rankSpacing': 85}, 'themeVariables': {'fontSize': '17px'}}}%%
+flowchart TB
+    Run["run_app.R<br/>推荐启动入口"]
+    Packages["R/packages.R<br/>package library + required packages"]
+    App["app.R<br/>Shiny UI/server + cache"]
+    Catalog["R/catalog.R<br/>方法目录 / notes / network / source map"]
+    Loader["R/data_loader.R<br/>读取 WIDE_* + CAD 市场数据"]
+    Helpers["R/case_helpers.R<br/>统一 case 格式 + 公共统计 helper"]
+    Examples["R/examples_complete.R<br/>24 个 case_*()"]
+    Selected["R/selected_plots.R<br/>CSV 已选图片 + 原始图算法 + PNG cache"]
+    CSS["www/styles.css<br/>页面样式 / 图片布局"]
+    Data["data/WIDE_*"]
+    CSV["UIimprove/plot_manifest_toKeep.csv"]
+    Browser["浏览器页面"]
+
+    Run --> Packages --> App
+    App --> Catalog
+    App --> Loader --> Data
+    App --> Examples --> Helpers
+    App --> Selected --> CSV
+    Selected --> Helpers
+    App --> CSS
+    App --> Browser
+```
+
+---
+
+## 3. `app.R` 当前做了什么
+
+`app.R` 现在不再是“点一下才临时画图”的模式，而是：
+
+1. 启动时读数据；
+2. 启动时运行全部 24 个 case；
+3. 启动时把每个 case 的 plot 渲染成临时 PNG；
+4. 页面点击时只换图片路径和文字；
+5. 只有点击 `Re-run case` 才重新计算当前 method。
+
+```mermaid
+%%{init: {'flowchart': {'nodeSpacing': 55, 'rankSpacing': 85}, 'themeVariables': {'fontSize': '16px'}}}%%
+flowchart TB
+    Source["app.R source()<br/>packages / loader / catalog / helpers / selected_plots / examples_complete"]
+    Objects["建立全局对象<br/>method_catalog / method_network / selected_plot_requests"]
+    Envs["建立缓存环境<br/>data_cache / example_cache / plot_file_cache"]
+    Resource["shiny::addResourcePath('runtime-plots', runtime_plot_dir)"]
+    Preload["preload_all_examples(...)"]
+    UI["定义 UI<br/>sidebar + Method Navigator + Method Detail"]
+    Server["定义 server<br/>selected_method / selected_case / outputs"]
+    AppObj["shinyApp(ui, server)"]
+
+    Source --> Objects --> Envs --> Resource --> Preload --> UI --> Server --> AppObj
+```
+
+### `preload_all_examples()` 的输入输出
+
+```mermaid
+%%{init: {'flowchart': {'nodeSpacing': 55, 'rankSpacing': 85}, 'themeVariables': {'fontSize': '16px'}}}%%
+flowchart TB
+    Inputs["输入<br/>catalog + data_dir + caches + selected_plot_requests"]
+    Load["load_wide_data(data_dir)"]
+    Bundle["data_bundle"]
+    Loop["循环 catalog 每一行"]
+    Example["run_example(example_id, data_bundle)"]
+    Base["base case list"]
+    Enrich["enrich_case_with_selected_plots(method_id, base case, data_bundle, selected_plot_requests)"]
+    Enriched["enriched case<br/>plots + plot_notes + visual_sections"]
+    Render["render_case_plot_cache(method_id, enriched case, runtime_plot_dir)"]
+    Paths["PNG paths"]
+    Assign1["example_cache[method_id] = enriched case"]
+    Assign2["plot_file_cache[method_id] = PNG paths"]
+
+    Inputs --> Load --> Bundle --> Loop
+    Loop --> Example --> Base --> Enrich --> Enriched
+    Enriched --> Render --> Paths
+    Enriched --> Assign1
+    Paths --> Assign2
+```
+
+---
+
+## 4. `R/selected_plots.R`：这次新增图片如何进入 dashboard
+
+这个文件是本轮新增的关键文件。它不改变 CSV，也不复制旧 PNG，而是根据 CSV 的 Comment 规则，重新运行背后的绘图算法。
+
+```mermaid
+%%{init: {'flowchart': {'nodeSpacing': 55, 'rankSpacing': 85}, 'themeVariables': {'fontSize': '16px'}}}%%
+flowchart TB
+    CSV["UIimprove/plot_manifest_toKeep.csv<br/>GB18030 编码<br/>Comment 列是用户选择"]
+    Requests["get_selected_plot_requests(csv_path)"]
+    RequestDF["selected_plot_requests<br/>有 Comment 的行<br/>keep = 没写 不保留/没必要"]
+
+    Case["base case<br/>run_example() 返回"]
+    Enrich["enrich_case_with_selected_plots(method_id, case, data_bundle, selected_requests)"]
+    Drop["删除 Current App 中被标记不保留的 plot"]
+    Build["build_selected_reference_plots(method_id, data_bundle)"]
+    Rebuilt["重建 Original Reference plots<br/>例如 Tukey HSD / ANCOVA adjusted means"]
+    Notes["selected_plot_notes()<br/>每张新增图的英文解释"]
+    Sections["selected_visual_sections(method_id, plot_names)<br/>教学步骤分组"]
+    Enriched["返回 enriched case"]
+
+    Render["render_case_plot_cache(method_id, enriched case, cache_dir)"]
+    PNG["临时 PNG 路径<br/>01.png / 02.png / ..."]
+
+    CSV --> Requests --> RequestDF --> Enrich
+    Case --> Enrich
+    Enrich --> Drop --> Build --> Rebuilt
+    Notes --> Enrich
+    Rebuilt --> Enrich
+    Enrich --> Sections --> Enriched
+    Enriched --> Render --> PNG
+```
+
+### 例子：ANOVA 图片怎么被组织
+
+```text
+CSV 中 method_id = "anova" 且 Comment 保留的 Original Reference：
+p_10y
+p3
+source_plot_018
+change10y_NFP_cat_plot_violin
+change10y_NFP_cat_plot_ridge
+tuk_plot
+source_plot_023
+NFP_RISK_Effect
+
+再加上 Current App 中保留的：
+Group distributions
+
+最后 ANOVA 页面显示 9 张图。
+```
+
+```mermaid
+%%{init: {'flowchart': {'nodeSpacing': 50, 'rankSpacing': 80}, 'themeVariables': {'fontSize': '16px'}}}%%
+flowchart TB
+    ANOVA["method_id = anova"]
+    Current["Current App plots<br/>保留 Group distributions<br/>删除 Tukey comparisons"]
+    Original["Original Reference plots<br/>重新运行算法生成 8 张"]
+    Sections["visual_sections"]
+    Prep["Data Preparation<br/>10Y yield timeline<br/>Log-transformed NFP timeline<br/>NFP quartile boxplot"]
+    Dist["Group Distributions<br/>Group distributions<br/>Violin<br/>Density ridges"]
+    Tukey["Pairwise Inference<br/>Tukey HSD intervals"]
+    Interact["NFP-Risk Interaction<br/>Raw interaction<br/>Adjusted interaction"]
+    Page["ANOVA Method Detail"]
+
+    ANOVA --> Current
+    ANOVA --> Original
+    Current --> Sections
+    Original --> Sections
+    Sections --> Prep --> Page
+    Sections --> Dist --> Page
+    Sections --> Tukey --> Page
+    Sections --> Interact --> Page
+```
+
+---
+
+## 5. 用户点击后发生什么
+
+### 案例 A：点击左侧 `Correlation`
+
+```mermaid
+%%{init: {'sequence': {'actorMargin': 60, 'messageMargin': 45}, 'themeVariables': {'fontSize': '16px'}}}%%
+sequenceDiagram
+    participant U as 用户
+    participant B as Browser
+    participant A as app.R server
+    participant EC as example_cache
+    participant PC as plot_file_cache
+
+    U->>B: 点击左侧 Correlation
+    B->>A: input$method_link_correlation = 点击次数 + 1
+    A->>A: open_method("correlation")
+    A->>A: selected_method: 原方法 → correlation
+    A->>B: nav_select("main_tabs", "detail")
+    A->>B: active-method = correlation
+    A->>EC: get("correlation")
+    EC-->>A: Correlation enriched case
+    A->>PC: get("correlation")
+    PC-->>A: 4 个 PNG path
+    A-->>B: output$plot_gallery 用 <img src="runtime-plots/correlation/01.png">
+    B-->>U: 显示 Correlation 的 4 张图、说明、表格和检验
+```
+
+这里没有重新运行 `run_example()`，也没有重新读取数据。
+
+### 案例 B：点击 Method Navigator 里的方法节点
+
+```mermaid
+%%{init: {'flowchart': {'nodeSpacing': 55, 'rankSpacing': 85}, 'themeVariables': {'fontSize': '16px'}}}%%
+flowchart TB
+    Click["点击网络图绿色方法节点<br/>例如 VAR"]
+    JS["visEvents(selectNode)<br/>properties.nodes[0] = var"]
+    Input["input$method_network_node = var"]
+    Observe["observeEvent(input$method_network_node)"]
+    NodeRow["method_network$nodes 中查 var"]
+    Check["node_row$method_id 是否存在"]
+    Open["open_method('var')"]
+    Detail["打开 Method Detail"]
+    Cache["读取 example_cache$var + plot_file_cache$var"]
+    Page["显示 VAR case study"]
+
+    Click --> JS --> Input --> Observe --> NodeRow --> Check
+    Check -- "是方法节点" --> Open --> Detail --> Cache --> Page
+    Check -- "不是方法节点" --> Stop["不跳转，只保留网络图说明作用"]
+```
+
+### 案例 C：搜索 `USDCAD`
+
+```mermaid
+%%{init: {'flowchart': {'nodeSpacing': 55, 'rankSpacing': 85}, 'themeVariables': {'fontSize': '16px'}}}%%
+flowchart TB
+    Type["用户在 sidebar 搜索框输入<br/>USDCAD"]
+    Reactive["filtered_search_results()"]
+    Index["method_search_index<br/>方法名 + 分类 + notes + variables + plot_titles + source map"]
+    Match["返回匹配方法<br/>例如 Correlation / Linear Regression / Bayesian"]
+    ResultUI["output$search_results<br/>显示可点击结果"]
+    Click["点击某条搜索结果"]
+    Open["open_method(method_id)"]
+    Page["Method Detail 切换到对应案例"]
+
+    Type --> Reactive --> Index --> Match --> ResultUI --> Click --> Open --> Page
+```
+
+### 案例 D：点击 `Re-run case`
+
+```mermaid
+%%{init: {'sequence': {'actorMargin': 60, 'messageMargin': 45}, 'themeVariables': {'fontSize': '16px'}}}%%
+sequenceDiagram
+    participant U as 用户
+    participant A as app.R server
+    participant D as data_cache
+    participant E as examples_complete.R
+    participant S as selected_plots.R
+    participant EC as example_cache
+    participant PC as plot_file_cache
+
+    U->>A: 点击 Re-run case
+    A->>EC: rm(list = current_method)
+    A->>A: rerun_counter: n → n + 1
+    A->>A: selected_case() 重新执行
+    A->>D: get("bundle")
+    D-->>A: 已有 data_bundle，不重新读取 WIDE_*
+    A->>E: run_example(current example_id, data_bundle)
+    E-->>A: 新 base case
+    A->>S: enrich_case_with_selected_plots(...)
+    S-->>A: 新 enriched case
+    A->>S: render_case_plot_cache(current_method, new case, runtime_plot_dir)
+    S-->>A: 当前 method 的新 PNG paths
+    A->>EC: 覆盖当前 method case
+    A->>PC: 覆盖当前 method PNG paths
+```
+
+只有当前方法会重新计算；其他 23 个方法的 `example_cache` 和 `plot_file_cache` 保持不变。
+
+---
+
+## 6. `tests/`：这些脚本是怎么验证项目的
+
+`tests/` 不是网页运行必须文件，但它们是用来确认“现在这个结构确实能跑”的工具。
+
+```mermaid
+%%{init: {'flowchart': {'nodeSpacing': 55, 'rankSpacing': 85}, 'themeVariables': {'fontSize': '16px'}}}%%
+flowchart TB
+    Parse["tests/parse_project.R<br/>只 parse，不运行 app"]
+    SelectedTest["tests/validate_selected_plots.R<br/>检查 8 个方法的图片数量、说明、PNG"]
+    StartupTest["tests/validate_app_startup.R<br/>source app.R<br/>检查 24 个案例和 PNG cache"]
+    Launch["tests/launch_validation_app.R<br/>验证用端口 7412 启动真实 Shiny"]
+
+    Project["当前项目 R 文件"]
+    Selected["R/selected_plots.R + CSV + examples_complete.R"]
+    App["app.R 完整启动逻辑"]
+    HTTP["Invoke-WebRequest http://127.0.0.1:7412<br/>返回 HTTP 200"]
+
+    Parse --> Project
+    SelectedTest --> Selected
+    StartupTest --> App
+    Launch --> HTTP
+```
+
+### 验证脚本各自回答什么问题
+
+| 文件 | 回答的问题 | 会不会启动网页 |
+|---|---|---|
+| `tests/parse_project.R` | 所有 `.R` 文件语法有没有坏 | 不会 |
+| `tests/validate_selected_plots.R` | Independence 到 ANCOVA 图片数量是否符合 CSV 选择，PNG 是否非空 | 不会 |
+| `tests/validate_app_startup.R` | `app.R` 启动前是否把 24 个 case 和 PNG 都准备好；普通切换和 Re-run 缓存是否正确 | 不会打开浏览器 |
+| `tests/launch_validation_app.R` | 用 7412 端口跑真实 Shiny，方便 HTTP/browser 检查 | 会启动 Shiny 服务 |
+
+---
+
+## 7. `UIimprove/`：图册和 CSV 怎么影响当前 dashboard
+
+`UIimprove/` 最开始是为了把原始 `DataScience_original_reference.R` 里的图整理成 HTML 图册。现在 dashboard 只读取其中一个文件：`plot_manifest_toKeep.csv`。
+
+```mermaid
+%%{init: {'flowchart': {'nodeSpacing': 55, 'rankSpacing': 85}, 'themeVariables': {'fontSize': '16px'}}}%%
+flowchart TB
+    Original["DataScience_original_reference.R<br/>项目根目录原始参考脚本"]
+    Optimized["UIimprove/DataScience_reference_optimized.R<br/>可运行优化副本"]
+    GalleryScript["UIimprove/generate_gallery.R<br/>生成图册和 manifest"]
+    Images["UIimprove/images/*.png<br/>图册用图片"]
+    Manifest["UIimprove/plot_manifest.csv<br/>所有候选图"]
+    Gallery["UIimprove/reference_plot_gallery.html<br/>给人看的图册"]
+    Keep["UIimprove/plot_manifest_toKeep.csv<br/>你填 Comment 的选择表"]
+    Selected["R/selected_plots.R<br/>只读取 Keep CSV<br/>不直接复制 images PNG"]
+    Dashboard["正式 dashboard"]
+
+    Original --> Optimized --> GalleryScript
+    GalleryScript --> Images
+    GalleryScript --> Manifest
+    GalleryScript --> Gallery
+    Manifest -. "人工筛选后形成" .-> Keep
+    Keep --> Selected --> Dashboard
+```
+
+### 重要区别
+
+| 文件 | 当前 dashboard 会不会直接执行 | 作用 |
+|---|---:|---|
+| `UIimprove/reference_plot_gallery.html` | 否 | 给你看图、决定保留哪些 |
+| `UIimprove/images/*.png` | 否 | 图册里的静态图片 |
+| `UIimprove/plot_manifest.csv` | 否 | 候选图清单 |
+| `UIimprove/plot_manifest_toKeep.csv` | 是，读取 | Comment 列决定本轮图片选择 |
+| `R/selected_plots.R` | 是，执行 | 根据 CSV 决定图，并重新运行算法生成 dashboard 图片 |
+
+---
+
+## 8. 每个主要 R 文件的小路线图
+
+### `run_app.R`
+
+```mermaid
+%%{init: {'flowchart': {'nodeSpacing': 55, 'rankSpacing': 85}, 'themeVariables': {'fontSize': '16px'}}}%%
+flowchart TB
+    Start["运行 run_app.R"]
+    Find["find_project_dir()"]
+    Project["project_dir"]
+    SourcePkg["source(project_dir/R/packages.R)"]
+    Lib["use_project_library(project_dir)"]
+    Install["install_missing_packages(required_packages, project_dir)"]
+    Chrome["open_in_chrome(url)"]
+    RunApp["shiny::runApp(project_dir, port=7411, launch.browser=open_in_chrome)"]
+
+    Start --> Find --> Project --> SourcePkg --> Lib --> Install --> Chrome --> RunApp
+```
+
+### `R/packages.R`
+
+```mermaid
+%%{init: {'flowchart': {'nodeSpacing': 50, 'rankSpacing': 80}, 'themeVariables': {'fontSize': '16px'}}}%%
+flowchart TB
+    Required["required_packages"]
+    Path["project_library_path(project_dir)<br/>R_library/R-4.5"]
+    Use["use_project_library(project_dir)<br/>.libPaths() 最前面"]
+    Install["install_missing_packages(required_packages, project_dir)"]
+    Load["load_required_packages()"]
+    Session["当前 R session 可以使用 shiny / ggplot2 / DT / visNetwork"]
+
+    Required --> Install
+    Path --> Use --> Install --> Load --> Session
+```
+
+### `R/data_loader.R`
+
+```mermaid
+%%{init: {'flowchart': {'nodeSpacing': 50, 'rankSpacing': 80}, 'themeVariables': {'fontSize': '16px'}}}%%
+flowchart TB
+    DataDir["data_dir"]
+    Load["load_wide_data(data_dir)"]
+    Bundle["data_bundle"]
+    CAD["prepare_cad_market_data(data_bundle)"]
+    Macro["prepare_macro_group_data(data_bundle)<br/>定义在 case_helpers.R，但使用 data_bundle"]
+    Factor["prepare_factor_data(data_bundle)<br/>定义在 case_helpers.R，但使用 CAD data"]
+
+    DataDir --> Load --> Bundle
+    Bundle --> CAD
+    Bundle --> Macro
+    Bundle --> Factor
+```
+
+### `R/catalog.R`
+
+```mermaid
+%%{init: {'flowchart': {'nodeSpacing': 50, 'rankSpacing': 80}, 'themeVariables': {'fontSize': '16px'}}}%%
+flowchart TB
+    Catalog["get_method_catalog()"]
+    Notes["get_method_notes(method_id)"]
+    SourceMap["get_source_method_map()"]
+    Network["get_method_network()"]
+    Sidebar["method_sidebar(method_catalog)"]
+    Detail["Method Detail notes + source map"]
+    Navigator["Method Navigator"]
+
+    Catalog --> Sidebar
+    Notes --> Detail
+    SourceMap --> Detail
+    Network --> Navigator
+```
+
+### `R/case_helpers.R`
+
+```mermaid
+%%{init: {'flowchart': {'nodeSpacing': 50, 'rankSpacing': 80}, 'themeVariables': {'fontSize': '16px'}}}%%
+flowchart TB
+    DataHelpers["prepare_*_data()"]
+    ModelHelpers["fit_simple_var()<br/>fit_garch_manual()<br/>manual_roc()"]
+    PlotHelpers["matrix_heatmap()<br/>acf_plot()<br/>standard_theme()"]
+    ResultHelpers["teaching_steps()<br/>test_result()<br/>bind_tests()<br/>variable_rows()"]
+    NewCase["new_case(..., visual_sections=NULL)"]
+    Case["完整 case list"]
+
+    DataHelpers --> ModelHelpers
+    DataHelpers --> PlotHelpers
+    ModelHelpers --> ResultHelpers
+    PlotHelpers --> NewCase
+    ResultHelpers --> NewCase --> Case
+```
+
+### `R/examples_complete.R`
+
+```mermaid
+%%{init: {'flowchart': {'nodeSpacing': 45, 'rankSpacing': 75}, 'themeVariables': {'fontSize': '15px'}}}%%
+flowchart TB
+    RunExample["run_example(example_id, data_bundle)"]
+    Switch["switch(example_id)"]
+    Cases["case_independence / case_correlation / ... / case_bayesian"]
+    Helpers["调用 case_helpers.R"]
+    NewCase["new_case()"]
+    BaseCase["base case list"]
+
+    RunExample --> Switch --> Cases --> Helpers --> NewCase --> BaseCase
+```
+
+### `R/selected_plots.R`
+
+```mermaid
+%%{init: {'flowchart': {'nodeSpacing': 50, 'rankSpacing': 80}, 'themeVariables': {'fontSize': '16px'}}}%%
+flowchart TB
+    Read["get_selected_plot_requests(csv_path)"]
+    Notes["selected_plot_notes()"]
+    Build["build_selected_reference_plots(method_id, data_bundle)"]
+    Sections["selected_visual_sections(method_id, plot_names)"]
+    Enrich["enrich_case_with_selected_plots(method_id, case, data_bundle, selected_requests)"]
+    Format["format_display_table()"]
+    Render["render_case_plot_cache(method_id, case, cache_dir)"]
+    App["app.R outputs"]
+
+    Read --> Enrich
+    Notes --> Enrich
+    Build --> Enrich
+    Sections --> Enrich
+    Enrich --> Render --> App
+    Format --> App
+```
+
+### `R/examples.R`
+
+```mermaid
+%%{init: {'flowchart': {'nodeSpacing': 50, 'rankSpacing': 80}, 'themeVariables': {'fontSize': '16px'}}}%%
+flowchart TB
+    Old["R/examples.R<br/>旧版案例实现"]
+    Current["当前 app.R"]
+    New["R/examples_complete.R"]
+
+    Old -. "当前不被 app.R source" .-> Current
+    New --> Current
+```
+
+---
+
+## 9. 参考文件、历史文件、运行文件怎么区分
+
+| 路径 | 类型 | 当前网页启动时会不会执行 | 说明 |
+|---|---|---:|---|
+| `run_app.R` | 正式入口 | 是 | VSCode/RStudio 推荐 source 这个 |
+| `app.R` | 正式 Shiny 主程序 | 是 | UI、server、预计算、缓存都在这里连起来 |
+| `R/packages.R` | 正式依赖管理 | 是 | 设置项目 library，加载 package |
+| `R/data_loader.R` | 正式数据读取 | 是 | 读取 `data/WIDE_*` |
+| `R/catalog.R` | 正式目录 metadata | 是 | 方法目录、说明、网络图、source map |
+| `R/case_helpers.R` | 正式公共 helper | 是 | 被案例和 selected plots 调用 |
+| `R/examples_complete.R` | 正式案例库 | 是 | 24 个方法的 case |
+| `R/selected_plots.R` | 正式图片选择逻辑 | 是 | 本轮新增，接入 CSV 选择和 PNG 缓存 |
+| `www/styles.css` | 正式样式 | 是 | 控制 dashboard 布局和图片显示 |
+| `UIimprove/plot_manifest_toKeep.csv` | 正式配置输入 | 是，读取 | 只读取，不修改 |
+| `tests/*.R` | 验证工具 | 否 | 手动运行检查项目 |
+| `DataScience_optimized.R` | 脚本版学习入口 | 否 | 不启动网页，用来理解和复用分析逻辑 |
+| `DataScience_original_reference.R` | 原始参考 | 否 | 保留原始算法和旧图 |
+| `R/examples.R` | 历史版本 | 否 | 第一版案例参考 |
+| `samplecomment.R` | 注释风格样例 | 否 | 给注释 skill 当风格参考 |
+| `UIimprove/reference_plot_gallery.html` | 图册 | 否 | 给人看图，不被 dashboard 直接读取 |
+
+---
+
+## 10. 新增或调整图片时应该改哪里
+
+```mermaid
+%%{init: {'flowchart': {'nodeSpacing': 55, 'rankSpacing': 85}, 'themeVariables': {'fontSize': '16px'}}}%%
+flowchart TB
+    UserCSV["你修改 plot_manifest_toKeep.csv 的 Comment"]
+    Read["get_selected_plot_requests() 读取新选择"]
+    Existing["如果只是 Current App 图保留/不保留"]
+    Drop["enrich_case_with_selected_plots() 删除或保留现有 plot"]
+    NewOriginal["如果要新增 Original Reference 图"]
+    Algorithm["需要在 build_selected_reference_plots() 增加对应绘图算法"]
+    Note["selected_plot_notes() 增加英文图片说明"]
+    Section["selected_visual_sections() 放到教学步骤里"]
+    Startup["重新运行 run_app.R"]
+    Dashboard["dashboard 显示新图片结构"]
+
+    UserCSV --> Read
+    Read --> Existing --> Drop --> Startup
+    Read --> NewOriginal --> Algorithm --> Note --> Section --> Startup --> Dashboard
+```
+
+### 大白话规则
+
+- 只改 CSV Comment：适合当前已经支持的图片。
+- 要加一张新的原始图：除了 CSV，还要在 `R/selected_plots.R` 写重建算法、说明和分组。
+- 不建议直接把 `UIimprove/images/*.png` 复制进 dashboard，因为那样图片不会跟数据和模型同步。
+
+---
+
+## 11. 新增一个统计方法时应该改哪里
+
+```mermaid
+%%{init: {'flowchart': {'nodeSpacing': 55, 'rankSpacing': 85}, 'themeVariables': {'fontSize': '16px'}}}%%
+flowchart TB
+    Catalog["R/catalog.R<br/>get_method_catalog() 增加 method_id/example_id"]
+    Notes["R/catalog.R<br/>get_method_notes() 增加方法说明"]
+    Network["R/catalog.R<br/>get_method_network() 可选增加节点和边"]
+    Data["R/data_loader.R 或 R/case_helpers.R<br/>准备新案例需要的数据"]
+    Case["R/examples_complete.R<br/>新增 case_new_method(data_bundle)"]
+    Route["run_example() switch() 增加 example_id 路由"]
+    Output["new_case() 返回 plots/tables/tests/code/conclusion"]
+    OptionalPlots["R/selected_plots.R<br/>如果有原始参考图选择，再接入"]
+    App["app.R 不需要专门改<br/>会按 catalog 自动预计算和显示"]
+
+    Catalog --> Notes --> Network --> Data --> Case --> Route --> Output --> App
+    OptionalPlots --> App
+```
+
+---
+
+## 12. 当前验证结果对应的运行逻辑
+
+这几个验证结果说明当前代码链路是通的：
+
+```text
+tests/parse_project.R
+→ 所有 R 文件 parse OK
+
+tests/validate_selected_plots.R
+→ Independence Test: 3 PNG
+→ Correlation: 4 PNG
+→ Partial Correlation: 4 PNG
+→ Linear Regression: 3 PNG
+→ Polynomial Regression: 2 PNG
+→ Subset Regression: 2 PNG
+→ ANOVA: 9 PNG
+→ ANCOVA: 6 PNG
+
+tests/validate_app_startup.R
+→ 24 个 case 都在 Shiny 打开前计算完成
+→ 每个 case 都有 PNG cache
+→ 普通切换 method 不改缓存
+→ Re-run case 只替换当前 method 缓存
+
+tests/launch_validation_app.R + HTTP 检查
+→ http://127.0.0.1:7412 返回 HTTP 200
+```
+
+---
+
+## 13. 旧版详细导引保留区
+
+下面内容是之前版本的详细 Code Guide。大部分基础解释仍然正确，但如果它和上面的“最新版”不一致，以上面的新版为准，尤其是：
+
+- `R/selected_plots.R` 已经成为当前正式运行链路的一部分；
+- 图片现在通过 `plot_file_cache` 和临时 PNG 显示；
+- `tests/` 是新增验证工具；
+- `UIimprove/plot_manifest_toKeep.csv` 是正式图片选择输入。
+
 这份文档不按“函数在哪里定义”来讲，而是按“函数后来在哪里被使用、输入什么、返回什么、结果如何继续传递”来讲。
 
 图中：

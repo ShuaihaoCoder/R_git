@@ -27,4 +27,16 @@ install_and_load_packages(project_dir)
 message("YieldCurve Trader Dashboard")
 message("Project: ", project_dir)
 message("R: ", R.version.string)
-shiny::runApp(project_dir, launch.browser = TRUE)
+
+port_from_env <- suppressWarnings(as.integer(Sys.getenv("YIELDCURVE_SHINY_PORT", "")))
+selected_port <- if (is.finite(port_from_env) && port_from_env > 0) port_from_env else httpuv::randomPort()
+selected_host <- "127.0.0.1"
+app_url <- paste0("http://", selected_host, ":", selected_port)
+
+message("URL: ", app_url)
+message("If VSCode does not open the browser automatically, open the URL above.")
+launch_now <- function(url) {
+  message("Opening browser: ", url)
+  utils::browseURL(url)
+}
+shiny::runApp(project_dir, host = selected_host, port = selected_port, launch.browser = launch_now)
