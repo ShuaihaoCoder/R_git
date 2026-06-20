@@ -1,0 +1,37 @@
+Loading required package: shiny
+Warning: package 'shiny' was built under R version 4.5.3
+Warning: package 'bslib' was built under R version 4.5.3
+
+Attaching package: 'bslib'
+
+The following object is masked from 'package:utils':
+
+    page
+
+Warning: package 'DT' was built under R version 4.5.3
+
+Attaching package: 'DT'
+
+The following objects are masked from 'package:shiny':
+
+    dataTableOutput, renderDataTable
+
+Warning: package 'ggplot2' was built under R version 4.5.3
+Warning: package 'plotly' was built under R version 4.5.3
+
+Attaching package: 'plotly'
+
+The following object is masked from 'package:ggplot2':
+
+    last_plot
+
+The following object is masked from 'package:stats':
+
+    filter
+
+The following object is masked from 'package:graphics':
+
+    layout
+
+
+Listening on http://127.0.0.1:7861

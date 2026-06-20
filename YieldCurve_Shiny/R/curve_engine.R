@@ -281,12 +281,16 @@ curve_trade_legs <- function(structure = c("steepener", "flattener", "long_belly
 # 每条腿复用单腿 calculate_carry_roll()，再用该腿绝对 DV01 转成 P&L 并汇总。
 # 用户可把 curve_trade_legs() 返回的 dv01 列改成手动值后再传入本函数。
 calculate_curve_trade <- function(curve, legs, hold, compounding = "annual",
-                                  risk_budget = NULL) {
+                                  risk_budget = NULL,
+                                  start = 0) {
   required <- c("leg", "tenor", "direction", "dv01")
   if (!all(required %in% names(legs))) stop("legs must contain: ", paste(required, collapse = ", "), call. = FALSE)
+  start <- as.numeric(start)
+  if (!is.finite(start) || start < 0) stop("Curve-trade start tenor must be finite and non-negative.", call. = FALSE)
+  if (any(start >= as.numeric(legs$tenor))) stop("Curve-trade start tenor must be below every leg tenor.", call. = FALSE)
   rows <- lapply(seq_len(nrow(legs)), function(index) {
     leg <- legs[index, , drop = FALSE]
-    result <- calculate_carry_roll(curve, 0, leg$tenor, hold, leg$direction, compounding)
+    result <- calculate_carry_roll(curve, start, leg$tenor, hold, leg$direction, compounding)
     result$leg <- leg$leg
     result$tenor <- leg$tenor
     result$dv01 <- as.numeric(leg$dv01)

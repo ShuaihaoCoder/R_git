@@ -29,6 +29,9 @@ fmt_pct2 <- function(x) paste0(format(round(as.numeric(x), 2), nsmall = 2, trim 
 fmt_pct4 <- function(x) paste0(format(round(as.numeric(x), 4), nsmall = 4, trim = TRUE, scientific = FALSE), "%")
 fmt_df2 <- function(x) format(round(as.numeric(x), 2), nsmall = 2, trim = TRUE, scientific = FALSE)
 fmt_bp <- function(x) paste0(fmt_num(x), " bp")
+fmt_num_digits <- function(x, digits = 1) format(round(as.numeric(x), digits), nsmall = digits, trim = TRUE, scientific = FALSE, big.mark = ",")
+fmt_bp1 <- function(x) paste0(fmt_num_digits(x, 1), " bp")
+fmt_pnl0 <- function(x) fmt_num_digits(x, 0)
 `%||%` <- function(x, y) if (is.null(x) || length(x) == 0) y else x
 round_numeric_df <- function(x) {
   numeric_columns <- vapply(x, is.numeric, logical(1))
@@ -52,7 +55,7 @@ plotly_finish <- function(plot, tooltip = "text") {
 plotly_trace_finish <- function(plot, margin = list(t = 76, r = 28, b = 52, l = 58)) {
   plotly::config(
     plotly::layout(plot, margin = margin,
-      title = list(x = 0.02, font = list(size = 13)), xaxis = list(tickformat = ".2f"), yaxis = list(tickformat = ".2f")),
+      title = list(x = 0.02, font = list(size = 13))),
     displaylogo = FALSE,
     modeBarButtonsToRemove = c("lasso2d", "select2d", "autoScale2d", "toggleSpikelines")
   )
@@ -168,6 +171,24 @@ metric_card_ui <- function(title, output_id, subtitle_id = NULL, class = NULL) {
     if (!is.null(subtitle_id)) div(class = "metric-subtitle", textOutput(subtitle_id))
   )
 }
+metric_card_sub_ui <- function(title, value_id, subtitle_id = NULL, class = NULL) {
+  div(class = paste("metric-card curve-kpi-card", class),
+    tags$div(class = "metric-kicker", title),
+    div(class = "metric-value", uiOutput(value_id)),
+    if (!is.null(subtitle_id)) div(class = "metric-subtitle", uiOutput(subtitle_id))
+  )
+}
+signed_value_span <- function(value, suffix = NULL) {
+  numeric_value <- suppressWarnings(as.numeric(value))
+  class <- if (is.finite(numeric_value) && numeric_value > 0) "signed-value positive" else if (is.finite(numeric_value) && numeric_value < 0) "signed-value negative" else "signed-value neutral"
+  tags$span(class = class, paste0(if (is.finite(numeric_value) && numeric_value > 0) "+" else "", fmt_num(numeric_value), suffix %||% ""))
+}
+signed_value_span_digits <- function(value, suffix = NULL, digits = 1) {
+  numeric_value <- suppressWarnings(as.numeric(value))
+  class <- if (is.finite(numeric_value) && numeric_value > 0) "signed-value positive" else if (is.finite(numeric_value) && numeric_value < 0) "signed-value negative" else "signed-value neutral"
+  tags$span(class = class, paste0(if (is.finite(numeric_value) && numeric_value > 0) "+" else "", fmt_num_digits(numeric_value, digits), suffix %||% ""))
+}
+signed_na_span <- function() tags$span(class = "signed-value neutral muted-na", "NA")
 tenor_label <- function(x) {
   x <- as.numeric(x)
   vapply(x, function(value) {
@@ -290,7 +311,7 @@ history_status_card <- function() {
   )
 }
 plot_card <- function(output_id, height = "430px", class = NULL, subtitle = NULL) {
-  div(class = paste("plot-card", class),
+  div(class = paste("plot-card resizable-plot-card", class), `data-default-height` = height,
     div(class = "plot-card-head",
       div(
         div(class = "card-kicker", "Interactive Plotly"),
@@ -333,6 +354,44 @@ source_controls <- function(prefix, title) {
     )
   )
 }
+carry_status_card <- function() {
+  div(class = "carry-status-card",
+    div(class = "carry-status-title", "STATUS"),
+    uiOutput("carry_status_detail")
+  )
+}
+carry_mode_switch <- function() {
+  control_section("WORKSPACE",
+    radioButtons("carry_workspace_mode", NULL,
+      choices = c("Single Trade" = "single", "Curve Trade" = "trade"), selected = "single",
+      inline = TRUE)
+  )
+}
+carry_shared_source_controls <- function() {
+  tagList(
+    control_section("DATA SOURCE",
+      radioButtons("carry_source_mode", NULL,
+        choices = c("Bloomberg (BVAL)" = "zero", "Historical quotes (Proxy)" = "historical"), selected = "zero")
+    ),
+    control_section("CURVE",
+      sidebar_selectize_input("carry_curve_name", NULL, choices = NULL)
+    ),
+    control_section("AS OF DATE",
+      conditionalPanel("input.carry_source_mode == 'historical'", dateInput("carry_curve_date", NULL)),
+      conditionalPanel("input.carry_source_mode == 'zero'", div(class = "rail-note", uiOutput("carry_zero_date_note")))
+    ),
+    control_section("FIT METHOD",
+      sidebar_selectize_input("carry_fit_method", NULL,
+        choices = c("Nelson-Siegel" = "nelson_siegel", "Spline" = "spline"), selected = "nelson_siegel")
+    )
+  )
+}
+carry_tenor_range_controls <- function(start_id, end_id, start_selected = 0, end_selected = 5) {
+  div(class = "tenor-range-grid",
+    sidebar_selectize_input(start_id, "Start Tenor", choices = c("0Y" = 0, tenor_choices), selected = start_selected),
+    sidebar_selectize_input(end_id, "End Tenor", choices = tenor_choices, selected = end_selected)
+  )
+}
 sidebar_selectize_input <- function(inputId, label, choices, selected = NULL, multiple = FALSE, options = list()) {
   # 中文说明：sidebar 是一个可滚动容器；把 selectize 的下拉层挂到 body，避免被侧栏裁剪。
   selectizeInput(inputId, label, choices = choices, selected = selected, multiple = multiple,
@@ -367,7 +426,42 @@ status_strip <- function(...) div(class = "status-strip", ...)
 
 ui <- navbarPage(
   title = "YieldCurve Trader", theme = theme,
-  header = tags$head(tags$link(rel = "stylesheet", type = "text/css", href = "styles.css")),
+  header = tags$head(
+    tags$link(rel = "stylesheet", type = "text/css", href = "styles.css"),
+    tags$script(HTML("
+      (function() {
+        function resizePlotCard(card) {
+          var plot = card.querySelector('.plotly.html-widget');
+          if (!plot || !window.Plotly) return;
+          var head = card.querySelector('.plot-card-head');
+          var headHeight = head ? head.offsetHeight : 0;
+          var available = Math.max(180, card.clientHeight - headHeight - 28);
+          plot.style.height = available + 'px';
+          window.Plotly.Plots.resize(plot);
+        }
+
+        function attachResizablePlots() {
+          document.querySelectorAll('.plot-card.resizable-plot-card').forEach(function(card) {
+            if (card.dataset.resizeAttached === 'true') return;
+            card.dataset.resizeAttached = 'true';
+            if (window.ResizeObserver) {
+              var observer = new ResizeObserver(function() { resizePlotCard(card); });
+              observer.observe(card);
+            }
+            setTimeout(function() { resizePlotCard(card); }, 250);
+          });
+        }
+
+        document.addEventListener('DOMContentLoaded', attachResizablePlots);
+        document.addEventListener('shiny:value', function(event) {
+          setTimeout(attachResizablePlots, 80);
+          var card = event.target && event.target.closest ? event.target.closest('.plot-card.resizable-plot-card') : null;
+          if (card) setTimeout(function() { resizePlotCard(card); }, 120);
+        });
+        document.addEventListener('shown.bs.tab', function() { setTimeout(attachResizablePlots, 120); });
+      })();
+    "))
+  ),
   tabPanel("Curve Explorer",
     fluidPage(class = "app-page dashboard-page curve-page",
       div(class = "dashboard-shell curve-shell",
@@ -598,78 +692,76 @@ ui <- navbarPage(
     )
   )),
   tabPanel("Carry & Roll", dashboard_page(
-    "Carry & Roll",
-    "Single-trade carry/roll plus DV01-neutral steepener, flattener and fly workspace.",
+    "Carry & Roll Analysis",
+    uiOutput("carry_header_meta"),
     NULL,
+    class = "carry-page",
     controls = side_panel(
       rail_header("Carry Controls", "Single trade and curve trade"),
-      source_controls("carry", "Single trade source"),
-      control_section("Single trade",
-        numericInput("carry_start", "Trade start (years)", 0, min = 0, step = 0.25),
-        numericInput("carry_end", "Trade end (years)", 5, min = 0.25, step = 0.25),
-        sidebar_selectize_input("carry_hold", "Hold period", choices = c("1M" = 1/12, "3M" = 0.25, "6M" = 0.5, "1Y" = 1), selected = 0.25),
-        sidebar_selectize_input("carry_direction", "Direction", choices = c("Receive Fixed", "Pay Fixed")),
-        numericInput("dv01", "DV01 per bp", 10000, min = 0, step = 1000),
-        actionButton("calculate_carry", "Calculate Carry & Roll", class = "btn-primary action-main"),
-        progress_box("carry")
+      carry_mode_switch(),
+      carry_shared_source_controls(),
+      conditionalPanel("input.carry_workspace_mode == 'single'",
+        control_section("TENOR RANGE", carry_tenor_range_controls("carry_start", "carry_end", 0, 5)),
+        control_section("HOLD PERIOD",
+          sidebar_selectize_input("carry_hold", NULL, choices = c("1M (1 Month)" = 1/12, "3M (3 Months)" = 0.25, "6M (6 Months)" = 0.5, "1Y (1 Year)" = 1), selected = 0.25)
+        ),
+        control_section("DIRECTION",
+          sidebar_selectize_input("carry_direction", NULL, choices = c("Receive Fixed", "Pay Fixed"))
+        ),
+        control_section("DV01 (PER $1MM NOTIONAL)",
+          numericInput("dv01", NULL, 10000, min = 0, step = 1000),
+          actionButton("calculate_carry", tagList(tags$span(class = "calc-button-icon", "\u25a3"), "Calculate Carry & Roll"), class = "btn-primary action-main"),
+          actionButton("load_neutral_dv01", tagList(tags$span(class = "download-icon", "\u21e9"), "Load DV01-neutral defaults"), class = "btn-outline-secondary side-secondary")
+        )
       ),
-      source_controls("trade", "Curve trade source"),
-      control_section("Curve trade structure",
-        sidebar_selectize_input("trade_structure", "Structure", choices = c("Steepener" = "steepener", "Flattener" = "flattener",
-          "Long-belly Fly" = "long_belly_fly", "Short-belly Fly" = "short_belly_fly")),
-        numericInput("trade_short_tenor", "Short tenor", 2, min = 0.25, step = 0.25),
-        numericInput("trade_belly_tenor", "Belly tenor", 5, min = 0.5, step = 0.25),
-        numericInput("trade_long_tenor", "Long tenor", 10, min = 1, step = 0.25),
-        sidebar_selectize_input("trade_hold", "Hold period", choices = c("1M" = 1/12, "3M" = 0.25, "6M" = 0.5, "1Y" = 1), selected = 0.25),
-        numericInput("trade_risk_budget", "DV01-neutral risk budget", 10000, min = 1, step = 1000),
-        numericInput("trade_short_dv01", "Short leg DV01", 10000, min = 0, step = 1000),
-        numericInput("trade_belly_dv01", "Belly leg DV01", 10000, min = 0, step = 1000),
-        numericInput("trade_long_dv01", "Long leg DV01", 10000, min = 0, step = 1000),
-        actionButton("load_neutral_dv01", "Load DV01-neutral defaults", class = "btn-outline-secondary side-secondary"),
-        actionButton("calculate_curve_trade", "Calculate Curve Trade", class = "btn-primary action-main"),
-        progress_box("trade")
-      )
+      conditionalPanel("input.carry_workspace_mode == 'trade'",
+        control_section("STRUCTURE",
+          sidebar_selectize_input("trade_structure", NULL, choices = c("Steepener" = "steepener", "Flattener" = "flattener",
+            "Long-belly Fly" = "long_belly_fly", "Short-belly Fly" = "short_belly_fly"))
+        ),
+        control_section("TENORS",
+          numericInput("trade_start", "Start tenor", 0, min = 0, step = 0.25),
+          numericInput("trade_short_tenor", "Short tenor", 2, min = 0.25, step = 0.25),
+          numericInput("trade_belly_tenor", "Belly tenor", 5, min = 0.5, step = 0.25),
+          numericInput("trade_long_tenor", "Long tenor", 10, min = 1, step = 0.25)
+        ),
+        control_section("HOLD PERIOD",
+          sidebar_selectize_input("trade_hold", NULL, choices = c("1M (1 Month)" = 1/12, "3M (3 Months)" = 0.25, "6M (6 Months)" = 0.5, "1Y (1 Year)" = 1), selected = 0.25)
+        ),
+        control_section("DV01",
+          numericInput("trade_risk_budget", "DV01-neutral risk budget", 10000, min = 1, step = 1000),
+          numericInput("trade_short_dv01", "Short leg DV01", 10000, min = 0, step = 1000),
+          numericInput("trade_belly_dv01", "Belly leg DV01", 10000, min = 0, step = 1000),
+          numericInput("trade_long_dv01", "Long leg DV01", 10000, min = 0, step = 1000),
+          actionButton("load_neutral_dv01_trade", tagList(tags$span(class = "download-icon", "\u21e9"), "Load DV01-neutral defaults"), class = "btn-outline-secondary side-secondary"),
+          actionButton("calculate_curve_trade", tagList(tags$span(class = "calc-button-icon", "\u25a3"), "Calculate Curve Trade"), class = "btn-primary action-main")
+        )
+      ),
+      carry_status_card()
     ),
     main = main_grid(
-      module_tabs("Carry & Roll", c("Single Trade", "Curve Trade", "Tenor Matrix", "Risk Notes")),
-      section_card("Single Trade", subtitle = "Carry, roll and DV01 P&L for one receive/pay fixed view.",
-        uiOutput("carry_banner"),
-        metric_strip(
-          metric_card("Carry", "carry_value"),
-          metric_card("Roll", "roll_value"),
-          metric_card("Total / P&L", "total_value"),
-          metric_card("Direction", "carry_direction_value")
-        ),
-        grid_row(
-          grid_col(class = "span-4", explanation_card("How to interpret Carry and Roll", "carry_explanation")),
-          grid_col(class = "span-4", plot_card("carry_component_plot", height = "340px")),
-          grid_col(class = "span-4", plot_card("carry_spot_plot", height = "340px"))
-        ),
-        grid_row(
-          grid_col(class = "span-7", plot_card("carry_stacked_plot", height = "680px",
-            subtitle = "Tenors are ordered by maturity, not alphabetically.")),
-          grid_col(class = "span-5",
-            plot_card("carry_heatmap", height = "380px"),
-            unavailable_card("Strict OIS/IRS bootstrap", "Current local data supports fitted-curve proxy analytics, not strict multi-curve bootstrapping.")
-          )
-        ),
-        table_card("Carry Matrix", "carry_matrix")
+      uiOutput("carry_title_block"),
+      div(class = "metric-strip carry-kpi-strip",
+        metric_card_sub_ui("Carry", "carry_value_ui", "carry_subtitle_ui"),
+        metric_card_sub_ui("Roll", "roll_value_ui", "roll_subtitle_ui"),
+        metric_card_sub_ui("Total", "total_bp_ui", "total_subtitle_ui"),
+        metric_card_sub_ui("P&L", "pnl_value_ui", "pnl_subtitle_ui"),
+        metric_card_sub_text("Trade Mode", "trade_mode_value", "trade_mode_subtitle"),
+        metric_card_sub_ui("Curve Quality", "curve_quality_ui", "curve_quality_subtitle_ui")
       ),
-      section_card("Curve Trade", subtitle = "DV01-neutral recommended structures remain visible and calculated separately.",
-        uiOutput("trade_banner"),
-        metric_strip(
-          metric_card("Portfolio Carry P&L", "trade_carry_pnl"),
-          metric_card("Portfolio Roll P&L", "trade_roll_pnl"),
-          metric_card("Total P&L / Eq. bp", "trade_total_pnl"),
-          metric_card("Structure", "trade_structure_value")
-        ),
-        explanation_card("How this curve trade is constructed", "trade_explanation"),
-        grid_row(
-          grid_col(class = "span-5", table_card("Curve Trade Legs", "trade_leg_table", "Each leg shows carry, roll, total bp and P&L.")),
-          grid_col(class = "span-7", plot_card("trade_leg_pnl_plot", height = "430px"))
-        ),
-        plot_card("trade_component_plot", height = "380px")
-      )
+      grid_row(class = "carry-top-row",
+        grid_col(class = "span-6", plot_card("carry_component_plot", height = "340px", class = "carry-main-plot",
+          subtitle = "Carry, roll and total by tenor for the selected hold period.")),
+        grid_col(class = "span-6", plot_card("carry_spot_plot", height = "340px", class = "carry-main-plot"))
+      ),
+      grid_row(class = "carry-bottom-row",
+        grid_col(class = "span-5", plot_card("carry_heatmap", height = "420px", class = "carry-heatmap-card",
+          subtitle = "Rows = hold period; columns = tenor.")),
+        grid_col(class = "span-7",
+          uiOutput("curve_trade_workspace")
+        )
+      ),
+      div(class = "carry-hidden-legacy", table_card("Carry Matrix", "carry_matrix"), plot_card("carry_stacked_plot", height = "320px"), plot_card("trade_component_plot", height = "260px"))
     )
   )),
   tabPanel("Diagnostics", dashboard_page(
@@ -833,7 +925,6 @@ server <- function(input, output, session) {
     update_curve_selector("", input$source_mode)
     update_curve_selector("forward", input$forward_source_mode)
     update_curve_selector("carry", input$carry_source_mode)
-    update_curve_selector("trade", input$trade_source_mode)
     dates <- available_dates()
     history_curves <- curve_choices()$historical
     defaults <- intersect(c("USD SOFR OIS", "EUR ESTR OIS"), history_curves)
@@ -891,6 +982,11 @@ server <- function(input, output, session) {
     div(class = "forward-blue-note", tags$span(class = "info-dot", "i"),
       paste("Using latest local zero-rate snapshot. Display valuation date:", latest_date))
   })
+  output$carry_zero_date_note <- renderUI({
+    latest_date <- if (length(market()$wide_rates$date)) max(market()$wide_rates$date, na.rm = TRUE) else Sys.Date()
+    div(class = "forward-blue-note", tags$span(class = "info-dot", "i"),
+      paste("Using latest local zero-rate snapshot. Display date:", latest_date))
+  })
   observeEvent(input$reset_forward, {
     updateRadioButtons(session, "forward_source_mode", selected = "zero")
     updateSelectizeInput(session, "forward_start", selected = 1)
@@ -938,7 +1034,7 @@ server <- function(input, output, session) {
     input$history_start_tenor, input$history_end_tenor, input$history_source_mode), mark_pending("history"), ignoreInit = TRUE)
   observeEvent(list(input$forward_source_mode, input$forward_curve_name, input$forward_curve_date, input$forward_fit_method, input$forward_start, input$forward_end, input$forward_compounding), mark_pending("forward"), ignoreInit = TRUE)
   observeEvent(list(input$carry_source_mode, input$carry_curve_name, input$carry_curve_date, input$carry_fit_method, input$carry_start, input$carry_end, input$carry_hold, input$carry_direction, input$dv01), mark_pending("carry"), ignoreInit = TRUE)
-  observeEvent(list(input$trade_source_mode, input$trade_curve_name, input$trade_curve_date, input$trade_fit_method, input$trade_structure, input$trade_short_tenor, input$trade_belly_tenor, input$trade_long_tenor, input$trade_hold, input$trade_risk_budget, input$trade_short_dv01, input$trade_belly_dv01, input$trade_long_dv01), mark_pending("trade"), ignoreInit = TRUE)
+  observeEvent(list(input$carry_source_mode, input$carry_curve_name, input$carry_curve_date, input$carry_fit_method, input$trade_structure, input$trade_start, input$trade_short_tenor, input$trade_belly_tenor, input$trade_long_tenor, input$trade_hold, input$trade_risk_budget, input$trade_short_dv01, input$trade_belly_dv01, input$trade_long_dv01), mark_pending("trade"), ignoreInit = TRUE)
 
   observeEvent(input$apply_curve, {
     result <- run_page("curve", function() {
@@ -1039,22 +1135,24 @@ server <- function(input, output, session) {
       updateNumericInput(session, "trade_long_dv01", value = legs$dv01[[nrow(legs)]])
     }
   }, ignoreInit = FALSE)
-  observeEvent(input$load_neutral_dv01, {
+  apply_neutral_trade_dv01 <- function() {
     legs <- curve_trade_legs(input$trade_structure, input$trade_short_tenor, input$trade_belly_tenor, input$trade_long_tenor, input$trade_risk_budget)
     updateNumericInput(session, "trade_short_dv01", value = legs$dv01[[1]])
     if (nrow(legs) == 3) updateNumericInput(session, "trade_belly_dv01", value = legs$dv01[[2]])
     updateNumericInput(session, "trade_long_dv01", value = legs$dv01[[nrow(legs)]])
-  })
+  }
+  observeEvent(input$load_neutral_dv01, apply_neutral_trade_dv01())
+  observeEvent(input$load_neutral_dv01_trade, apply_neutral_trade_dv01())
   observeEvent(input$calculate_curve_trade, {
     result <- run_page("trade", function() {
       set_status("trade", "running", 28, "Resolving selected date")
-      bundle <- prepare_curve_fit(market(), input$trade_source_mode, input$trade_curve_name, input$trade_curve_date, input$trade_fit_method)
+      bundle <- prepare_curve_fit(market(), input$carry_source_mode, input$carry_curve_name, input$carry_curve_date, input$carry_fit_method)
       legs <- curve_trade_legs(input$trade_structure, input$trade_short_tenor, input$trade_belly_tenor, input$trade_long_tenor, input$trade_risk_budget)
       legs$dv01 <- if (nrow(legs) == 2) c(input$trade_short_dv01, input$trade_long_dv01) else c(input$trade_short_dv01, input$trade_belly_dv01, input$trade_long_dv01)
       set_status("trade", "running", 65, "Calculating each leg")
-      calculation <- calculate_curve_trade(bundle$fit, legs, as.numeric(input$trade_hold), "annual", input$trade_risk_budget)
+      calculation <- calculate_curve_trade(bundle$fit, legs, as.numeric(input$trade_hold), "annual", risk_budget = input$trade_risk_budget, start = input$trade_start)
       set_status("trade", "running", 90, "Generating charts")
-      list(bundle = bundle, calculation = calculation, structure = input$trade_structure)
+      list(bundle = bundle, calculation = calculation, structure = input$trade_structure, start = as.numeric(input$trade_start), hold = as.numeric(input$trade_hold))
     })
     if (!is.null(result)) applied_trade(result)
   }, ignoreInit = FALSE)
@@ -1680,28 +1778,167 @@ server <- function(input, output, session) {
       annotations = annotations), margin = list(t = 104, r = 22, b = 54, l = 58))
   })
 
+  carry_selected_date <- function(bundle = NULL) {
+    if (!is.null(bundle) && isTRUE(bundle$proxy) && !is.na(bundle$requested_date)) return(as.character(bundle$requested_date))
+    if (identical(input$carry_source_mode, "historical") && !is.null(input$carry_curve_date)) return(as.character(as.Date(input$carry_curve_date)))
+    if (length(market()$wide_rates$date)) return(as.character(max(market()$wide_rates$date, na.rm = TRUE)))
+    as.character(Sys.Date())
+  }
+  carry_quality <- function(bundle) {
+    rmse <- bundle$fit$rmse_bp %||% NA_real_
+    if (!is.finite(rmse)) return(list(label = "NA", class = "neutral", subtitle = "RMS unavailable"))
+    if (rmse <= 1) list(label = "Good", class = "positive", subtitle = paste("RMS:", fmt_bp1(rmse)))
+    else if (rmse <= 5) list(label = "Watch", class = "neutral", subtitle = paste("RMS:", fmt_bp1(rmse)))
+    else list(label = "Wide", class = "negative", subtitle = paste("RMS:", fmt_bp1(rmse)))
+  }
+  output$carry_header_meta <- renderUI({
+    curve <- input$carry_curve_name %||% "USD UNITED STATES OIS"
+    date <- carry_selected_date()
+    tags$p(tags$b("Source:"), " Bloomberg (local RDS)", tags$span(class = "meta-dot", "\u2022"),
+      tags$b("Curve:"), paste(curve), tags$span(class = "meta-dot", "\u2022"),
+      tags$b("Selected Date:"), date, tags$span(class = "meta-dot", "\u2022"),
+      tags$b("Hold Basis:"), " Actual / 360")
+  })
+  output$carry_title_block <- renderUI({
+    curve <- if (!is.null(applied_carry())) applied_carry()$bundle$curve_name else input$carry_curve_name %||% "USD UNITED STATES OIS"
+    date <- if (!is.null(applied_carry())) carry_selected_date(applied_carry()$bundle) else carry_selected_date()
+    div(class = "carry-title-block",
+      div(tags$h3("Carry & Roll Analysis"),
+        div(class = "carry-title-meta",
+          tags$span(tags$b("Source:"), " Bloomberg (BVAL)"),
+          tags$span(tags$b("Curve:"), curve),
+          tags$span(tags$b("Selected Date:"), date),
+          tags$span(tags$b("Hold Basis:"), "Actual / 360")
+        )
+      ),
+      div(class = "carry-title-actions",
+        tags$button(type = "button", class = "btn btn-outline-primary btn-sm", "Save Workspace"),
+        tags$button(type = "button", class = "btn btn-outline-secondary btn-sm", "\u22ef")
+      )
+    )
+  })
   output$carry_banner <- renderUI({ req(applied_carry()); curve_banner(applied_carry()$bundle) })
   output$carry_value <- renderText({ req(applied_carry()); fmt_bp(applied_carry()$single$carry_bp) })
   output$roll_value <- renderText({ req(applied_carry()); fmt_bp(applied_carry()$single$roll_bp) })
   output$total_value <- renderText({ req(applied_carry()); paste(fmt_bp(applied_carry()$single$total_bp), "/", fmt_num(calculate_dv01_pnl(applied_carry()$single$total_bp, applied_carry()$dv01))) })
   output$carry_direction_value <- renderText({ req(applied_carry()); applied_carry()$single$direction })
+  carry_kpi_state <- reactive({
+    mode <- input$carry_workspace_mode %||% "single"
+    if (identical(mode, "trade")) {
+      trade <- applied_trade()
+      if (is.null(trade)) return(list(available = FALSE, mode = "trade"))
+      summary <- trade$calculation$summary
+      risk_budget <- summary$risk_budget
+      return(list(
+        available = TRUE, mode = "trade", bundle = trade$bundle,
+        carry_bp = summary$carry_pnl / risk_budget,
+        roll_bp = summary$roll_pnl / risk_budget,
+        total_bp = summary$equivalent_total_bp,
+        pnl = summary$total_pnl,
+        carry_pnl = summary$carry_pnl,
+        roll_pnl = summary$roll_pnl,
+        total_pnl = summary$total_pnl,
+        risk_budget = risk_budget,
+        direction = "DV01 Neutral"
+      ))
+    }
+    carry <- applied_carry()
+    if (is.null(carry)) return(list(available = FALSE, mode = "single"))
+    list(
+      available = TRUE, mode = "single", bundle = carry$bundle,
+      carry_bp = carry$single$carry_bp,
+      roll_bp = carry$single$roll_bp,
+      total_bp = carry$single$total_bp,
+      pnl = calculate_dv01_pnl(carry$single$total_bp, carry$dv01),
+      carry_pnl = calculate_dv01_pnl(carry$single$carry_bp, carry$dv01),
+      roll_pnl = calculate_dv01_pnl(carry$single$roll_bp, carry$dv01),
+      total_pnl = calculate_dv01_pnl(carry$single$total_bp, carry$dv01),
+      risk_budget = carry$dv01,
+      direction = carry$single$direction
+    )
+  })
+  output$carry_value_ui <- renderUI({ x <- carry_kpi_state(); if (!isTRUE(x$available)) signed_na_span() else signed_value_span_digits(x$carry_bp, " bp", 1) })
+  output$roll_value_ui <- renderUI({ x <- carry_kpi_state(); if (!isTRUE(x$available)) signed_na_span() else signed_value_span_digits(x$roll_bp, " bp", 1) })
+  output$total_bp_ui <- renderUI({ x <- carry_kpi_state(); if (!isTRUE(x$available)) signed_na_span() else signed_value_span_digits(x$total_bp, " bp", 1) })
+  output$pnl_value_ui <- renderUI({ x <- carry_kpi_state(); if (!isTRUE(x$available)) signed_na_span() else signed_value_span_digits(x$pnl, "", 0) })
+  output$carry_subtitle_ui <- renderUI({ x <- carry_kpi_state(); if (!isTRUE(x$available)) tags$span("Click Calculate Curve Trade") else tags$span(paste0(if (x$carry_pnl > 0) "+" else "", fmt_pnl0(x$carry_pnl), if (identical(x$mode, "trade")) " P&L" else " per DV01")) })
+  output$roll_subtitle_ui <- renderUI({ x <- carry_kpi_state(); if (!isTRUE(x$available)) tags$span("Click Calculate Curve Trade") else tags$span(paste0(if (x$roll_pnl > 0) "+" else "", fmt_pnl0(x$roll_pnl), if (identical(x$mode, "trade")) " P&L" else " per DV01")) })
+  output$total_subtitle_ui <- renderUI({ x <- carry_kpi_state(); if (!isTRUE(x$available)) tags$span("Click Calculate Curve Trade") else tags$span(paste0(if (x$total_pnl > 0) "+" else "", fmt_pnl0(x$total_pnl), " P&L estimate")) })
+  output$pnl_subtitle_ui <- renderUI({ x <- carry_kpi_state(); tags$span(if (!isTRUE(x$available)) "Click Calculate Curve Trade" else if (identical(x$mode, "trade")) "Portfolio total" else "Per selected DV01") })
+  output$trade_mode_value <- renderText({ x <- carry_kpi_state(); if (identical(x$mode, "trade")) "DV01 Neutral" else if (isTRUE(x$available)) x$direction else "Receive Fixed" })
+  output$trade_mode_subtitle <- renderText({ x <- carry_kpi_state(); if (!isTRUE(x$available) && identical(x$mode, "trade")) "Click Calculate Curve Trade" else if (identical(x$mode, "trade")) paste("Target DV01:", fmt_pnl0(x$risk_budget)) else "Single trade" })
+  output$curve_quality_ui <- renderUI({ x <- carry_kpi_state(); if (!isTRUE(x$available)) return(signed_na_span()); q <- carry_quality(x$bundle); tags$span(class = paste("signed-value", q$class), q$label) })
+  output$curve_quality_subtitle_ui <- renderUI({ x <- carry_kpi_state(); if (!isTRUE(x$available)) return(tags$span("Unavailable")); q <- carry_quality(x$bundle); tags$span(q$subtitle) })
+  output$carry_status_detail <- renderUI({
+    mode <- input$carry_workspace_mode %||% "single"
+    x <- if (identical(mode, "trade")) status$trade else status$carry
+    run_id <- if (identical(mode, "trade") && !is.null(applied_trade())) paste0(format(Sys.Date(), "%y%m%d"), "-TRD") else if (!is.null(applied_carry())) paste0(format(Sys.Date(), "%y%m%d"), "-CAR") else "--"
+    div(class = paste("carry-status-body", paste0("carry-status-", x$type)),
+      div(class = "carry-status-line", tags$span(class = "status-dot"), tags$span(x$message), tags$span(class = "status-time", format(Sys.time(), "%H:%M:%S"))),
+      div(class = "progress carry-progress", div(class = "progress-bar", role = "progressbar",
+        style = paste0("width:", x$pct, "%;"), paste0(x$pct, "%"))),
+      div(class = "carry-status-run", tags$span(paste("Run ID:", run_id)), tags$span(class = "copy-mini", "\u2398"))
+    )
+  })
+  output$curve_trade_workspace <- renderUI({
+    mode <- input$carry_workspace_mode %||% "single"
+    disabled <- !identical(mode, "trade")
+    if (disabled) {
+      return(div(class = "curve-trade-workspace is-disabled",
+        div(class = "curve-trade-title-row", tags$h4("Curve Trade"), tags$span("NA")),
+        div(class = "curve-trade-controls-strip",
+          div(class = "curve-trade-structure", tags$span("STRUCTURE"), div(class = "trade-badge-row is-na", tags$span(class = "trade-badge", "NA"))),
+          div(class = "curve-trade-held-dv01", tags$span("HELD DV01 (PER $1MM)"), div(class = "shiny-text-output", "NA"))
+        ),
+        div(class = "table-card trade-leg-card",
+          div(class = "card-heading compact-heading", tags$div(class = "card-kicker", "Results only"), tags$h4("Curve Trade Legs")),
+          div(class = "trade-na-panel", "NA")
+        ),
+        grid_row(class = "curve-trade-lower-row",
+          grid_col(class = "span-8", div(class = "plot-card trade-portfolio-plot trade-na-card", div(class = "trade-na-panel", "NA"))),
+          grid_col(class = "span-4", div(class = "trade-summary-card", div(class = "trade-summary-inner", tags$h4("Curve Trade Summary"), div(class = "trade-na-panel", "NA"))))
+        )
+      ))
+    }
+    div(class = "curve-trade-workspace",
+      div(class = "curve-trade-title-row", tags$h4("Curve Trade"), tags$span("Results")),
+      div(class = "curve-trade-controls-strip",
+        div(class = "curve-trade-structure", tags$span("STRUCTURE"), uiOutput("trade_structure_badges")),
+        div(class = "curve-trade-held-dv01", tags$span("HELD DV01 (PER $1MM)"), textOutput("trade_held_dv01_inline"))
+      ),
+      table_card("Curve Trade Legs", "trade_leg_table", "Results only; configure and calculate from the left sidebar."),
+      grid_row(class = "curve-trade-lower-row",
+        grid_col(class = "span-8", plot_card("trade_leg_pnl_plot", height = "330px", class = "trade-portfolio-plot")),
+        grid_col(class = "span-4", div(class = "trade-summary-card", uiOutput("trade_summary_card")))
+      )
+    )
+  })
   output$carry_explanation <- renderUI({ req(applied_carry()); x <- applied_carry()$single; p(sprintf("Last applied trade: Carry %.2f bp + Roll %.2f bp = Total %.2f bp.", x$carry_bp, x$roll_bp, x$total_bp)) })
   register_plot("carry_component_plot", function() {
     req(applied_carry())
-    x <- data.frame(
-      component = factor(c("Carry", "Roll", "Total"), levels = c("Carry", "Roll", "Total")),
-      bp = c(applied_carry()$single$carry_bp, applied_carry()$single$roll_bp, applied_carry()$single$total_bp)
-    )
-    x$sign <- ifelse(x$bp > 0, "Positive", ifelse(x$bp < 0, "Negative", "Zero"))
-    x$text <- paste0(x$component, ": ", fmt_bp(x$bp))
-    plotly_finish(ggplot(x, aes(component, bp, fill = sign, text = text)) +
-      geom_hline(yintercept = 0, color = "#A8B6C3", linewidth = 0.35) +
-      geom_col(width = 0.52) +
-      geom_text(aes(label = fmt_num(bp)), vjust = ifelse(x$bp >= 0, -0.45, 1.2), size = 3) +
-      scale_fill_manual(values = c(Positive = positive_color, Negative = negative_color, Zero = neutral_color)) +
-      labs(title = "Single trade decomposition", x = NULL, y = "bp", fill = NULL) +
-      theme_minimal(base_size = 10) +
-      theme(panel.grid.minor = element_blank(), plot.title = element_text(face = "bold", size = 11)))
+    x <- applied_carry()$matrix
+    selected_hold <- tenor_label(applied_carry()$single$hold_years)
+    x <- x[as.character(x$hold_label) == selected_hold, , drop = FALSE]
+    x$tenor_label <- factor(as.character(x$tenor_label), levels = c("1Y", "2Y", "3Y", "5Y", "7Y", "10Y", "15Y", "20Y", "30Y"), ordered = TRUE)
+    x <- x[order(x$tenor_label), , drop = FALSE]
+    x_index <- seq_len(nrow(x))
+    plot <- plotly::plot_ly()
+    plot <- plotly::add_bars(plot, x = x_index - 0.16, y = x$carry_bp, name = "Carry (bp)",
+      marker = list(color = positive_color), width = 0.28,
+      hovertext = paste0("Tenor: ", x$tenor_label, "<br>Carry: ", fmt_bp1(x$carry_bp)), hoverinfo = "text")
+    plot <- plotly::add_bars(plot, x = x_index + 0.16, y = x$roll_bp, name = "Roll (bp)",
+      marker = list(color = "#EF4444"), width = 0.28,
+      hovertext = paste0("Tenor: ", x$tenor_label, "<br>Roll: ", fmt_bp1(x$roll_bp)), hoverinfo = "text")
+    plot <- plotly::add_trace(plot, x = x_index, y = x$total_bp, type = "scatter", mode = "lines+markers",
+      name = "Total (bp)", line = list(color = "#0B3D91", width = 2), marker = list(color = "#0B3D91", size = 6),
+      hovertext = paste0("Tenor: ", x$tenor_label, "<br>Total: ", fmt_bp1(x$total_bp)), hoverinfo = "text")
+    plotly_trace_finish(plotly::layout(plot,
+      title = "",
+      barmode = "overlay",
+      xaxis = list(title = "Tenor", tickvals = x_index, ticktext = as.character(x$tenor_label)),
+      yaxis = list(title = "bp", tickformat = ".1f", zeroline = TRUE, zerolinecolor = "#9AA9B7"),
+      legend = list(orientation = "h", x = 0.5, y = -0.24, xanchor = "center", yanchor = "top"),
+      margin = list(t = 42, r = 24, b = 92, l = 56)))
   })
   register_plot("carry_spot_plot", function() {
     req(applied_carry())
@@ -1740,14 +1977,38 @@ server <- function(input, output, session) {
   register_plot("carry_heatmap", function() {
     req(applied_carry())
     x <- applied_carry()$matrix
-    plotly_finish(ggplot(x, aes(tenor_label, hold_label, fill = total_bp,
-      text = paste0("Total: ", fmt_bp(total_bp), "<br>P&L: ", fmt_num(pnl)))) +
-      geom_tile(color = "#FFFFFF", linewidth = 0.7) +
-      geom_text(aes(label = fmt_num(total_bp)), size = 2.7, color = "#10263B") +
-      scale_fill_gradient2(low = "#F3B1A7", mid = "#F8FAFC", high = "#8ED8C9") +
-      labs(title = "Tenor / hold heatmap", x = "Tenor", y = "Hold", fill = "Total bp") +
-      theme_minimal(base_size = 10) +
-      theme(panel.grid = element_blank(), plot.title = element_text(face = "bold", size = 11)))
+    tenors <- levels(x$tenor_label)
+    holds <- levels(x$hold_label)
+    matrix_z <- matrix(NA_real_, nrow = length(holds), ncol = length(tenors), dimnames = list(holds, tenors))
+    matrix_text <- matrix("", nrow = length(holds), ncol = length(tenors), dimnames = list(holds, tenors))
+    matrix_hover <- matrix("", nrow = length(holds), ncol = length(tenors), dimnames = list(holds, tenors))
+    for (index in seq_len(nrow(x))) {
+      hold <- as.character(x$hold_label[[index]])
+      tenor <- as.character(x$tenor_label[[index]])
+      matrix_z[hold, tenor] <- x$total_bp[[index]]
+      matrix_text[hold, tenor] <- fmt_num_digits(x$total_bp[[index]], 1)
+      matrix_hover[hold, tenor] <- paste0("Hold: ", hold, "<br>Tenor: ", tenor,
+        "<br>Total: ", fmt_bp1(x$total_bp[[index]]), "<br>P&L: ", fmt_pnl0(x$pnl[[index]]))
+    }
+    annotations <- do.call(c, lapply(seq_along(holds), function(row_index) {
+      lapply(seq_along(tenors), function(col_index) {
+        list(x = tenors[[col_index]], y = holds[[row_index]], text = matrix_text[row_index, col_index],
+          showarrow = FALSE, font = list(color = "#10263B", size = 10))
+      })
+    }))
+    plot <- plotly::plot_ly(
+      x = tenors, y = holds, z = matrix_z,
+      type = "heatmap", hoverinfo = "text",
+      text = matrix_hover,
+      colorscale = list(c(0, "#F3B1A7"), c(0.5, "#F8FAFC"), c(1, "#8ED8C9")),
+      colorbar = list(title = "Total bp", orientation = "h", x = 0.5, y = -0.22, xanchor = "center", len = 0.76, thickness = 12)
+    )
+    plotly_trace_finish(plotly::layout(plot,
+      title = "",
+      xaxis = list(title = "Tenor", side = "bottom"),
+      yaxis = list(title = "Hold", autorange = "reversed"),
+      annotations = annotations,
+      margin = list(t = 38, r = 24, b = 100, l = 58)))
   })
 
   output$trade_banner <- renderUI({ req(applied_trade()); curve_banner(applied_trade()$bundle) })
@@ -1756,26 +2017,82 @@ server <- function(input, output, session) {
   output$trade_total_pnl <- renderText({ req(applied_trade()); paste(fmt_num(applied_trade()$calculation$summary$total_pnl), "/", fmt_bp(applied_trade()$calculation$summary$equivalent_total_bp)) })
   output$trade_structure_value <- renderText({ req(applied_trade()); tools::toTitleCase(gsub("_", " ", applied_trade()$structure)) })
   output$trade_explanation <- renderUI({ req(applied_trade()); x <- applied_trade(); p(paste("Last applied structure:", x$structure, ". Each leg table and chart show its own Carry and Roll.")) })
-  output$trade_leg_table <- renderDT({ req(applied_trade()); datatable(round_numeric_df(applied_trade()$calculation$detail[, c("leg", "tenor", "direction", "dv01", "carry_bp", "roll_bp", "total_bp", "carry_pnl", "roll_pnl", "total_pnl")]), options = list(pageLength = 10, scrollX = TRUE), rownames = FALSE) })
+  output$trade_structure_badges <- renderUI({
+    current <- input$trade_structure %||% "steepener"
+    labels <- c(steepener = "Steepener", flattener = "Flattener", long_belly_fly = "Butterfly", short_belly_fly = "Short Fly")
+    div(class = "trade-badge-row", lapply(names(labels), function(value) {
+      tags$span(class = if (identical(current, value)) "trade-badge active" else "trade-badge", labels[[value]])
+    }))
+  })
+  output$trade_held_dv01_inline <- renderText({ fmt_pnl0(input$trade_risk_budget %||% 0) })
+  output$trade_summary_card <- renderUI({
+    req(applied_trade())
+    s <- applied_trade()$calculation$summary
+    div(class = "trade-summary-inner",
+      tags$h4(paste0("Curve Trade Summary (", tenor_label(applied_trade()$hold), ")")),
+      div(class = "summary-row", tags$span("Total Carry (P&L)"), signed_value_span_digits(s$carry_pnl, "", 0)),
+      div(class = "summary-row", tags$span("Total Roll (P&L)"), signed_value_span_digits(s$roll_pnl, "", 0)),
+      div(class = "summary-row", tags$span("Total P&L"), signed_value_span_digits(s$total_pnl, "", 0)),
+      div(class = "summary-row", tags$span("Equivalent bp"), signed_value_span_digits(s$equivalent_total_bp, " bp", 1)),
+      div(class = "summary-row", tags$span("Start Tenor"), tags$b(tenor_label(applied_trade()$start))),
+      div(class = "summary-row", tags$span("Trade Mode"), tags$b("DV01 Neutral"))
+    )
+  })
+  output$trade_leg_table <- renderDT({
+    req(applied_trade())
+    detail <- applied_trade()$calculation$detail
+    signed_cell <- function(value, suffix = "", digits = 1) {
+      numeric_value <- suppressWarnings(as.numeric(value))
+      class <- if (is.finite(numeric_value) && numeric_value > 0) "positive" else if (is.finite(numeric_value) && numeric_value < 0) "negative" else "neutral"
+      paste0("<span class='trade-cell-signed ", class, "'>",
+        if (is.finite(numeric_value) && numeric_value > 0) "+" else "",
+        fmt_num_digits(numeric_value, digits), suffix, "</span>")
+    }
+    direction_cell <- function(direction) {
+      class <- ifelse(direction == "Receive Fixed", "receive", "pay")
+      paste0("<span class='trade-direction ", class, "'>", direction, "</span>")
+    }
+    display <- data.frame(
+      LEG = detail$leg,
+      TENOR = tenor_label(detail$tenor),
+      POSITION = vapply(detail$direction, direction_cell, character(1)),
+      DV01 = fmt_pnl0(detail$dv01),
+      CARRY = vapply(detail$carry_bp, signed_cell, character(1), suffix = "", digits = 1),
+      ROLL = vapply(detail$roll_bp, signed_cell, character(1), suffix = "", digits = 1),
+      TOTAL = vapply(detail$total_bp, signed_cell, character(1), suffix = "", digits = 1),
+      `P&L` = vapply(detail$total_pnl, signed_cell, character(1), suffix = "", digits = 0),
+      check.names = FALSE
+    )
+    datatable(display, escape = FALSE, rownames = FALSE,
+      options = list(dom = "t", paging = FALSE, ordering = FALSE, searching = FALSE, info = FALSE,
+        autoWidth = FALSE, scrollX = FALSE,
+        columnDefs = list(list(className = "dt-center", targets = "_all"))))
+  })
   register_plot("trade_leg_pnl_plot", function() {
     req(applied_trade())
     x <- applied_trade()$calculation$detail
-    long <- rbind(
-      data.frame(leg = x$leg, component = "Carry", value = x$carry_bp, total = x$total_bp),
-      data.frame(leg = x$leg, component = "Roll", value = x$roll_bp, total = x$total_bp)
-    )
-    long$sign <- ifelse(long$value > 0, "Positive", ifelse(long$value < 0, "Negative", "Zero"))
-    long$text <- paste0(long$component, "<br>Leg: ", long$leg, "<br>Value: ", fmt_bp(long$value))
-    plotly_finish(ggplot(long, aes(leg, value, fill = sign, alpha = component, text = text)) +
-      geom_hline(yintercept = 0, color = "#A8B6C3", linewidth = 0.35) +
-      geom_col(position = "stack", width = 0.55, color = "#FFFFFF", linewidth = 0.25) +
-      geom_point(data = x, aes(leg, total_bp), inherit.aes = FALSE, color = "#0B2F4E", size = 2.6) +
-      geom_text(data = x, aes(leg, total_bp, label = fmt_num(total_bp)), inherit.aes = FALSE, vjust = -0.55, size = 2.8) +
-      scale_fill_manual(values = c(Positive = positive_color, Negative = negative_color, Zero = neutral_color)) +
-      scale_alpha_manual(values = c(Carry = 0.95, Roll = 0.45)) +
-      labs(title = "Curve trade leg decomposition", x = NULL, y = "bp", fill = "Sign", alpha = "Component") +
-      theme_minimal(base_size = 10) +
-      theme(panel.grid.minor = element_blank(), plot.title = element_text(face = "bold", size = 11)))
+    s <- applied_trade()$calculation$summary
+    portfolio <- data.frame(leg = "Portfolio Total", carry_bp = s$carry_pnl / s$risk_budget,
+      roll_bp = s$roll_pnl / s$risk_budget, total_bp = s$equivalent_total_bp)
+    plot_data <- rbind(x[, c("leg", "carry_bp", "roll_bp", "total_bp")], portfolio)
+    x_index <- seq_len(nrow(plot_data))
+    plot <- plotly::plot_ly()
+    plot <- plotly::add_bars(plot, x = x_index - 0.16, y = plot_data$carry_bp, name = "Carry (bp)",
+      marker = list(color = positive_color), width = 0.28,
+      hovertext = paste0("Leg: ", plot_data$leg, "<br>Carry: ", fmt_bp1(plot_data$carry_bp)), hoverinfo = "text")
+    plot <- plotly::add_bars(plot, x = x_index + 0.16, y = plot_data$roll_bp, name = "Roll (bp)",
+      marker = list(color = "#EF4444"), width = 0.28,
+      hovertext = paste0("Leg: ", plot_data$leg, "<br>Roll: ", fmt_bp1(plot_data$roll_bp)), hoverinfo = "text")
+    plot <- plotly::add_trace(plot, x = x_index, y = plot_data$total_bp, type = "scatter", mode = "lines+markers",
+      name = "Total (bp)", line = list(color = "#0B3D91", width = 2), marker = list(color = "#0B3D91", size = 6),
+      hovertext = paste0("Leg: ", plot_data$leg, "<br>Total: ", fmt_bp1(plot_data$total_bp)), hoverinfo = "text")
+    plotly_trace_finish(plotly::layout(plot,
+      title = "",
+      barmode = "overlay",
+      xaxis = list(title = NULL, tickvals = x_index, ticktext = plot_data$leg),
+      yaxis = list(title = "bp", tickformat = ".1f", zeroline = TRUE, zerolinecolor = "#9AA9B7"),
+      legend = list(orientation = "h", x = 0.5, y = -0.28, xanchor = "center", yanchor = "top"),
+      margin = list(t = 38, r = 20, b = 96, l = 50)))
   })
   register_plot("trade_component_plot", function() {
     req(applied_trade())

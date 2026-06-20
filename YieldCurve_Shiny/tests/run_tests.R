@@ -59,6 +59,10 @@ steepener <- curve_trade_legs("steepener", 2, 5, 10, 10000)
 fly <- curve_trade_legs("long_belly_fly", 2, 5, 10, 10000)
 assert_true(identical(as.numeric(steepener$dv01), c(10000, 10000)), "Steepener neutral legs failed")
 assert_close(fly$dv01[[2]], fly$dv01[[1]] + fly$dv01[[3]], message = "Fly neutral legs failed")
+started_trade <- calculate_curve_trade(flat_curve, steepener, 0.25, "annual", risk_budget = 10000, start = 1)
+assert_true(all(started_trade$detail$start_years == 1), "Curve trade start tenor failed")
+bad_started_trade <- try(calculate_curve_trade(flat_curve, steepener, 0.25, "annual", risk_budget = 10000, start = 2), silent = TRUE)
+assert_true(inherits(bad_started_trade, "try-error"), "Curve trade start validation failed")
 
 old_directory <- getwd()
 setwd(project_dir)
@@ -76,9 +80,8 @@ shiny::testServer(server, {
     history_curves = c("USD SOFR OIS", "AUD COR OIS"), history_base_date = "2025-09-23",
     history_compare_date = "2025-10-22", history_start_tenor = "0.0833333333333333",
     history_end_tenor = "30", add_history_date = 1,
-    trade_source_mode = "zero", trade_curve_name = "USD UNITED STATES OIS", trade_fit_method = "nelson_siegel",
     trade_structure = "steepener", trade_short_tenor = 2, trade_belly_tenor = 5, trade_long_tenor = 10,
-    trade_hold = "0.25", trade_risk_budget = 10000, trade_short_dv01 = 10000,
+    trade_start = 0, trade_hold = "0.25", trade_risk_budget = 10000, trade_short_dv01 = 10000,
     trade_belly_dv01 = 10000, trade_long_dv01 = 10000
   )
   session$flushReact()
@@ -102,7 +105,16 @@ shiny::testServer(server, {
   assert_true(largest_move$direction %in% c("positive", "negative", "neutral") && nzchar(largest_move$icon), "Largest move direction failed")
   assert_true(applied_forward()$bundle$curve_name == "EUR EUROZONE (vs. 6M EURIBOR)", "Applied Forward failed")
   assert_true(applied_carry()$bundle$curve_name == "AUD AUSTRALIA (vs. 6M Bank Bills)", "Applied Carry failed")
+  assert_true(applied_trade()$bundle$curve_name == "AUD AUSTRALIA (vs. 6M Bank Bills)", "Applied Trade should use shared Carry curve")
   assert_true(nrow(applied_trade()$calculation$detail) == 2, "Applied Trade failed")
+  assert_true(all(applied_trade()$calculation$detail$start_years == 0), "Default Trade start failed")
+  session$setInputs(carry_workspace_mode = "trade")
+  session$flushReact()
+  assert_true(!is.null(output$carry_value_ui) && !grepl("NA", paste(output$carry_value_ui, collapse = "")), "Curve Trade KPI Carry failed")
+  assert_true(grepl("DV01 Neutral", output$trade_mode_value), "Curve Trade KPI mode failed")
+  session$setInputs(carry_workspace_mode = "single")
+  session$flushReact()
+  assert_true(grepl("is-disabled", paste(output$curve_trade_workspace, collapse = "")), "Single mode Curve Trade disabled panel failed")
   assert_true(all(vapply(c("curve", "history", "forward", "carry", "trade"), function(page) status[[page]]$type == "success", logical(1))), "Progress did not complete")
   assert_true(identical(levels(applied_carry()$matrix$hold_label), c("1M", "3M", "6M", "1Y")), "Hold order failed")
   assert_true(identical(levels(applied_carry()$matrix$tenor_label), c("1Y", "2Y", "3Y", "5Y", "7Y", "10Y", "15Y", "20Y", "30Y")), "Tenor order failed")
@@ -149,11 +161,22 @@ shiny::testServer(server, {
   session$setInputs(calculate_curve_trade = 2)
   session$flushReact()
   assert_true(nrow(applied_trade()$calculation$detail) == 3, "Fly calculation failed")
+  session$setInputs(trade_start = 1, calculate_curve_trade = 3)
+  session$flushReact()
+  assert_true(all(applied_trade()$calculation$detail$start_years == 1), "Trade start input failed")
+  good_trade_total <- applied_trade()$calculation$summary$total_pnl
+  session$setInputs(trade_start = 10, calculate_curve_trade = 4)
+  session$flushReact()
+  assert_close(applied_trade()$calculation$summary$total_pnl, good_trade_total, message = "Failed Trade should retain old result")
+  assert_true(status$trade$type == "error", "Failed Trade should show error status")
+  session$setInputs(trade_start = 0, calculate_curve_trade = 5)
+  session$flushReact()
 
   rendered_outputs <- list(
     output$curve_plot, output$fit_summary, output$history_absolute_plot, output$history_change_plot,
     output$history_comparison_table, output$history_status_detail, output$history_header_subtitle,
     output$forward_result, output$forward_curve_plot,
+    output$carry_value_ui, output$roll_value_ui, output$total_bp_ui, output$pnl_value_ui, output$curve_trade_workspace,
     output$carry_component_plot, output$carry_spot_plot, output$carry_stacked_plot, output$carry_heatmap,
     output$trade_leg_table, output$trade_leg_pnl_plot, output$trade_component_plot, output$diagnostics_table
   )
