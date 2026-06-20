@@ -15,6 +15,9 @@ library(DT)
 library(ggplot2)
 library(plotly)
 
+initial_market <- load_market_data(project_dir)
+initial_history_date <- if (length(initial_market$wide_rates$date)) max(initial_market$wide_rates$date, na.rm = TRUE) else Sys.Date()
+
 theme <- bs_theme(version = 5, bootswatch = "flatly", primary = "#234B68")
 positive_color <- "#16A085"
 negative_color <- "#D96C5F"
@@ -22,6 +25,9 @@ neutral_color <- "#61758A"
 
 fmt_num <- function(x) format(round(as.numeric(x), 2), nsmall = 0, trim = TRUE, scientific = FALSE, big.mark = ",")
 fmt_pct <- function(x) paste0(fmt_num(x), "%")
+fmt_pct2 <- function(x) paste0(format(round(as.numeric(x), 2), nsmall = 2, trim = TRUE, scientific = FALSE), "%")
+fmt_pct4 <- function(x) paste0(format(round(as.numeric(x), 4), nsmall = 4, trim = TRUE, scientific = FALSE), "%")
+fmt_df2 <- function(x) format(round(as.numeric(x), 2), nsmall = 2, trim = TRUE, scientific = FALSE)
 fmt_bp <- function(x) paste0(fmt_num(x), " bp")
 `%||%` <- function(x, y) if (is.null(x) || length(x) == 0) y else x
 round_numeric_df <- function(x) {
@@ -43,13 +49,97 @@ plotly_finish <- function(plot, tooltip = "text") {
     modeBarButtonsToRemove = c("lasso2d", "select2d", "autoScale2d", "toggleSpikelines")
   )
 }
-plotly_trace_finish <- function(plot) {
+plotly_trace_finish <- function(plot, margin = list(t = 76, r = 28, b = 52, l = 58)) {
   plotly::config(
-    plotly::layout(plot, margin = list(t = 76, r = 28, b = 52, l = 58),
+    plotly::layout(plot, margin = margin,
       title = list(x = 0.02, font = list(size = 13)), xaxis = list(tickformat = ".2f"), yaxis = list(tickformat = ".2f")),
     displaylogo = FALSE,
     modeBarButtonsToRemove = c("lasso2d", "select2d", "autoScale2d", "toggleSpikelines")
   )
+}
+history_curve_palette <- function(curves) {
+  palette <- c("#0B3D91", "#0F8B8D", "#F97316", "#7C3AED", "#64748B", "#B45309",
+    "#2563EB", "#059669", "#DC2626", "#9333EA")
+  stats::setNames(rep(palette, length.out = length(unique(curves))), unique(curves))
+}
+history_date_linetypes <- function(dates) {
+  patterns <- c("solid", "dash", "dot", "dashdot", "longdash", "longdashdot", "solid")
+  stats::setNames(rep(patterns, length.out = length(unique(dates))), unique(dates))
+}
+history_date_alpha <- function(date_index) {
+  alpha <- c(1, 0.78, 0.62, 0.48, 0.36, 0.28, 0.22)
+  alpha[pmin(date_index, length(alpha))]
+}
+history_target_tenors <- c("2Y" = 2, "5Y" = 5, "10Y" = 10)
+nearest_rows_by_tenor <- function(data, target_tenors = history_target_tenors, exact_only = TRUE) {
+  pieces <- lapply(names(target_tenors), function(label) {
+    target <- target_tenors[[label]]
+    split_key <- paste(data$curve, data$requested_date, sep = "\r")
+    rows <- lapply(split(seq_len(nrow(data)), split_key), function(indexes) {
+      segment <- data[indexes, , drop = FALSE]
+      matched_index <- which(abs(segment$tenor - target) < 1e-8)
+      if (!length(matched_index) && !exact_only) matched_index <- which.min(abs(segment$tenor - target))
+      if (!length(matched_index)) return(NULL)
+      row <- segment[matched_index[[1]], , drop = FALSE]
+      row$tenor_label <- label
+      row
+    })
+    do.call(rbind, rows[!vapply(rows, is.null, logical(1))])
+  })
+  pieces <- pieces[!vapply(pieces, is.null, logical(1))]
+  if (!length(pieces)) return(data.frame())
+  do.call(rbind, pieces)
+}
+history_largest_move_info <- function(data) {
+  if (!nrow(data)) return(list(value = "0 bp", raw_value = 0, direction = "neutral", icon = "\u2192", subtitle = "No data"))
+  compare_rows <- data[as.Date(data$requested_date) != as.Date(data$base_requested_date), , drop = FALSE]
+  if (!nrow(compare_rows)) compare_rows <- data
+  row <- compare_rows[which.max(abs(compare_rows$change_bp)), , drop = FALSE]
+  raw_value <- row$change_bp[[1]]
+  list(
+    value = fmt_bp(raw_value),
+    raw_value = raw_value,
+    direction = if (raw_value > 0) "positive" else if (raw_value < 0) "negative" else "neutral",
+    icon = if (raw_value > 0) "\u2191" else if (raw_value < 0) "\u2193" else "\u2192",
+    subtitle = paste(row$curve[[1]], tenor_label(row$tenor[[1]]), "vs base")
+  )
+}
+filter_history_tenor_range <- function(data, range) {
+  if (is.null(range) || length(range) < 2) return(data)
+  range <- sort(as.numeric(range))
+  data[data$tenor >= range[[1]] & data$tenor <= range[[2]], , drop = FALSE]
+}
+normalize_history_date <- function(value, dates) {
+  value <- as.Date(value)
+  if (!length(value) || is.na(value[[1]]) || value[[1]] < min(dates) || value[[1]] > max(dates)) return(max(dates))
+  value[[1]]
+}
+history_quote_details <- function(data, range = NULL) {
+  target_tenors <- history_target_tenors
+  if (!is.null(range) && length(range) >= 2) {
+    range <- sort(as.numeric(range))
+    target_tenors <- target_tenors[target_tenors >= range[[1]] & target_tenors <= range[[2]]]
+  }
+  if (!length(target_tenors)) return(data.frame(Date = character(), `Curve Name` = character(), Tenor = character(), `Rate (%)` = character(), `Change (bp)` = character(), date_span = integer(), curve_span = integer(), date_group_start = logical(), curve_group_start = logical(), check.names = FALSE))
+  selected <- nearest_rows_by_tenor(filter_history_tenor_range(data, range), target_tenors = target_tenors, exact_only = FALSE)
+  if (!nrow(selected)) return(data.frame())
+  selected$Date <- as.character(selected$requested_date)
+  selected$`Curve Name` <- selected$curve
+  selected$Tenor <- selected$tenor_label
+  selected$`Rate (%)` <- fmt_num(selected$rate_percent)
+  selected$`Change (bp)` <- ifelse(as.Date(selected$requested_date) == as.Date(selected$base_requested_date) | abs(selected$change_bp) < 1e-10, "\u2014", fmt_num(selected$change_bp))
+  selected <- selected[order(as.Date(selected$requested_date), selected$`Curve Name`, selected$tenor), c("Date", "Curve Name", "Tenor", "Rate (%)", "Change (bp)")]
+  date_key <- selected$Date
+  curve_key <- paste(selected$Date, selected$`Curve Name`, sep = "\r")
+  selected$date_span <- as.integer(ave(seq_len(nrow(selected)), date_key, FUN = length))
+  selected$curve_span <- as.integer(ave(seq_len(nrow(selected)), curve_key, FUN = length))
+  selected$date_group_start <- !duplicated(date_key)
+  selected$curve_group_start <- !duplicated(curve_key)
+  selected
+}
+history_display_tenor_values <- function(tenors) {
+  ticks <- axis_tenor_ticks(tenors)
+  ticks$tickvals
 }
 metric_card <- function(title, output_id) {
   div(class = "metric-card",
@@ -57,10 +147,24 @@ metric_card <- function(title, output_id) {
     div(class = "metric-value", textOutput(output_id))
   )
 }
+metric_card_sub_text <- function(title, value_id, subtitle_id = NULL) {
+  div(class = "metric-card",
+    tags$div(class = "metric-kicker", title),
+    div(class = "metric-value", textOutput(value_id)),
+    if (!is.null(subtitle_id)) div(class = "metric-subtitle", textOutput(subtitle_id))
+  )
+}
 metric_card_sub <- function(title, value_id, subtitle_id = NULL) {
   div(class = "metric-card curve-kpi-card",
     tags$div(class = "metric-kicker", title),
     div(class = "metric-value", textOutput(value_id)),
+    if (!is.null(subtitle_id)) div(class = "metric-subtitle", textOutput(subtitle_id))
+  )
+}
+metric_card_ui <- function(title, output_id, subtitle_id = NULL, class = NULL) {
+  div(class = paste("metric-card curve-kpi-card", class),
+    tags$div(class = "metric-kicker", title),
+    uiOutput(output_id),
     if (!is.null(subtitle_id)) div(class = "metric-subtitle", textOutput(subtitle_id))
   )
 }
@@ -117,11 +221,12 @@ explanation_card <- function(title, output_id, class = NULL) {
   )
 }
 page_header <- function(title, subtitle, output_id = NULL) {
+  subtitle_node <- if (inherits(subtitle, "shiny.tag") || inherits(subtitle, "shiny.tag.list")) subtitle else tags$p(subtitle)
   div(class = "page-header screenshot-header",
     div(class = "page-title-block",
       tags$div(class = "eyebrow", "YieldCurve Trader"),
       tags$h2(title),
-      tags$p(subtitle)
+      subtitle_node
     ),
     div(class = "page-header-right",
       div(class = "header-clock", "Local RDS analytics"),
@@ -129,7 +234,7 @@ page_header <- function(title, subtitle, output_id = NULL) {
     )
   )
 }
-control_section <- function(title, ...) div(class = "control-section", tags$h5(title), ...)
+control_section <- function(title, ...) div(class = "control-section", if (!is.null(title)) tags$h5(title), ...)
 table_card <- function(title, output_id, subtitle = NULL) {
   div(class = "table-card",
     div(class = "card-heading",
@@ -172,6 +277,18 @@ module_tabs <- function(active, tabs) {
   )
 }
 progress_box <- function(prefix) uiOutput(paste0(prefix, "_progress"))
+forward_status_card <- function() {
+  div(class = "forward-status-card",
+    div(class = "forward-status-title", "CALCULATION STATUS"),
+    uiOutput("forward_status_detail")
+  )
+}
+history_status_card <- function() {
+  div(class = "history-status-card",
+    div(class = "history-status-title", tags$span("STATUS"), tags$span(class = "info-dot", "i")),
+    uiOutput("history_status_detail")
+  )
+}
 plot_card <- function(output_id, height = "430px", class = NULL, subtitle = NULL) {
   div(class = paste("plot-card", class),
     div(class = "plot-card-head",
@@ -234,7 +351,7 @@ dashboard_page <- function(title, subtitle, output_id = NULL, controls, main, cl
 }
 side_panel <- function(...) div(class = "sidebar-panel", ...)
 main_grid <- function(...) div(class = "main-grid screenshot-grid", ...)
-grid_row <- function(...) div(class = "dashboard-row", ...)
+grid_row <- function(..., class = NULL) div(class = paste("dashboard-row", class), ...)
 grid_col <- function(..., class = NULL) div(class = paste("dashboard-col", class), ...)
 section_card <- function(title, ..., subtitle = NULL, class = NULL) {
   div(class = paste("section-card", class),
@@ -327,42 +444,73 @@ ui <- navbarPage(
   ),
   tabPanel("History & Changes", dashboard_page(
     "History & Changes",
-    "Multi-curve, multi-date proxy comparison with nearest effective quote date fallback.",
+    uiOutput("history_header_subtitle"),
     NULL,
     controls = side_panel(
       rail_header("History Controls", "Multi curve/date comparison"),
-      control_section("Comparison setup",
-        selectizeInput("history_curves", "Historical curves", choices = NULL, multiple = TRUE,
-          options = list(dropdownParent = "body", plugins = list("remove_button"), placeholder = "Type to search curves")),
-        dateInput("history_base_date", "Base date"),
-        dateInput("history_compare_date", "Add comparison date"),
-        actionButton("add_history_date", "Add comparison date", class = "btn-outline-secondary side-secondary"),
-        uiOutput("history_date_tags"),
-        actionButton("run_history", "Run History Comparison", class = "btn-primary action-main"),
-        progress_box("history")
+      control_section("CURVES",
+        div(class = "history-search-wrap",
+          selectizeInput("history_curves", NULL, choices = NULL, multiple = TRUE,
+            options = list(dropdownParent = "body", plugins = list("remove_button"), placeholder = "Search curves..."))
+        ),
+        uiOutput("history_curve_chips")
       ),
-      div(class = "rail-note rail-warning", strong("Proxy mode"), tags$br(), "Maximum 30 Curve x Date combinations. Base date is included automatically.")
+      control_section("BASE DATE",
+        dateInput("history_base_date", NULL, value = initial_history_date)
+      ),
+      control_section("COMPARE DATES",
+        tags$div(class = "history-section-hint", "up to 6"),
+        dateInput("history_compare_date", NULL, value = initial_history_date),
+        actionButton("add_history_date", tagList(tags$span(class = "plus-icon", "+"), "Add comparison date"),
+          class = "btn-outline-secondary side-secondary history-add-date"),
+        uiOutput("history_date_tags")
+      ),
+      control_section("TENOR RANGE",
+        div(class = "tenor-range-grid history-tenor-range",
+          sidebar_selectize_input("history_start_tenor", "From", choices = tenor_choices, selected = 1 / 12),
+          sidebar_selectize_input("history_end_tenor", "To", choices = tenor_choices, selected = 30)
+        )
+      ),
+      control_section("SOURCE MODE",
+        sidebar_selectize_input("history_source_mode", NULL, choices = c("Bloomberg" = "bloomberg"), selected = "bloomberg"),
+        uiOutput("history_combination_warning")
+      ),
+      control_section(NULL,
+        actionButton("run_history", tagList(tags$span(class = "apply-icon", "\u25b6"), "Run History Comparison"),
+          class = "btn-primary action-main history-run-btn"),
+        history_status_card()
+      ),
+      div(class = "rail-note history-rail-note", "Local RDS historical market quotes. Requested dates map to nearest effective market quote.")
     ),
     main = main_grid(
-      module_tabs("History & Changes", c("Absolute Curves", "Changes", "Effective Dates", "Proxy Notes")),
       metric_strip(
-        metric_card("Curve x Date", "history_metric_combos"),
-        metric_card("Largest Move", "history_metric_largest"),
-        metric_card("Fallback Dates", "history_metric_fallbacks"),
-        static_metric_card("Mode", "Proxy", "Historical quotes", "warning")
+        metric_card_sub("Combinations", "history_metric_combos", "history_metric_combos_sub"),
+        metric_card_ui("Largest Move (bp)", "history_metric_largest", "history_metric_largest_sub", class = "history-largest-card"),
+        metric_card_sub("Fallback Dates", "history_metric_fallbacks", "history_metric_fallbacks_sub"),
+        metric_card_sub("Proxy Mode", "history_metric_proxy", "history_metric_proxy_sub")
       ),
       grid_row(
-        grid_col(class = "span-8", plot_card("history_absolute_plot", height = "510px", class = "hero-plot",
-          subtitle = "Each Curve + Date is connected by tenor and given its own trace.")),
-        grid_col(class = "span-4", explanation_card("How to read history comparison", "history_explanation"))
-      ),
-      grid_row(
-        grid_col(class = "span-7", plot_card("history_change_plot", height = "430px",
-          subtitle = "Change in bp versus selected base date.")),
-        grid_col(class = "span-5",
-          table_card("Requested vs Effective Date Detail", "history_comparison_table", "Fallbacks are shown explicitly."),
-          unavailable_card("Live Bloomberg source audit", "Current dashboard reads local RDS only, so live contributor/timestamp audit is unavailable.")
+        grid_col(class = "span-8", plot_card("history_absolute_plot", height = "515px", class = "hero-plot history-absolute-card",
+          subtitle = "Zero rates by tenor for each selected curve and date.")),
+        grid_col(class = "span-4",
+          table_card("Quote Details by Date / Curve / Tenor", "history_comparison_table", "2Y, 5Y and 10Y unless excluded by tenor range.")
         )
+      ),
+      grid_row(class = "history-change-row",
+        grid_col(class = "span-8", plot_card("history_change_plot", height = "420px",
+          subtitle = "Change in zero rates (bp) relative to the selected base date.")),
+        grid_col(class = "span-4",
+          div(class = "history-info-card",
+            tags$div(class = "info-icon", "i"),
+            tags$p("Requested dates that are not trading days are automatically mapped to the nearest effective market quote."),
+            tags$p("Change (bp) is calculated versus the base effective date.")
+          )
+        )
+      ),
+      div(class = "history-footer",
+        tags$span("Local RDS historical market quotes. Day count not displayed."),
+        tags$span(textOutput("history_footer_asof", inline = TRUE)),
+        tags$span("Auto-refresh: unavailable")
       )
     )
   )),
@@ -371,34 +519,81 @@ ui <- navbarPage(
     "Independent forward-rate workspace with source/date summary and compounding sensitivity.",
     "forward_banner",
     controls = side_panel(
-      rail_header("Forward Controls", "Choose curve, dates and compounding"),
-      source_controls("forward", "Forward curve"),
-      control_section("Forward terms",
-        numericInput("forward_start", "Forward start (years)", 1, min = 0, step = 0.25),
-        numericInput("forward_end", "Forward end (years)", 5, min = 0.01, step = 0.25),
-        sidebar_selectize_input("forward_compounding", "Compounding", choices = c("Annual" = "annual", "Continuous" = "continuous", "Simple" = "simple")),
-        actionButton("calculate_forward", "Calculate Forward", class = "btn-primary action-main"),
-        progress_box("forward")
+      div(class = "forward-rail-title",
+        tags$div(class = "forward-rail-logo", "fx"),
+        tags$div(tags$h4("Forward Controls"), tags$p("Curve, tenor and compounding"))
       ),
-      div(class = "rail-note", "Zero snapshots use the latest local file. Historical mode shows requested and effective dates.")
+      control_section("SOURCE MODE",
+        radioButtons("forward_source_mode", NULL,
+          choices = c("Zero-rate snapshot (preferred)" = "zero", "Historical proxy (from history)" = "historical"),
+          selected = "zero")
+      ),
+      control_section("CURVE",
+        div(class = "forward-curve-picker",
+          sidebar_selectize_input("forward_curve_name", NULL, choices = NULL),
+          tags$button(type = "button", class = "forward-star-button", title = "Favorite curve", "\u2606")
+        )
+      ),
+      control_section("CURVE DATE",
+        div(class = "forward-date-options",
+          conditionalPanel("input.forward_source_mode == 'zero'",
+            tags$label(class = "forward-radio-line selected-static",
+              tags$span(class = "radio-dot filled"), tags$span("Snapshot (latest available)")
+            ),
+            uiOutput("forward_snapshot_note")
+          ),
+          conditionalPanel("input.forward_source_mode == 'historical'",
+            tags$label(class = "forward-radio-line selected-static",
+              tags$span(class = "radio-dot filled"), tags$span("Historical date")
+            ),
+            dateInput("forward_curve_date", NULL),
+            div(class = "forward-blue-note", tags$span(class = "info-dot", "i"), "Using zero rates from the selected historical date.")
+          )
+        )
+      ),
+      control_section("TENOR RANGE",
+        div(class = "tenor-range-grid forward-tenor-grid",
+          sidebar_selectize_input("forward_start", "Start Tenor", choices = tenor_choices, selected = 1),
+          sidebar_selectize_input("forward_end", "End Tenor", choices = tenor_choices, selected = 5)
+        )
+      ),
+      control_section("COMPOUNDING",
+        div(class = "forward-compounding-options",
+          radioButtons("forward_compounding", NULL,
+            choices = c("Annual" = "annual", "Continuous" = "continuous", "Simple (Act/360)" = "simple"),
+            selected = "annual")
+        )
+      ),
+      control_section(NULL,
+        actionButton("calculate_forward", tagList(tags$span(class = "calc-button-icon", "\u25a3"), "Calculate Forward"),
+          class = "btn-primary action-main forward-calc-btn"),
+        actionButton("reset_forward", "Reset", class = "btn-outline-secondary side-secondary forward-reset-btn"),
+        forward_status_card()
+      ),
+      div(class = "rail-note", "Local RDS analytics only. Live Bloomberg timestamp, Save and Export are unavailable.")
     ),
     main = main_grid(
-      module_tabs("Forward Calculator", c("Forward Setup", "Endpoint Curve", "Sensitivity", "Formula")),
-      metric_strip(
-        metric_card("Forward Rate", "forward_value"),
-        metric_card("Start Spot", "forward_start_spot"),
-        metric_card("End Spot", "forward_end_spot"),
-        metric_card("Compounding", "forward_compounding_value")
+      uiOutput("forward_title_block"),
+      div(class = "metric-strip forward-kpi-strip",
+        metric_card_sub_text("Forward Rate", "forward_value", "forward_value_change"),
+        metric_card_sub_text("Start Spot", "forward_start_spot", "forward_start_spot_change"),
+        metric_card_sub_text("End Spot", "forward_end_spot", "forward_end_spot_change"),
+        metric_card_sub_text("Curve Source", "forward_curve_source", "forward_curve_source_sub"),
+        metric_card_sub_text("Compounding", "forward_compounding_value", "forward_day_count_value")
+      ),
+      grid_row(class = "forward-plot-row",
+        grid_col(class = "span-9", plot_card("forward_curve_plot", height = "540px", class = "hero-plot forward-hero-plot",
+          subtitle = "Fitted curve with forward start/end lines and the priced interval shaded.")),
+        grid_col(class = "span-3", explanation_card("What does selected forward mean?", "forward_explanation", class = "forward-explanation-card"))
+      ),
+      grid_row(class = "forward-calc-row",
+        grid_col(class = "span-6", explanation_card("Forward Rate Calculation", "forward_formula", class = "forward-formula-card")),
+        grid_col(class = "span-6", table_card("Forward Rate Sensitivity", "forward_sensitivity",
+          "Forward-rate response to endpoint and compounding assumptions."))
       ),
       grid_row(
-        grid_col(class = "span-8", plot_card("forward_curve_plot", height = "540px", class = "hero-plot",
-          subtitle = "Fitted curve with start/end forward endpoints.")),
-        grid_col(class = "span-4", explanation_card("What this forward means", "forward_explanation"))
-      ),
-      grid_row(
-        grid_col(class = "span-6", table_card("Forward Result", "forward_result")),
-        grid_col(class = "span-3", table_card("Compounding Sensitivity", "forward_sensitivity")),
-        grid_col(class = "span-3", unavailable_card("Coupon cashflow revaluation", "This version does not revalue coupon cashflows; forward is curve-implied spot-to-spot."))
+        grid_col(class = "span-12", table_card("Rate Inputs Summary", "forward_inputs_summary",
+          "Tenor matrix derived from the selected fitted curve. Start and end tenors are highlighted."))
       )
     )
   )),
@@ -511,9 +706,14 @@ ui <- navbarPage(
 )
 
 server <- function(input, output, session) {
-  market <- reactiveVal(load_market_data(project_dir))
+  market <- reactiveVal(initial_market)
   history_compare_dates <- reactiveVal(as.Date(character()))
   history_dates_initialized <- reactiveVal(FALSE)
+  history_run_started <- reactiveVal(NULL)
+  history_run_finished <- reactiveVal(NULL)
+  forward_run_started <- reactiveVal(NULL)
+  forward_run_finished <- reactiveVal(NULL)
+  forward_run_id <- reactiveVal(NULL)
   applied_curve <- reactiveVal(NULL)
   applied_history <- reactiveVal(NULL)
   applied_forward <- reactiveVal(NULL)
@@ -639,26 +839,103 @@ server <- function(input, output, session) {
     defaults <- intersect(c("USD SOFR OIS", "EUR ESTR OIS"), history_curves)
     updateSelectizeInput(session, "history_curves", choices = history_curves,
       selected = if (length(isolate(input$history_curves))) isolate(input$history_curves) else defaults, server = TRUE)
-    updateDateInput(session, "history_base_date", value = if (is.null(isolate(input$history_base_date))) dates[max(1, length(dates) - 21)] else as.Date(isolate(input$history_base_date)), min = min(dates), max = max(dates))
-    updateDateInput(session, "history_compare_date", value = if (is.null(isolate(input$history_compare_date))) max(dates) else as.Date(isolate(input$history_compare_date)), min = min(dates), max = max(dates))
+    current_history_base <- normalize_history_date(isolate(input$history_base_date), dates)
+    current_history_compare <- normalize_history_date(isolate(input$history_compare_date), dates)
+    updateDateInput(session, "history_base_date", value = current_history_base, min = min(dates), max = max(dates))
+    updateDateInput(session, "history_compare_date", value = current_history_compare, min = min(dates), max = max(dates))
     if (!isolate(history_dates_initialized())) { history_compare_dates(max(dates)); history_dates_initialized(TRUE) }
   })
-  observeEvent(input$add_history_date, { req(input$history_compare_date); history_compare_dates(sort(unique(c(history_compare_dates(), as.Date(input$history_compare_date))))); mark_pending("history") })
+  observeEvent(input$add_history_date, {
+    req(input$history_compare_date)
+    updated_dates <- sort(unique(c(history_compare_dates(), as.Date(input$history_compare_date))))
+    if (length(updated_dates) > 6) {
+      showNotification("Compare Dates supports up to 6 dates. Remove one before adding another.", type = "warning")
+      return()
+    }
+    history_compare_dates(updated_dates)
+    mark_pending("history")
+  })
   observeEvent(input$remove_history_date, { history_compare_dates(setdiff(history_compare_dates(), as.Date(input$remove_history_date))); mark_pending("history") })
+  observeEvent(input$clear_history_dates, { history_compare_dates(as.Date(character())); mark_pending("history") })
+  observeEvent(input$clear_history_curves, { updateSelectizeInput(session, "history_curves", selected = character(0)); mark_pending("history") })
+  history_current_combination_count <- reactive({
+    curve_count <- length(input$history_curves %||% character(0))
+    date_count <- length(sort(unique(c(as.Date(input$history_base_date %||% NA), history_compare_dates()))))
+    if (!is.finite(date_count)) date_count <- 0
+    curve_count * date_count
+  })
+  output$history_curve_chips <- renderUI({
+    curves <- input$history_curves %||% character(0)
+    tagList(
+      div(class = "history-chip-list",
+        if (!length(curves)) div(class = "small-note", "No curves selected.") else lapply(curves, function(curve) {
+          tags$button(type = "button", class = "history-chip",
+            onclick = sprintf("Shiny.setInputValue('remove_history_curve', '%s', {priority: 'event'})", gsub("'", "\\\\'", curve)),
+            tags$span(curve), tags$span(class = "history-chip-x", "\u00d7"))
+        })
+      ),
+      div(class = "history-chip-meta",
+        tags$span(paste(length(curves), "of", length(curve_choices()$historical), "curves selected")),
+        tags$button(type = "button", class = "link-button",
+          onclick = "Shiny.setInputValue('clear_history_curves', Math.random(), {priority: 'event'})", "Clear all")
+      )
+    )
+  })
+  observeEvent(input$remove_history_curve, {
+    current <- input$history_curves %||% character(0)
+    updateSelectizeInput(session, "history_curves", selected = setdiff(current, input$remove_history_curve))
+    mark_pending("history")
+  })
+  output$forward_snapshot_note <- renderUI({
+    latest_date <- if (length(market()$wide_rates$date)) max(market()$wide_rates$date, na.rm = TRUE) else Sys.Date()
+    div(class = "forward-blue-note", tags$span(class = "info-dot", "i"),
+      paste("Using latest local zero-rate snapshot. Display valuation date:", latest_date))
+  })
+  observeEvent(input$reset_forward, {
+    updateRadioButtons(session, "forward_source_mode", selected = "zero")
+    updateSelectizeInput(session, "forward_start", selected = 1)
+    updateSelectizeInput(session, "forward_end", selected = 5)
+    updateRadioButtons(session, "forward_compounding", selected = "annual")
+    set_status("forward", "pending", 0, "Inputs reset - click Calculate Forward to update results.")
+  }, ignoreInit = TRUE)
   output$history_date_tags <- renderUI({
     dates <- history_compare_dates()
-    if (!length(dates)) return(div(class = "small-note", "No comparison dates selected."))
     tagList(tags$div(class = "history-date-label", "Selected comparison dates"),
       tags$div(class = "history-date-tags", lapply(as.character(dates), function(date_text) tags$button(
         type = "button", class = "history-date-tag",
         onclick = sprintf("Shiny.setInputValue('remove_history_date', '%s', {priority: 'event'})", date_text),
-        tags$span(date_text), tags$span(class = "history-date-remove", "\u00d7")))))
+        tags$span(date_text), tags$span(class = "history-date-remove", "\u00d7")))),
+      if (!length(dates)) div(class = "small-note", "No comparison dates selected."),
+      div(class = "history-chip-meta",
+        tags$span(paste(length(dates), "of 6 dates selected")),
+        tags$button(type = "button", class = "link-button",
+          onclick = "Shiny.setInputValue('clear_history_dates', Math.random(), {priority: 'event'})", "Clear all")
+      ))
+  })
+  output$history_combination_warning <- renderUI({
+    count <- history_current_combination_count()
+    div(class = if (count > 30) "rail-note rail-warning history-combo-warning danger" else "rail-note rail-warning history-combo-warning",
+      tags$span(class = "warning-icon", "!"),
+      div(strong("Max 30 combinations per run"), tags$br(), paste(count, "combinations will be calculated")))
+  })
+  output$forward_status_detail <- renderUI({
+    x <- status$forward
+    completed_text <- if (is.null(forward_run_finished())) "--" else format(forward_run_finished(), "%H:%M:%S")
+    run_text <- forward_run_id() %||% "--"
+    div(class = paste("forward-status-body", paste0("forward-status-", x$type)),
+      div(class = "forward-status-line", tags$span(class = "status-dot"), tags$span(x$message)),
+      div(class = "progress forward-progress", div(class = "progress-bar", role = "progressbar",
+        style = paste0("width:", x$pct, "%;"), paste0(x$pct, "%"))),
+      div(class = "forward-status-meta", paste("Completed at:", completed_text)),
+      div(class = "forward-status-run", tags$span(paste("Run ID:", run_text)), tags$span(class = "copy-mini", "\u2398"))
+    )
   })
 
   observeEvent(list(input$source_mode, input$curve_name, input$curve_date, input$fit_methods,
     input$curve_start_tenor, input$curve_end_tenor, input$show_raw_points,
     input$show_ns_fit, input$show_spline_fit, input$show_residuals_panel), mark_pending("curve"), ignoreInit = TRUE)
-  observeEvent(list(input$history_curves, input$history_base_date), mark_pending("history"), ignoreInit = TRUE)
+  observeEvent(list(input$history_curves, input$history_base_date, input$history_compare_date,
+    input$history_start_tenor, input$history_end_tenor, input$history_source_mode), mark_pending("history"), ignoreInit = TRUE)
   observeEvent(list(input$forward_source_mode, input$forward_curve_name, input$forward_curve_date, input$forward_fit_method, input$forward_start, input$forward_end, input$forward_compounding), mark_pending("forward"), ignoreInit = TRUE)
   observeEvent(list(input$carry_source_mode, input$carry_curve_name, input$carry_curve_date, input$carry_fit_method, input$carry_start, input$carry_end, input$carry_hold, input$carry_direction, input$dv01), mark_pending("carry"), ignoreInit = TRUE)
   observeEvent(list(input$trade_source_mode, input$trade_curve_name, input$trade_curve_date, input$trade_fit_method, input$trade_structure, input$trade_short_tenor, input$trade_belly_tenor, input$trade_long_tenor, input$trade_hold, input$trade_risk_budget, input$trade_short_dv01, input$trade_belly_dv01, input$trade_long_dv01), mark_pending("trade"), ignoreInit = TRUE)
@@ -690,6 +967,8 @@ server <- function(input, output, session) {
     if (!is.null(result)) applied_curve(result)
   }, ignoreInit = FALSE)
   observeEvent(input$run_history, {
+    started <- Sys.time()
+    history_run_started(started)
     result <- run_page("history", function() {
       req(input$history_curves, input$history_base_date)
       dates <- sort(unique(c(as.Date(input$history_base_date), history_compare_dates())))
@@ -702,23 +981,39 @@ server <- function(input, output, session) {
         })
       set_status("history", "running", 90, "Generating charts")
       data$series <- paste(data$curve, data$requested_date, sep = " | ")
-      list(data = data, base_date = as.Date(input$history_base_date), combinations = combinations)
+      finished <- Sys.time()
+      tenor_range <- sort(c(as.numeric(input$history_start_tenor %||% min(data$tenor, na.rm = TRUE)),
+        as.numeric(input$history_end_tenor %||% max(data$tenor, na.rm = TRUE))))
+      list(data = data, base_date = as.Date(input$history_base_date), dates = dates,
+        curves = input$history_curves, combinations = combinations, started = started,
+        finished = finished, duration = as.numeric(difftime(finished, started, units = "secs")),
+        source_mode = input$history_source_mode %||% "bloomberg", tenor_range = tenor_range)
     })
-    if (!is.null(result)) applied_history(result)
+    if (!is.null(result)) {
+      history_run_finished(result$finished)
+      applied_history(result)
+    }
   }, ignoreInit = FALSE)
   observeEvent(input$calculate_forward, {
+    started <- Sys.time()
+    forward_run_started(started)
     result <- run_page("forward", function() {
       set_status("forward", "running", 30, "Resolving selected date")
-      bundle <- prepare_curve_fit(market(), input$forward_source_mode, input$forward_curve_name, input$forward_curve_date, input$forward_fit_method)
+      bundle <- prepare_curve_fit(market(), input$forward_source_mode, input$forward_curve_name, input$forward_curve_date, input$forward_fit_method %||% "nelson_siegel")
       set_status("forward", "running", 68, "Calculating forward")
       value <- calculate_forward(bundle$fit, input$forward_start, input$forward_end, input$forward_compounding)
       value$curve <- bundle$curve_name
       value$requested_date <- if (bundle$proxy) as.character(bundle$requested_date) else "Snapshot date unavailable"
       value$effective_date <- if (bundle$proxy) as.character(bundle$effective_date) else "Snapshot date unavailable"
       set_status("forward", "running", 90, "Generating chart")
-      list(bundle = bundle, result = value, start = input$forward_start, end = input$forward_end, compounding = input$forward_compounding)
+      list(bundle = bundle, result = value, start = as.numeric(input$forward_start), end = as.numeric(input$forward_end), compounding = input$forward_compounding)
     })
-    if (!is.null(result)) applied_forward(result)
+    if (!is.null(result)) {
+      finished <- Sys.time()
+      forward_run_finished(finished)
+      forward_run_id(paste0(format(finished, "%y%m%d-%H%M%S"), "-FWD"))
+      applied_forward(result)
+    }
   }, ignoreInit = FALSE)
   observeEvent(input$calculate_carry, {
     result <- run_page("carry", function() {
@@ -913,21 +1208,179 @@ server <- function(input, output, session) {
     )
   })
 
-  register_plot("history_absolute_plot", function() { req(applied_history()); x <- applied_history()$data; x <- x[order(x$series, x$tenor), ]; x$text <- paste0("Curve: ", x$curve, "<br>Requested: ", x$requested_date, "<br>Effective: ", x$effective_date, "<br>Tenor: ", fmt_num(x$tenor), "Y<br>Rate: ", fmt_pct(x$rate_percent)); plotly_finish(ggplot(x, aes(tenor, rate_percent, color = series, linetype = series, group = series, text = text)) + geom_line(linewidth = 1) + scale_linetype_manual(values = series_linetypes(x$series)) + labs(title = "Absolute Curves", x = "Tenor", y = "Rate (%)", color = "Curve | Date", linetype = "Curve | Date") + theme_minimal(base_size = 11) + theme(plot.title = element_text(margin = margin(b = 15)))) })
-  register_plot("history_change_plot", function() { req(applied_history()); x <- applied_history()$data; x <- x[order(x$series, x$tenor), ]; x$text <- paste0("Curve: ", x$curve, "<br>Requested: ", x$requested_date, "<br>Effective: ", x$effective_date, "<br>Tenor: ", fmt_num(x$tenor), "Y<br>Change: ", fmt_bp(x$change_bp)); plotly_finish(ggplot(x, aes(tenor, change_bp, color = series, linetype = series, group = series, text = text)) + geom_hline(yintercept = 0, color = "grey65") + geom_line(linewidth = 1) + scale_linetype_manual(values = series_linetypes(x$series)) + labs(title = paste("Change vs Base Date", applied_history()$base_date), x = "Tenor", y = "Change (bp)", color = "Curve | Date", linetype = "Curve | Date") + theme_minimal(base_size = 11) + theme(plot.title = element_text(margin = margin(b = 15)))) })
-  output$history_comparison_table <- renderDT({ req(applied_history()); datatable(round_numeric_df(applied_history()$data), options = list(pageLength = 12, scrollX = TRUE), rownames = FALSE) })
-  output$history_explanation <- renderUI({ req(applied_history()); p(paste("Last run:", applied_history()$combinations, "Curve x Date combinations. Every Curve + Date has its own color and line type.")) })
-  output$history_metric_combos <- renderText({ req(applied_history()); applied_history()$combinations })
-  output$history_metric_largest <- renderText({
-    req(applied_history())
-    x <- applied_history()$data
-    if (!nrow(x)) return("0 bp")
-    fmt_bp(x$change_bp[which.max(abs(x$change_bp))])
+  output$history_header_subtitle <- renderUI({
+    x <- applied_history()
+    curve_count <- if (is.null(x)) length(input$history_curves %||% character(0)) else length(unique(x$curves))
+    date_count <- if (is.null(x)) length(sort(unique(c(as.Date(input$history_base_date %||% NA), history_compare_dates())))) else length(unique(x$dates))
+    tagList(tags$strong(curve_count), " curves x ", tags$strong(date_count), " dates, nearest effective date fallback on")
   })
+  output$history_status_detail <- renderUI({
+    x <- status$history
+    applied <- applied_history()
+    completed_text <- if (!is.null(applied) && !is.null(applied$finished)) format(applied$finished, "%H:%M:%S") else "\u2014"
+    duration_text <- if (!is.null(applied) && !is.null(applied$duration)) sprintf("00:00:%02d", as.integer(round(applied$duration))) else "\u2014"
+    div(class = paste("history-status-body", paste0("history-status-", x$type)),
+      div(class = "history-status-line", tags$span(class = "status-dot"), tags$span(x$message)),
+      div(class = "progress history-progress", div(class = "progress-bar", role = "progressbar",
+        style = paste0("width:", x$pct, "%;"), paste0(x$pct, "%"))),
+      div(class = "history-status-meta", paste("Completed:", completed_text)),
+      div(class = "history-status-meta", paste("Duration:", duration_text)),
+      tags$button(type = "button", class = "link-button status-detail-link", "View run details")
+    )
+  })
+  register_plot("history_absolute_plot", function() {
+    req(applied_history())
+    x <- filter_history_tenor_range(applied_history()$data, applied_history()$tenor_range)
+    validate(need(nrow(x) > 0, "Selected tenor range has no data."))
+    x <- x[order(x$curve, x$requested_date, x$tenor), ]
+    curves <- unique(x$curve)
+    dates <- as.character(sort(unique(as.Date(x$requested_date))))
+    colors <- history_curve_palette(curves)
+    dashes <- history_date_linetypes(dates)
+    p <- plot_ly()
+    for (curve in curves) {
+      for (date_text in dates) {
+        segment <- x[x$curve == curve & as.character(x$requested_date) == date_text, , drop = FALSE]
+        if (!nrow(segment)) next
+        date_index <- match(date_text, dates)
+        segment$text <- paste0("Curve: ", segment$curve,
+          "<br>Requested: ", segment$requested_date,
+          "<br>Effective: ", segment$effective_date,
+          "<br>Tenor: ", tenor_label(segment$tenor),
+          "<br>Rate: ", fmt_pct(segment$rate_percent))
+        p <- add_trace(p, data = segment, x = ~tenor, y = ~rate_percent, type = "scatter", mode = "lines+markers",
+          name = paste(curve, date_text), legendgroup = curve, showlegend = TRUE, text = ~text, hoverinfo = "text",
+          line = list(color = grDevices::adjustcolor(colors[[curve]], alpha.f = history_date_alpha(date_index)),
+            width = if (date_index == 1) 2.5 else 1.4, dash = dashes[[date_text]]),
+          marker = list(color = grDevices::adjustcolor(colors[[curve]], alpha.f = history_date_alpha(date_index)), size = 5))
+      }
+    }
+    ticks <- axis_tenor_ticks(x$tenor)
+    plotly_trace_finish(layout(p, title = "Absolute Curves by Date",
+      xaxis = list(title = "Tenor", tickvals = ticks$tickvals, ticktext = ticks$ticktext),
+      yaxis = list(title = "Zero Rate (%)"),
+      legend = list(orientation = "h", x = 0, y = -0.24, tracegroupgap = 8)),
+      margin = list(t = 76, r = 28, b = 132, l = 58))
+  })
+  register_plot("history_change_plot", function() {
+    req(applied_history())
+    x <- filter_history_tenor_range(applied_history()$data, applied_history()$tenor_range)
+    base_date <- as.Date(applied_history()$base_date)
+    x <- x[as.Date(x$requested_date) != base_date, , drop = FALSE]
+    validate(need(nrow(x) > 0, "Add at least one compare date."))
+    keep_tenors <- history_display_tenor_values(x$tenor)
+    x <- x[x$tenor %in% keep_tenors, , drop = FALSE]
+    x$tenor_label <- factor(tenor_label(x$tenor), levels = tenor_label(sort(unique(keep_tenors))), ordered = TRUE)
+    curves <- unique(x$curve)
+    dates <- as.character(sort(unique(as.Date(x$requested_date))))
+    colors <- history_curve_palette(curves)
+    panels <- lapply(curves, function(curve) {
+      segment_curve <- x[x$curve == curve, , drop = FALSE]
+      panel <- plot_ly()
+      for (date_text in dates) {
+        segment <- segment_curve[as.character(segment_curve$requested_date) == date_text, , drop = FALSE]
+        if (!nrow(segment)) next
+        date_index <- match(date_text, dates)
+        segment$text <- paste0("Curve: ", segment$curve,
+          "<br>Requested: ", segment$requested_date,
+          "<br>Effective: ", segment$effective_date,
+          "<br>Tenor: ", segment$tenor_label,
+          "<br>Change: ", fmt_bp(segment$change_bp))
+        panel <- add_bars(panel, data = segment, x = ~tenor_label, y = ~change_bp,
+          name = date_text, showlegend = identical(curve, curves[[1]]), hovertext = ~text,
+          hoverinfo = "text", textposition = "none",
+          marker = list(color = grDevices::adjustcolor(colors[[curve]], alpha.f = history_date_alpha(date_index))))
+      }
+      layout(panel,
+        xaxis = list(title = "Tenor"),
+        yaxis = list(title = if (identical(curve, curves[[1]])) "Change (bp)" else ""),
+        shapes = list(list(type = "line", x0 = -0.5, x1 = length(unique(segment_curve$tenor_label)) - 0.5,
+          y0 = 0, y1 = 0, line = list(color = "#94A3B8", width = 1))))
+    })
+    p <- subplot(panels, nrows = 1, shareY = TRUE, titleX = TRUE, margin = 0.04) %>%
+      layout(barmode = "group",
+        legend = list(orientation = "h", x = 0, y = -0.22))
+    title_annotations <- lapply(seq_along(curves), function(index) {
+      curve <- curves[[index]]
+      axis_name <- if (index == 1) "xaxis" else paste0("xaxis", index)
+      domain <- p$x$layout[[axis_name]]$domain %||% c((index - 1) / length(curves), index / length(curves))
+      list(text = curve, x = mean(domain), y = 1.04,
+        xref = "paper", yref = "paper", showarrow = FALSE,
+        xanchor = "center", yanchor = "bottom",
+        font = list(size = 18, color = colors[[curve]]))
+    })
+    p <- layout(p, annotations = title_annotations)
+    plotly_trace_finish(p, margin = list(t = 92, r = 28, b = 92, l = 58))
+  })
+  output$history_comparison_table <- renderDT({
+    req(applied_history())
+    table <- history_quote_details(applied_history()$data, applied_history()$tenor_range)
+    datatable(table, options = list(pageLength = 18, scrollX = FALSE, dom = "tip", ordering = FALSE,
+      columnDefs = list(list(targets = 5:8, visible = FALSE, searchable = FALSE)),
+      rowCallback = JS(sprintf(
+        "function(row, data) {
+          var text = data[4];
+          var value = parseFloat(text);
+          var color = '%s';
+          if (!isNaN(value) && value > 0) color = '%s';
+          if (!isNaN(value) && value < 0) color = '%s';
+          $('td:eq(4)', row).css({'color': color, 'font-weight': '700'});
+          if (data[7] === true || data[7] === 'TRUE' || data[7] === 'true') {
+            $(row).addClass('history-date-group-start');
+          }
+          if (data[8] === true || data[8] === 'TRUE' || data[8] === 'true') {
+            $(row).addClass('history-curve-group-start');
+          }
+        }", neutral_color, positive_color, negative_color)),
+      drawCallback = JS(
+        "function(settings) {
+          var api = this.api();
+          var rows = api.rows({page: 'current'}).nodes();
+          api.rows({page: 'current'}).every(function() {
+            var row = $(this.node());
+            var data = this.data();
+            var dateCell = row.find('td:eq(0)');
+            var curveCell = row.find('td:eq(1)');
+            if (data[7] === true || data[7] === 'TRUE' || data[7] === 'true') {
+              dateCell.attr('rowspan', parseInt(data[5], 10)).addClass('history-merged-cell history-date-cell');
+            } else {
+              dateCell.remove();
+            }
+            if (data[8] === true || data[8] === 'TRUE' || data[8] === 'true') {
+              curveCell.attr('rowspan', parseInt(data[6], 10)).addClass('history-merged-cell history-curve-cell');
+            } else {
+              curveCell.remove();
+            }
+          });
+        }")
+    ), rownames = FALSE)
+  })
+  output$history_metric_combos <- renderText({ req(applied_history()); applied_history()$combinations })
+  output$history_metric_combos_sub <- renderText({ req(applied_history()); paste(length(unique(applied_history()$curves)), "Curves x", length(unique(applied_history()$dates)), "Dates") })
+  output$history_metric_largest <- renderUI({
+    req(applied_history())
+    info <- history_largest_move_info(applied_history()$data)
+    div(class = paste("history-largest-value", paste0("largest-", info$direction)),
+      span(class = "history-largest-icon", info$icon),
+      span(class = "history-largest-number", info$value)
+    )
+  })
+  output$history_metric_largest_sub <- renderText({ req(applied_history()); history_largest_move_info(applied_history()$data)$subtitle })
   output$history_metric_fallbacks <- renderText({
     req(applied_history())
     x <- unique(applied_history()$data[, c("curve", "requested_date", "effective_date")])
     sum(as.Date(x$requested_date) != as.Date(x$effective_date))
+  })
+  output$history_metric_fallbacks_sub <- renderText({
+    req(applied_history())
+    pairs <- unique(applied_history()$data[, c("curve", "requested_date", "effective_date")])
+    paste("of", nrow(pairs), "curve/date pairs")
+  })
+  output$history_metric_proxy <- renderText({ "On" })
+  output$history_metric_proxy_sub <- renderText({ "Bloomberg via local RDS" })
+  output$history_footer_asof <- renderText({
+    req(applied_history())
+    paste("Data as of run:", format(applied_history()$finished, "%Y-%m-%d %H:%M:%S"))
   })
 
   curve_banner <- function(bundle) {
@@ -938,22 +1391,294 @@ server <- function(input, output, session) {
       div(class = "official-banner", tags$span(class = "badge-label", "Local snapshot"), paste(bundle$source, "| Latest local zero-rate snapshot"))
     }
   }
+  signed_bp_text <- function(value) {
+    value <- as.numeric(value)
+    if (!is.finite(value)) return("Prev close unavailable")
+    paste0(if (value > 0) "+" else "", fmt_bp(value), " vs Prev Close")
+  }
+  forward_previous_close <- function(x) {
+    history_names <- historical_curve_names(market()$wide_rates)
+    curve_name <- x$bundle$curve_name
+    if (!curve_name %in% history_names) return(NULL)
+    valuation_date <- forward_valuation_date(x)
+    previous_dates <- sort(unique(market()$wide_rates$date[market()$wide_rates$date < as.Date(valuation_date)]))
+    if (!length(previous_dates)) return(NULL)
+    previous_points <- tryCatch(extract_historical_curve(market()$wide_rates, curve_name, tail(previous_dates, 1)), error = function(error) NULL)
+    if (is.null(previous_points)) return(NULL)
+    previous_fit <- tryCatch(fit_curve(previous_points$tenor, previous_points$rate, x$bundle$fit$method,
+      source = paste0("Previous close | ", curve_name), proxy = TRUE), error = function(error) NULL)
+    if (is.null(previous_fit)) return(NULL)
+    list(
+      fit = previous_fit,
+      forward = calculate_forward(previous_fit, x$start, x$end, x$compounding)$forward_percent,
+      start_spot = decimal_to_percent(curve_rate(previous_fit, pmax(x$start, min(previous_fit$points$tenor)))),
+      end_spot = decimal_to_percent(curve_rate(previous_fit, x$end))
+    )
+  }
+  forward_current_metrics <- function(x) {
+    list(
+      forward = x$result$forward_percent,
+      start_spot = decimal_to_percent(curve_rate(x$bundle$fit, pmax(x$start, min(x$bundle$fit$points$tenor)))),
+      end_spot = decimal_to_percent(curve_rate(x$bundle$fit, x$end))
+    )
+  }
   output$forward_banner <- renderUI({ req(applied_forward()); curve_banner(applied_forward()$bundle) })
-  output$forward_value <- renderText({ req(applied_forward()); fmt_pct(applied_forward()$result$forward_percent) })
-  output$forward_start_spot <- renderText({ req(applied_forward()); x <- applied_forward(); fmt_pct(decimal_to_percent(curve_rate(x$bundle$fit, pmax(x$start, min(x$bundle$fit$points$tenor))))) })
-  output$forward_end_spot <- renderText({ req(applied_forward()); x <- applied_forward(); fmt_pct(decimal_to_percent(curve_rate(x$bundle$fit, x$end))) })
+  output$forward_title_block <- renderUI({
+    req(applied_forward())
+    x <- applied_forward()
+    date_text <- as.character(forward_valuation_date(x))
+    source_text <- if (isTRUE(x$bundle$proxy)) "Historical proxy" else "Zero-rate snapshot"
+    div(class = "forward-title-block",
+      tags$h3("Forward Rate Calculator"),
+      div(class = "forward-title-meta",
+        tags$span(tags$b("Curve:"), x$bundle$curve_name),
+        tags$span(tags$b("Source:"), source_text),
+        tags$span(tags$b("Date:"), date_text)
+      )
+    )
+  })
+  output$forward_value <- renderText({ req(applied_forward()); fmt_pct2(applied_forward()$result$forward_percent) })
+  output$forward_start_spot <- renderText({ req(applied_forward()); x <- applied_forward(); fmt_pct2(forward_current_metrics(x)$start_spot) })
+  output$forward_end_spot <- renderText({ req(applied_forward()); x <- applied_forward(); fmt_pct2(forward_current_metrics(x)$end_spot) })
+  output$forward_value_change <- renderText({
+    req(applied_forward())
+    x <- applied_forward()
+    previous <- forward_previous_close(x)
+    if (is.null(previous)) return("Prev close unavailable")
+    signed_bp_text((x$result$forward_percent - previous$forward) * 100)
+  })
+  output$forward_start_spot_change <- renderText({
+    req(applied_forward())
+    x <- applied_forward()
+    previous <- forward_previous_close(x)
+    if (is.null(previous)) return("Prev close unavailable")
+    signed_bp_text((forward_current_metrics(x)$start_spot - previous$start_spot) * 100)
+  })
+  output$forward_end_spot_change <- renderText({
+    req(applied_forward())
+    x <- applied_forward()
+    previous <- forward_previous_close(x)
+    if (is.null(previous)) return("Prev close unavailable")
+    signed_bp_text((forward_current_metrics(x)$end_spot - previous$end_spot) * 100)
+  })
   output$forward_compounding_value <- renderText({ req(applied_forward()); tools::toTitleCase(applied_forward()$compounding) })
+  output$forward_curve_source <- renderText({
+    req(applied_forward())
+    if (isTRUE(applied_forward()$bundle$proxy)) "Historical Proxy" else "Zero Snapshot"
+  })
+  output$forward_curve_source_sub <- renderText({
+    req(applied_forward())
+    x <- applied_forward()
+    if (isTRUE(x$bundle$proxy)) paste("Selected date", as.Date(x$bundle$requested_date)) else "Latest local RDS"
+  })
+  output$forward_day_count_value <- renderText({ req(applied_forward()); if (identical(applied_forward()$compounding, "simple")) "Day Count: ACT/360" else "Day Count: curve years" })
+  output$forward_period_value <- renderText({ req(applied_forward()); x <- applied_forward(); paste0(fmt_num(x$end - x$start), "Y") })
+  output$forward_spread_value <- renderText({
+    req(applied_forward())
+    x <- applied_forward()
+    end_spot <- decimal_to_percent(curve_rate(x$bundle$fit, x$end))
+    fmt_bp((x$result$forward_percent - end_spot) * 100)
+  })
   output$forward_result <- renderDT({ req(applied_forward()); datatable(round_numeric_df(applied_forward()$result), options = list(dom = "t", scrollX = TRUE), rownames = FALSE) })
+
+  forward_spot_inputs <- function(x) {
+    fit <- x$bundle$fit
+    start_tenor <- pmax(x$start, min(fit$points$tenor))
+    start_rate <- if (x$start == 0) curve_rate(fit, start_tenor) else curve_rate(fit, x$start)
+    end_rate <- curve_rate(fit, x$end)
+    list(
+      start_tenor = start_tenor,
+      start_rate = start_rate,
+      end_rate = end_rate,
+      df_start = if (x$start == 0) 1 else discount_factor(start_rate, x$start, x$compounding),
+      df_end = discount_factor(end_rate, x$end, x$compounding)
+    )
+  }
+  forward_valuation_date <- function(x) {
+    if (isTRUE(x$bundle$proxy) && !is.na(x$bundle$requested_date)) return(as.Date(x$bundle$requested_date))
+    if (length(market()$wide_rates$date)) return(max(market()$wide_rates$date, na.rm = TRUE))
+    Sys.Date()
+  }
+  forward_tenor_date <- function(valuation_date, years) {
+    as.Date(valuation_date) + round(as.numeric(years) * 365.25)
+  }
+  forward_from_spots <- function(start_rate, end_rate, start, end, compounding) {
+    df_start <- if (start == 0) 1 else discount_factor(start_rate, start, compounding)
+    df_end <- discount_factor(end_rate, end, compounding)
+    period <- end - start
+    decimal_to_percent(switch(
+      compounding,
+      annual = (df_start / df_end)^(1 / period) - 1,
+      continuous = log(df_start / df_end) / period,
+      simple = (df_start / df_end - 1) / period
+    ))
+  }
   output$forward_sensitivity <- renderDT({
     req(applied_forward())
     x <- applied_forward()
-    rows <- do.call(rbind, lapply(c("annual", "continuous", "simple"), function(method) {
-      calculate_forward(x$bundle$fit, x$start, x$end, method)
-    }))
-    datatable(round_numeric_df(rows[, c("compounding", "forward_percent")]), options = list(dom = "t"), rownames = FALSE)
+    methods <- c("annual", "continuous", "simple")
+    forwards <- vapply(methods, function(method) calculate_forward(x$bundle$fit, x$start, x$end, method)$forward_percent, numeric(1))
+    annual <- forwards[["annual"]]
+    rows <- data.frame(
+      Compounding = c("Annual", "Continuous", "Simple (Act/360)"),
+      `Forward Rate` = fmt_pct2(forwards),
+      `Change vs Annual` = c("--", fmt_bp((forwards[["continuous"]] - annual) * 100), fmt_bp((forwards[["simple"]] - annual) * 100)),
+      RawChange = c(NA_real_, (forwards[["continuous"]] - annual) * 100, (forwards[["simple"]] - annual) * 100),
+      check.names = FALSE
+    )
+    datatable(rows, options = list(dom = "t", scrollX = TRUE, ordering = FALSE,
+      columnDefs = list(list(targets = 3, visible = FALSE, searchable = FALSE)),
+      rowCallback = JS(sprintf(
+        "function(row, data) {
+          var value = parseFloat(data[3]);
+          if (!isNaN(value) && value > 0) {
+            $('td:eq(2)', row).html('<span class=\"sign-pill plus\">+</span>' + data[2]).css({'color':'%s','font-weight':'800'});
+          } else if (!isNaN(value) && value < 0) {
+            $('td:eq(2)', row).html('<span class=\"sign-pill minus\">-</span>' + data[2].replace('-', '')).css({'color':'%s','font-weight':'800'});
+          } else {
+            $('td:eq(2)', row).css({'color':'%s','font-weight':'800'});
+          }
+        }", positive_color, negative_color, neutral_color))
+    ), rownames = FALSE)
   })
-  output$forward_explanation <- renderUI({ req(applied_forward()); x <- applied_forward(); p(sprintf("Last applied result: %.2fY to %.2fY on %s. Historical calculations show requested and effective dates; zero-rate snapshots have no date field.", x$start, x$end, x$bundle$curve_name)) })
-  register_plot("forward_curve_plot", function() { req(applied_forward()); x <- applied_forward(); fit <- x$bundle$fit; grid <- seq(max(.01, min(fit$points$tenor)), max(fit$points$tenor), length.out = 250); data <- data.frame(tenor = grid, rate = decimal_to_percent(curve_rate(fit, grid))); data <- data[order(data$tenor), ]; data$text <- paste0("Tenor: ", fmt_num(data$tenor), "Y<br>Rate: ", fmt_pct(data$rate)); marks <- data.frame(tenor = c(x$start, x$end), label = c("Start", "End")); marks$rate <- decimal_to_percent(curve_rate(fit, pmax(marks$tenor, min(fit$points$tenor)))); marks$text <- paste0(marks$label, "<br>Tenor: ", fmt_num(marks$tenor), "Y<br>Rate: ", fmt_pct(marks$rate)); plot <- plotly::plot_ly(data = data, x = ~tenor, y = ~rate, text = ~text, hoverinfo = "text", type = "scatter", mode = "lines", name = "Fitted curve", line = list(color = "#1f4e78", width = 2)); plot <- plotly::add_trace(plot, data = marks, x = ~tenor, y = ~rate, text = ~text, hoverinfo = "text", type = "scatter", mode = "markers", name = "Forward endpoints", marker = list(color = c(positive_color, negative_color), size = 9), inherit = FALSE); plotly_trace_finish(plotly::layout(plot, title = "Selected Curve and Forward Endpoints", xaxis = list(title = "Tenor"), yaxis = list(title = "Rate (%)"))) })
+  output$forward_inputs_summary <- renderDT({
+    req(applied_forward())
+    x <- applied_forward()
+    fit <- x$bundle$fit
+    tenors <- as.numeric(tenor_choices)
+    tenor_names <- names(tenor_choices)
+    rates <- decimal_to_percent(curve_rate(fit, pmax(tenors, min(fit$points$tenor))))
+    dfs <- discount_factor(rates / 100, tenors, x$compounding)
+    rows <- data.frame(Metric = c("Zero Rate (%)", "Discount Factor"), check.names = FALSE)
+    for (index in seq_along(tenors)) {
+      rows[[tenor_names[[index]]]] <- c(fmt_num(rates[[index]]), fmt_df2(dfs[[index]]))
+    }
+    start_label <- tenor_label(x$start)
+    end_label <- tenor_label(x$end)
+    datatable(rows, options = list(dom = "t", scrollX = TRUE, ordering = FALSE,
+      rowCallback = JS(sprintf(
+        "function(row, data) {
+          var headers = this.api().columns().header().toArray().map(function(h){ return $(h).text(); });
+          headers.forEach(function(label, idx) {
+            if (label === '%s') $('td:eq(' + idx + ')', row).addClass('forward-start-cell');
+            if (label === '%s') $('td:eq(' + idx + ')', row).addClass('forward-end-cell');
+          });
+        }", start_label, end_label))
+    ), rownames = FALSE)
+  })
+  output$forward_explanation <- renderUI({
+    req(applied_forward())
+    x <- applied_forward()
+    valuation <- forward_valuation_date(x)
+    start_date <- forward_tenor_date(valuation, x$start)
+    end_date <- forward_tenor_date(valuation, x$end)
+    tags$div(class = "forward-copy",
+      tags$p(sprintf("The %s -> %s forward rate is the annualized rate that applies from the end of %s to the end of %s.",
+        tenor_label(x$start), tenor_label(x$end), tenor_label(x$start), tenor_label(x$end))),
+      tags$p(sprintf("In other words, if you invest to the %s spot date, the %.2f-year period that follows is implied to earn %s under the selected compounding convention.",
+        tenor_label(x$start), x$end - x$start, fmt_pct2(x$result$forward_percent))),
+      tags$hr(),
+      tags$ul(
+        tags$li(paste("Start date:", start_date)),
+        tags$li(paste("End date:", end_date)),
+        tags$li(paste("Forward period length:", fmt_num(x$end - x$start), "years"))
+      )
+    )
+  })
+  output$forward_formula <- renderUI({
+    req(applied_forward())
+    x <- applied_forward()
+    spots <- forward_spot_inputs(x)
+    tags$div(class = "forward-formula-wrap",
+      div(class = "forward-equation",
+        tags$span("1 + "),
+        tags$span(class = "math-symbol math-f",
+          "f",
+          tags$sub(paste0(tenor_label(x$start), ",", tenor_label(x$end)))
+        ),
+        tags$span(" = "),
+        tags$span(class = "math-paren", "("),
+        tags$span(class = "math-frac",
+          tags$span(class = "math-num", paste0("DF(", tenor_label(x$start), ")")),
+          tags$span(class = "math-den", paste0("DF(", tenor_label(x$end), ")"))
+        ),
+        tags$span(class = "math-paren", ")"),
+        tags$sup(class = "math-exp",
+          tags$span(class = "math-exp-frac",
+            tags$span(class = "math-exp-num", "1"),
+            tags$span(class = "math-exp-den", paste0(tenor_label(x$end), " - ", tenor_label(x$start)))
+          )
+        )
+      ),
+      tags$table(class = "forward-formula-table",
+        tags$thead(tags$tr(tags$th("Input"), tags$th("Value"), tags$th("Definition"))),
+        tags$tbody(
+          tags$tr(tags$td(paste0("DF(", tenor_label(x$start), ")")), tags$td(fmt_df2(spots$df_start)), tags$td(paste("Discount factor to", tenor_label(x$start)))),
+          tags$tr(tags$td(paste0("DF(", tenor_label(x$end), ")")), tags$td(fmt_df2(spots$df_end)), tags$td(paste("Discount factor to", tenor_label(x$end)))),
+          tags$tr(tags$td("Year Fraction"), tags$td(fmt_num(x$end - x$start)), tags$td(paste(tenor_label(x$end), "-", tenor_label(x$start)))),
+          tags$tr(class = "formula-result-row", tags$td(paste0("Forward Rate (", tenor_label(x$start), " -> ", tenor_label(x$end), ")")),
+            tags$td(fmt_pct2(x$result$forward_percent)), tags$td("Annualized"))
+        )
+      )
+    )
+  })
+  register_plot("forward_curve_plot", function() {
+    req(applied_forward())
+    x <- applied_forward()
+    fit <- x$bundle$fit
+    min_tenor <- max(.01, min(fit$points$tenor))
+    max_tenor <- max(fit$points$tenor)
+    grid <- sort(unique(c(seq(min_tenor, max_tenor, length.out = 250), x$start, x$end)))
+    data <- data.frame(tenor = grid, rate = decimal_to_percent(curve_rate(fit, pmax(grid, min_tenor))))
+    data <- data[order(data$tenor), ]
+    data$text <- paste0("Tenor: ", fmt_num(data$tenor), "Y<br>Rate: ", fmt_pct2(data$rate))
+    raw_points <- data.frame(tenor = fit$points$tenor, rate = decimal_to_percent(fit$points$rate))
+    raw_points$text <- paste0("Market point<br>Tenor: ", tenor_label(raw_points$tenor), "<br>Rate: ", fmt_pct2(raw_points$rate))
+    marks <- data.frame(tenor = c(x$start, x$end), label = c("Start", "End"))
+    marks$rate <- decimal_to_percent(curve_rate(fit, pmax(marks$tenor, min_tenor)))
+    marks$text <- paste0(marks$label, "<br>Tenor: ", fmt_num(marks$tenor), "Y<br>Rate: ", fmt_pct2(marks$rate))
+    marks$value_label <- fmt_pct2(marks$rate)
+    y_range <- range(data$rate, marks$rate, raw_points$rate, na.rm = TRUE)
+    y_pad <- max(0.08, diff(y_range) * 0.08)
+    y0 <- y_range[[1]] - y_pad
+    y1 <- y_range[[2]] + y_pad
+    plot <- plotly::plot_ly(data = data, x = ~tenor, y = ~rate, text = ~text, hoverinfo = "text",
+      type = "scatter", mode = "lines", name = "Zero Rate Curve",
+      line = list(color = "#1f4e78", width = 2.3), legendrank = 1)
+    interval <- data.frame(x = c(x$start, x$end, x$end, x$start), y = c(y0, y0, y1, y1))
+    plot <- plotly::add_trace(plot, data = interval, x = ~x, y = ~y, type = "scatter",
+      mode = "none", fill = "toself", fillcolor = "rgba(31,95,139,0.12)",
+      name = "Forward Interval", hoverinfo = "skip", inherit = FALSE, legendrank = 4)
+    plot <- plotly::add_trace(plot, data = data.frame(x = x$start, y = c(y0, y1)), x = ~x, y = ~y,
+      type = "scatter", mode = "lines", name = paste0("Start Tenor (", tenor_label(x$start), ")"),
+      line = list(color = positive_color, width = 2, dash = "dot"), hoverinfo = "skip", inherit = FALSE, legendrank = 2)
+    plot <- plotly::add_trace(plot, data = data.frame(x = x$end, y = c(y0, y1)), x = ~x, y = ~y,
+      type = "scatter", mode = "lines", name = paste0("End Tenor (", tenor_label(x$end), ")"),
+      line = list(color = negative_color, width = 2, dash = "dot"), hoverinfo = "skip", inherit = FALSE, legendrank = 3)
+    plot <- plotly::add_trace(plot, data = raw_points, x = ~tenor, y = ~rate, text = ~text, hoverinfo = "text",
+      type = "scatter", mode = "markers", name = "Market points",
+      marker = list(color = "#0f2e4f", size = 5), showlegend = FALSE, inherit = FALSE)
+    plot <- plotly::add_trace(plot, data = marks, x = ~tenor, y = ~rate, text = ~value_label, hovertext = ~text, hoverinfo = "text",
+      type = "scatter", mode = "markers+text", name = "Forward endpoints",
+      textposition = c("top right", "top right"), textfont = list(color = c(positive_color, negative_color), size = 11),
+      marker = list(color = c(positive_color, negative_color), size = 10), showlegend = FALSE, inherit = FALSE)
+    trader_ticks <- c(1, 2, 3, 5, 7, 10, 20, 30)
+    trader_ticks <- trader_ticks[trader_ticks >= min_tenor & trader_ticks <= max(max_tenor, x$end)]
+    if (!length(trader_ticks)) trader_ticks <- c(min_tenor, max(max_tenor, x$end))
+    annotations <- list(
+      list(x = mean(c(x$start, x$end)), y = 1.04, xref = "x", yref = "paper", showarrow = FALSE,
+        text = paste0("Forward interval: ", tenor_label(x$start), " -> ", tenor_label(x$end)),
+        font = list(size = 11, color = "#1f4e78"))
+    )
+    plotly_trace_finish(plotly::layout(plot,
+      title = x$bundle$curve_name,
+      xaxis = list(title = "Tenor", range = c(min_tenor, max(max_tenor, x$end)),
+        tickvals = trader_ticks, ticktext = tenor_label(trader_ticks), tickangle = 0, automargin = TRUE),
+      yaxis = list(title = "Rate (%)", range = c(y0, y1)),
+      legend = list(orientation = "h", x = 0.12, y = 1.08, xanchor = "left", yanchor = "bottom",
+        font = list(size = 10), traceorder = "normal", itemwidth = 30),
+      annotations = annotations), margin = list(t = 104, r = 22, b = 54, l = 58))
+  })
 
   output$carry_banner <- renderUI({ req(applied_carry()); curve_banner(applied_carry()$bundle) })
   output$carry_value <- renderText({ req(applied_carry()); fmt_bp(applied_carry()$single$carry_bp) })

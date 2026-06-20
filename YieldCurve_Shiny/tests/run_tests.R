@@ -63,7 +63,9 @@ assert_close(fly$dv01[[2]], fly$dv01[[1]] + fly$dv01[[3]], message = "Fly neutra
 old_directory <- getwd()
 setwd(project_dir)
 source(file.path(project_dir, "app.R"), local = .GlobalEnv)
+assert_true(as.Date(initial_history_date) == max(market$wide_rates$date), "History base date UI default should use latest database date")
 shiny::testServer(server, {
+  session$flushReact()
   session$setInputs(
     source_mode = "zero", curve_name = "USD UNITED STATES OIS", fit_methods = c("nelson_siegel", "spline"),
     forward_source_mode = "zero", forward_curve_name = "EUR EUROZONE (vs. 6M EURIBOR)",
@@ -72,7 +74,8 @@ shiny::testServer(server, {
     carry_fit_method = "nelson_siegel", carry_start = 0, carry_end = 5, carry_hold = "0.25",
     carry_direction = "Receive Fixed", dv01 = 10000,
     history_curves = c("USD SOFR OIS", "AUD COR OIS"), history_base_date = "2025-09-23",
-    history_compare_date = "2025-10-22", add_history_date = 1,
+    history_compare_date = "2025-10-22", history_start_tenor = "0.0833333333333333",
+    history_end_tenor = "30", add_history_date = 1,
     trade_source_mode = "zero", trade_curve_name = "USD UNITED STATES OIS", trade_fit_method = "nelson_siegel",
     trade_structure = "steepener", trade_short_tenor = 2, trade_belly_tenor = 5, trade_long_tenor = 10,
     trade_hold = "0.25", trade_risk_budget = 10000, trade_short_dv01 = 10000,
@@ -85,6 +88,18 @@ shiny::testServer(server, {
   session$flushReact()
   assert_true(length(applied_curve()$fits) == 2, "Applied Curve failed")
   assert_true(applied_history()$combinations == 4, "Applied History failed")
+  assert_close(applied_history()$tenor_range[[1]], 1/12, tolerance = 1e-8, message = "History tenor range start failed")
+  assert_close(applied_history()$tenor_range[[2]], 30, tolerance = 1e-8, message = "History tenor range end failed")
+  history_quote_table <- history_quote_details(applied_history()$data, applied_history()$tenor_range)
+  assert_true(nrow(history_quote_table) > 0, "History quote details failed")
+  assert_true(identical(names(history_quote_table)[1:5], c("Date", "Curve Name", "Tenor", "Rate (%)", "Change (bp)")), "History quote display columns failed")
+  assert_true(all(c("date_span", "curve_span", "date_group_start", "curve_group_start") %in% names(history_quote_table)), "History quote span columns failed")
+  assert_true(any(history_quote_table$date_span > history_quote_table$curve_span) && any(history_quote_table$curve_span > 1), "History quote span values failed")
+  assert_true(all(history_quote_table$Tenor %in% c("2Y", "5Y", "10Y")), "History quote tenors failed")
+  assert_true(all(c("USD SOFR OIS", "AUD COR OIS") %in% history_quote_table$`Curve Name`), "History quote selected curves failed")
+  largest_move <- history_largest_move_info(applied_history()$data)
+  assert_true(grepl("bp$", largest_move$value) && nzchar(largest_move$subtitle), "Largest move label failed")
+  assert_true(largest_move$direction %in% c("positive", "negative", "neutral") && nzchar(largest_move$icon), "Largest move direction failed")
   assert_true(applied_forward()$bundle$curve_name == "EUR EUROZONE (vs. 6M EURIBOR)", "Applied Forward failed")
   assert_true(applied_carry()$bundle$curve_name == "AUD AUSTRALIA (vs. 6M Bank Bills)", "Applied Carry failed")
   assert_true(nrow(applied_trade()$calculation$detail) == 2, "Applied Trade failed")
@@ -97,12 +112,16 @@ shiny::testServer(server, {
   session$setInputs(
     forward_source_mode = "historical", forward_curve_name = "EUR ESTR OIS", forward_curve_date = "2025-10-22",
     carry_source_mode = "historical", carry_curve_name = "AUD COR OIS", carry_curve_date = "2025-10-22",
-    carry_direction = "Pay Fixed", dv01 = 25000
+    carry_direction = "Pay Fixed", dv01 = 25000,
+    history_end_tenor = "5"
   )
   session$flushReact()
   assert_close(applied_forward()$result$forward_percent, old_forward, message = "Forward changed before Calculate")
   assert_close(applied_carry()$single$total_bp, old_carry, message = "Carry changed before Calculate")
   assert_true(status$forward$type == "pending" && status$carry$type == "pending", "Pending status failed")
+  assert_close(applied_history()$tenor_range[[1]], 1/12, tolerance = 1e-8, message = "History start changed before Run")
+  assert_close(applied_history()$tenor_range[[2]], 30, tolerance = 1e-8, message = "History end changed before Run")
+  assert_true(status$history$type == "pending", "History tenor range pending failed")
 
   session$setInputs(calculate_forward = 2, calculate_carry = 2)
   session$flushReact()
@@ -117,6 +136,13 @@ shiny::testServer(server, {
   session$setInputs(forward_start = 1, forward_end = 5, calculate_forward = 4)
   session$flushReact()
 
+  session$setInputs(run_history = 2)
+  session$flushReact()
+  assert_close(applied_history()$tenor_range[[1]], 1/12, tolerance = 1e-8, message = "History range start did not apply")
+  assert_close(applied_history()$tenor_range[[2]], 5, tolerance = 1e-8, message = "History range end did not apply")
+  ranged_history_quote_table <- history_quote_details(applied_history()$data, applied_history()$tenor_range)
+  assert_true(all(ranged_history_quote_table$Tenor %in% c("2Y", "5Y")), "History quote tenor range filter failed")
+
   session$setInputs(trade_structure = "long_belly_fly", trade_short_dv01 = 5000, trade_belly_dv01 = 10000, trade_long_dv01 = 5000)
   session$flushReact()
   assert_true(nrow(applied_trade()$calculation$detail) == 2, "Trade changed before Calculate")
@@ -126,7 +152,8 @@ shiny::testServer(server, {
 
   rendered_outputs <- list(
     output$curve_plot, output$fit_summary, output$history_absolute_plot, output$history_change_plot,
-    output$history_comparison_table, output$forward_result, output$forward_curve_plot,
+    output$history_comparison_table, output$history_status_detail, output$history_header_subtitle,
+    output$forward_result, output$forward_curve_plot,
     output$carry_component_plot, output$carry_spot_plot, output$carry_stacked_plot, output$carry_heatmap,
     output$trade_leg_table, output$trade_leg_pnl_plot, output$trade_component_plot, output$diagnostics_table
   )
