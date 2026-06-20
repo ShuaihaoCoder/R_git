@@ -67,6 +67,9 @@ assert_true(inherits(bad_started_trade, "try-error"), "Curve trade start validat
 old_directory <- getwd()
 setwd(project_dir)
 source(file.path(project_dir, "app.R"), local = .GlobalEnv)
+assert_true(identical(fmt_pct(3.2), "3.20%"), "Percent formatter should keep two decimals")
+assert_true(identical(fmt_bp(1.234), "1.2 bp"), "BP formatter should keep one decimal")
+assert_true(identical(signed_text_value(1.234, 1), "+1.2"), "Signed formatter should show positive sign")
 assert_true(as.Date(initial_history_date) == max(market$wide_rates$date), "History base date UI default should use latest database date")
 shiny::testServer(server, {
   session$flushReact()
@@ -82,10 +85,14 @@ shiny::testServer(server, {
     history_end_tenor = "30", add_history_date = 1,
     trade_structure = "steepener", trade_short_tenor = 2, trade_belly_tenor = 5, trade_long_tenor = 10,
     trade_start = 0, trade_hold = "0.25", trade_risk_budget = 10000, trade_short_dv01 = 10000,
-    trade_belly_dv01 = 10000, trade_long_dv01 = 10000
+    trade_belly_dv01 = 10000, trade_long_dv01 = 10000,
+    diag_fit_method = "spline", diag_residual_warn = 1, diag_residual_fail = 2.5,
+    diag_display_units = "percent", diag_internal_units = "decimal",
+    diag_validation_checks = c("monotonic", "forward_positive", "residual", "unit")
   )
   session$flushReact()
   assert_true(is.null(applied_curve()) && is.null(applied_forward()) && is.null(applied_carry()), "Pages calculated before buttons")
+  assert_true(inherits(try(output$diag_freshness_value, silent = TRUE), "try-error"), "Diagnostics should wait for Apply Curve")
 
   session$setInputs(apply_curve = 1, run_history = 1, calculate_forward = 1, calculate_carry = 1, calculate_curve_trade = 1)
   session$flushReact()
@@ -118,6 +125,17 @@ shiny::testServer(server, {
   assert_true(all(vapply(c("curve", "history", "forward", "carry", "trade"), function(page) status[[page]]$type == "success", logical(1))), "Progress did not complete")
   assert_true(identical(levels(applied_carry()$matrix$hold_label), c("1M", "3M", "6M", "1Y")), "Hold order failed")
   assert_true(identical(levels(applied_carry()$matrix$tenor_label), c("1Y", "2Y", "3Y", "5Y", "7Y", "10Y", "15Y", "20Y", "30Y")), "Tenor order failed")
+  diagnostics_matrix <- diagnostics_tenor_matrix()
+  assert_true(identical(diagnostics_matrix$tenor_label, c("1M", "3M", "6M", "1Y", "2Y", "3Y", "5Y", "7Y", "10Y", "15Y", "20Y", "30Y")), "Diagnostics expected tenor order failed")
+  assert_true(!is.null(output$diag_freshness_value) && !is.null(output$diag_missing_value) && !is.null(output$diag_fit_rmse_value), "Diagnostics KPI rendering failed")
+  assert_true(!is.null(output$diag_proxy_value) && !is.null(output$diag_unit_value), "Diagnostics KPI proxy/unit failed")
+  assert_true(!is.null(output$diagnostics_table) && !is.null(output$diagnostics_residual_plot) && !is.null(output$input_points) && !is.null(output$diagnostics_explanation), "Diagnostics outputs failed")
+  old_curve_points <- nrow(applied_curve()$points)
+  old_curve_name <- applied_curve()$curve_name
+  session$setInputs(diag_residual_warn = 0.5, diag_residual_fail = 1.5)
+  session$flushReact()
+  assert_true(nrow(applied_curve()$points) == old_curve_points && applied_curve()$curve_name == old_curve_name, "Diagnostics threshold should not recalculate curve")
+  assert_true(!is.null(output$diagnostics_residual_plot), "Diagnostics residual threshold update failed")
 
   old_forward <- applied_forward()$result$forward_percent
   old_carry <- applied_carry()$single$total_bp
@@ -178,7 +196,10 @@ shiny::testServer(server, {
     output$forward_result, output$forward_curve_plot,
     output$carry_value_ui, output$roll_value_ui, output$total_bp_ui, output$pnl_value_ui, output$curve_trade_workspace,
     output$carry_component_plot, output$carry_spot_plot, output$carry_stacked_plot, output$carry_heatmap,
-    output$trade_leg_table, output$trade_leg_pnl_plot, output$trade_component_plot, output$diagnostics_table
+    output$trade_leg_table, output$trade_leg_pnl_plot, output$trade_component_plot,
+    output$diag_freshness_value, output$diag_missing_value, output$diag_fit_rmse_value,
+    output$diag_proxy_value, output$diag_unit_value, output$diagnostics_table,
+    output$diagnostics_residual_plot, output$input_points, output$diagnostics_explanation
   )
   assert_true(all(vapply(rendered_outputs, function(value) !is.null(value), logical(1))), "Output rendering failed")
   previous_carry_total <- applied_carry()$single$total_bp

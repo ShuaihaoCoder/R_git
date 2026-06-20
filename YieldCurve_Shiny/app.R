@@ -23,13 +23,13 @@ positive_color <- "#16A085"
 negative_color <- "#D96C5F"
 neutral_color <- "#61758A"
 
+fmt_num_digits <- function(x, digits = 1) format(round(as.numeric(x), digits), nsmall = digits, trim = TRUE, scientific = FALSE, big.mark = ",")
 fmt_num <- function(x) format(round(as.numeric(x), 2), nsmall = 0, trim = TRUE, scientific = FALSE, big.mark = ",")
-fmt_pct <- function(x) paste0(fmt_num(x), "%")
-fmt_pct2 <- function(x) paste0(format(round(as.numeric(x), 2), nsmall = 2, trim = TRUE, scientific = FALSE), "%")
+fmt_pct <- function(x) paste0(fmt_num_digits(x, 2), "%")
+fmt_pct2 <- function(x) paste0(fmt_num_digits(x, 2), "%")
 fmt_pct4 <- function(x) paste0(format(round(as.numeric(x), 4), nsmall = 4, trim = TRUE, scientific = FALSE), "%")
 fmt_df2 <- function(x) format(round(as.numeric(x), 2), nsmall = 2, trim = TRUE, scientific = FALSE)
-fmt_bp <- function(x) paste0(fmt_num(x), " bp")
-fmt_num_digits <- function(x, digits = 1) format(round(as.numeric(x), digits), nsmall = digits, trim = TRUE, scientific = FALSE, big.mark = ",")
+fmt_bp <- function(x) paste0(fmt_num_digits(x, 1), " bp")
 fmt_bp1 <- function(x) paste0(fmt_num_digits(x, 1), " bp")
 fmt_pnl0 <- function(x) fmt_num_digits(x, 0)
 `%||%` <- function(x, y) if (is.null(x) || length(x) == 0) y else x
@@ -39,6 +39,40 @@ round_numeric_df <- function(x) {
   x
 }
 value_color <- function(x) ifelse(x > 0, positive_color, ifelse(x < 0, negative_color, neutral_color))
+signed_class <- function(value) {
+  numeric_value <- suppressWarnings(as.numeric(value))
+  if (is.finite(numeric_value) && numeric_value > 0) "positive" else if (is.finite(numeric_value) && numeric_value < 0) "negative" else "neutral"
+}
+signed_text_value <- function(value, digits = 1, suffix = "") {
+  numeric_value <- suppressWarnings(as.numeric(value))
+  paste0(if (is.finite(numeric_value) && numeric_value > 0) "+" else "", fmt_num_digits(numeric_value, digits), suffix)
+}
+signed_cell <- function(value, digits = 1, suffix = "") {
+  paste0("<span class='signed-value ", signed_class(value), "'>", signed_text_value(value, digits, suffix), "</span>")
+}
+format_display_df <- function(data) {
+  for (column in names(data)) {
+    if (!is.numeric(data[[column]])) next
+    lower_name <- tolower(column)
+    is_bp <- grepl("bp|rmse|residual|change", lower_name)
+    is_rate <- grepl("rate|percent|forward|spot", lower_name)
+    is_signed <- grepl("change|residual|p&l|pnl", lower_name)
+    digits <- if (is_bp) 1 else if (is_rate) 2 else 2
+    if (is_signed) {
+      data[[column]] <- vapply(data[[column]], signed_cell, character(1), digits = digits)
+    } else {
+      data[[column]] <- fmt_num_digits(data[[column]], digits)
+    }
+  }
+  data
+}
+center_dt_options <- function(options = list()) {
+  options$columnDefs <- c(options$columnDefs %||% list(), list(list(className = "dt-center", targets = "_all")))
+  options
+}
+centered_datatable <- function(data, options = list(), rownames = FALSE, escape = FALSE) {
+  datatable(data, options = center_dt_options(options), rownames = rownames, escape = escape)
+}
 series_linetypes <- function(series) {
   patterns <- c("solid", "dashed", "dotted", "dotdash", "longdash", "twodash",
     "11", "22", "33", "44", "13", "31", "42", "24", "1343", "73", "2262", "12223242")
@@ -129,8 +163,8 @@ history_quote_details <- function(data, range = NULL) {
   selected$Date <- as.character(selected$requested_date)
   selected$`Curve Name` <- selected$curve
   selected$Tenor <- selected$tenor_label
-  selected$`Rate (%)` <- fmt_num(selected$rate_percent)
-  selected$`Change (bp)` <- ifelse(as.Date(selected$requested_date) == as.Date(selected$base_requested_date) | abs(selected$change_bp) < 1e-10, "\u2014", fmt_num(selected$change_bp))
+  selected$`Rate (%)` <- fmt_num_digits(selected$rate_percent, 2)
+  selected$`Change (bp)` <- ifelse(as.Date(selected$requested_date) == as.Date(selected$base_requested_date) | abs(selected$change_bp) < 1e-10, "\u2014", vapply(selected$change_bp, signed_text_value, character(1), digits = 1))
   selected <- selected[order(as.Date(selected$requested_date), selected$`Curve Name`, selected$tenor), c("Date", "Curve Name", "Tenor", "Rate (%)", "Change (bp)")]
   date_key <- selected$Date
   curve_key <- paste(selected$Date, selected$`Curve Name`, sep = "\r")
@@ -145,34 +179,34 @@ history_display_tenor_values <- function(tenors) {
   ticks$tickvals
 }
 metric_card <- function(title, output_id) {
-  div(class = "metric-card",
+  div(class = "metric-card resizable-card",
     tags$div(class = "metric-kicker", title),
     div(class = "metric-value", textOutput(output_id))
   )
 }
 metric_card_sub_text <- function(title, value_id, subtitle_id = NULL) {
-  div(class = "metric-card",
+  div(class = "metric-card resizable-card",
     tags$div(class = "metric-kicker", title),
     div(class = "metric-value", textOutput(value_id)),
     if (!is.null(subtitle_id)) div(class = "metric-subtitle", textOutput(subtitle_id))
   )
 }
 metric_card_sub <- function(title, value_id, subtitle_id = NULL) {
-  div(class = "metric-card curve-kpi-card",
+  div(class = "metric-card curve-kpi-card resizable-card",
     tags$div(class = "metric-kicker", title),
     div(class = "metric-value", textOutput(value_id)),
     if (!is.null(subtitle_id)) div(class = "metric-subtitle", textOutput(subtitle_id))
   )
 }
 metric_card_ui <- function(title, output_id, subtitle_id = NULL, class = NULL) {
-  div(class = paste("metric-card curve-kpi-card", class),
+  div(class = paste("metric-card curve-kpi-card resizable-card", class),
     tags$div(class = "metric-kicker", title),
     uiOutput(output_id),
     if (!is.null(subtitle_id)) div(class = "metric-subtitle", textOutput(subtitle_id))
   )
 }
 metric_card_sub_ui <- function(title, value_id, subtitle_id = NULL, class = NULL) {
-  div(class = paste("metric-card curve-kpi-card", class),
+  div(class = paste("metric-card curve-kpi-card resizable-card", class),
     tags$div(class = "metric-kicker", title),
     div(class = "metric-value", uiOutput(value_id)),
     if (!is.null(subtitle_id)) div(class = "metric-subtitle", uiOutput(subtitle_id))
@@ -200,6 +234,8 @@ tenor_label <- function(x) {
 }
 tenor_choices <- c("1M" = 1 / 12, "3M" = 0.25, "6M" = 0.5, "1Y" = 1, "2Y" = 2,
   "3Y" = 3, "5Y" = 5, "7Y" = 7, "10Y" = 10, "15Y" = 15, "20Y" = 20, "30Y" = 30)
+diagnostics_expected_tenors <- c("1M" = 1 / 12, "3M" = 0.25, "6M" = 0.5, "1Y" = 1, "2Y" = 2,
+  "3Y" = 3, "5Y" = 5, "7Y" = 7, "10Y" = 10, "15Y" = 15, "20Y" = 20, "30Y" = 30)
 axis_tenor_ticks <- function(tenors) {
   tenors <- sort(unique(as.numeric(tenors[is.finite(tenors)])))
   if (!length(tenors)) return(list(tickvals = numeric(), ticktext = character()))
@@ -224,16 +260,16 @@ fit_rsq <- function(fit) {
   if (!is.finite(denom) || denom <= 0) return(NA_real_)
   1 - sum((observed - fitted)^2, na.rm = TRUE) / denom
 }
-format_rsq <- function(x) ifelse(is.na(x), "NA", fmt_num(100 * x))
+format_rsq <- function(x) ifelse(is.na(x), "NA", fmt_num_digits(100 * x, 2))
 static_metric_card <- function(title, value, subtitle = NULL, tone = "neutral") {
-  div(class = paste("metric-card", paste0("metric-", tone)),
+  div(class = paste("metric-card resizable-card", paste0("metric-", tone)),
     tags$div(class = "metric-kicker", title),
     div(class = "metric-value", value),
     if (!is.null(subtitle)) div(class = "metric-subtitle", subtitle)
   )
 }
 explanation_card <- function(title, output_id, class = NULL) {
-  div(class = paste("explanation-card", class),
+  div(class = paste("explanation-card resizable-card", class),
     div(class = "card-heading compact-heading",
       tags$div(class = "card-kicker", "Desk note"),
       tags$h4(title)
@@ -257,7 +293,7 @@ page_header <- function(title, subtitle, output_id = NULL) {
 }
 control_section <- function(title, ...) div(class = "control-section", if (!is.null(title)) tags$h5(title), ...)
 table_card <- function(title, output_id, subtitle = NULL) {
-  div(class = "table-card",
+  div(class = "table-card resizable-card",
     div(class = "card-heading",
       tags$div(tags$h4(title), if (!is.null(subtitle)) tags$p(subtitle))
     ),
@@ -278,10 +314,34 @@ parameter_section_ui <- function(title, data) {
   )
 }
 unavailable_card <- function(title, reason = "Not available in current local RDS / Not implemented yet") {
-  div(class = "unavailable-card",
+  div(class = "unavailable-card resizable-card",
     tags$div(class = "card-kicker", "Module placeholder"),
     tags$h4(title),
     tags$p(reason)
+  )
+}
+diagnostics_status_icon <- function(status) {
+  labels <- c(ok = "\u2713", warn = "\u26a0", fail = "\u00d7", na = "\u2013")
+  status <- if (status %in% names(labels)) status else "na"
+  tags$span(class = paste("diag-status-icon", paste0("diag-status-", status)), labels[[status]])
+}
+diagnostics_metric_card <- function(title, value_id, subtitle_id = NULL, detail_id = NULL, status_id = NULL) {
+  div(class = "diag-kpi-card resizable-card",
+    div(class = "diag-kpi-text",
+      div(class = "metric-kicker", title),
+      div(class = "metric-value", uiOutput(value_id)),
+      if (!is.null(subtitle_id)) div(class = "metric-subtitle", uiOutput(subtitle_id)),
+      if (!is.null(detail_id)) div(class = "metric-subtitle diag-kpi-detail", uiOutput(detail_id))
+    ),
+    if (!is.null(status_id)) div(class = "diag-kpi-status", uiOutput(status_id))
+  )
+}
+diagnostics_card <- function(title, output_id, subtitle = NULL, class = NULL) {
+  div(class = paste("diagnostics-card resizable-card", class),
+    div(class = "card-heading compact-heading",
+      tags$div(tags$h4(title), if (!is.null(subtitle)) tags$p(subtitle))
+    ),
+    uiOutput(output_id)
   )
 }
 rail_header <- function(title, subtitle = NULL) {
@@ -311,7 +371,7 @@ history_status_card <- function() {
   )
 }
 plot_card <- function(output_id, height = "430px", class = NULL, subtitle = NULL) {
-  div(class = paste("plot-card resizable-plot-card", class), `data-default-height` = height,
+  div(class = paste("plot-card resizable-card resizable-plot-card", class), `data-default-height` = height,
     div(class = "plot-card-head",
       div(
         div(class = "card-kicker", "Interactive Plotly"),
@@ -338,7 +398,8 @@ large_plot_titles_label <- function(output_id) {
     carry_stacked_plot = "Carry + Roll by Tenor",
     carry_heatmap = "Carry + Roll Heatmap",
     trade_leg_pnl_plot = "Curve Trade Legs",
-    trade_component_plot = "Curve Trade Portfolio"
+    trade_component_plot = "Curve Trade Portfolio",
+    diagnostics_residual_plot = "Fit Residual Diagnostics"
   )
   labels[[output_id]] %||% output_id
 }
@@ -408,12 +469,12 @@ dashboard_page <- function(title, subtitle, output_id = NULL, controls, main, cl
     )
   )
 }
-side_panel <- function(...) div(class = "sidebar-panel", ...)
+side_panel <- function(...) div(class = "sidebar-panel resizable-card", ...)
 main_grid <- function(...) div(class = "main-grid screenshot-grid", ...)
 grid_row <- function(..., class = NULL) div(class = paste("dashboard-row", class), ...)
 grid_col <- function(..., class = NULL) div(class = paste("dashboard-col", class), ...)
 section_card <- function(title, ..., subtitle = NULL, class = NULL) {
-  div(class = paste("section-card", class),
+  div(class = paste("section-card resizable-card", class),
     div(class = "card-heading",
       tags$div(class = "card-kicker", "Workspace"),
       tags$h4(title),
@@ -425,7 +486,10 @@ section_card <- function(title, ..., subtitle = NULL, class = NULL) {
 status_strip <- function(...) div(class = "status-strip", ...)
 
 ui <- navbarPage(
-  title = "YieldCurve Trader", theme = theme,
+  title = div(class = "brand-lockup",
+    span(class = "brand-title", "YieldCurve Trader"),
+    span(class = "brand-author", "by Shuaihao")
+  ), theme = theme,
   header = tags$head(
     tags$link(rel = "stylesheet", type = "text/css", href = "styles.css"),
     tags$script(HTML("
@@ -440,25 +504,51 @@ ui <- navbarPage(
           window.Plotly.Plots.resize(plot);
         }
 
-        function attachResizablePlots() {
-          document.querySelectorAll('.plot-card.resizable-plot-card').forEach(function(card) {
-            if (card.dataset.resizeAttached === 'true') return;
-            card.dataset.resizeAttached = 'true';
-            if (window.ResizeObserver) {
-              var observer = new ResizeObserver(function() { resizePlotCard(card); });
-              observer.observe(card);
-            }
-            setTimeout(function() { resizePlotCard(card); }, 250);
+        function resizeDataTable(card) {
+          var table = card.querySelector('table.dataTable');
+          if (!table || !window.jQuery || !window.jQuery.fn || !window.jQuery.fn.dataTable) return;
+          try {
+            window.jQuery(table).DataTable().columns.adjust();
+          } catch (error) {}
+        }
+
+        function resizeCard(card) {
+          resizePlotCard(card);
+          resizeDataTable(card);
+        }
+
+        function decorateSignedText(root) {
+          var scope = root && root.querySelectorAll ? root : document;
+          scope.querySelectorAll('.metric-subtitle .shiny-text-output, .status-strip .shiny-text-output').forEach(function(node) {
+            var text = (node.textContent || '').trim();
+            node.classList.remove('positive-change', 'negative-change', 'neutral-change');
+            if (text.charAt(0) === '+') node.classList.add('positive-change');
+            else if (text.charAt(0) === '-' || text.charAt(0) === '−') node.classList.add('negative-change');
+            else node.classList.add('neutral-change');
           });
         }
 
-        document.addEventListener('DOMContentLoaded', attachResizablePlots);
+        function attachResizableCards() {
+          document.querySelectorAll('.resizable-card').forEach(function(card) {
+            if (card.dataset.resizeAttached === 'true') return;
+            card.dataset.resizeAttached = 'true';
+            if (window.ResizeObserver) {
+              var observer = new ResizeObserver(function() { resizeCard(card); });
+              observer.observe(card);
+            }
+            setTimeout(function() { resizeCard(card); }, 250);
+          });
+          decorateSignedText(document);
+        }
+
+        document.addEventListener('DOMContentLoaded', attachResizableCards);
         document.addEventListener('shiny:value', function(event) {
-          setTimeout(attachResizablePlots, 80);
-          var card = event.target && event.target.closest ? event.target.closest('.plot-card.resizable-plot-card') : null;
-          if (card) setTimeout(function() { resizePlotCard(card); }, 120);
+          setTimeout(attachResizableCards, 80);
+          var card = event.target && event.target.closest ? event.target.closest('.resizable-card') : null;
+          if (card) setTimeout(function() { resizeCard(card); }, 120);
+          setTimeout(function() { decorateSignedText(document); }, 120);
         });
-        document.addEventListener('shown.bs.tab', function() { setTimeout(attachResizablePlots, 120); });
+        document.addEventListener('shown.bs.tab', function() { setTimeout(attachResizableCards, 120); });
       })();
     "))
   ),
@@ -766,32 +856,54 @@ ui <- navbarPage(
   )),
   tabPanel("Diagnostics", dashboard_page(
     "Diagnostics",
-    "Data lineage, proxy policy, unit checks and fit residuals from the last successful Curve Explorer apply.",
+    "Last successful Curve Explorer apply result.",
     NULL,
+    class = "diagnostics-page",
     controls = side_panel(
-      rail_header("Diagnostics Controls", "Policy and data quality"),
-      control_section("Model policy",
-        div(class = "rail-note", strong("Local RDS only"), tags$br(), "No Bloomberg live refresh in this version."),
-        div(class = "rail-note", strong("Proxy analytics"), tags$br(), "Historical quotes are not strict multi-curve bootstrap results."),
-        div(class = "rail-note", strong("Unit policy"), tags$br(), "Market percent inputs are converted to decimals internally and displayed as % or bp.")
+      rail_header("Diagnostics Policy", "Inputs and quality thresholds"),
+      control_section("Model Policy",
+        sidebar_selectize_input("diag_fit_method", "Default Fit Method",
+          choices = c("Cubic Spline" = "spline", "Nelson-Siegel" = "nelson_siegel"), selected = "spline"),
+        div(class = "diag-policy-grid",
+          numericInput("diag_residual_warn", "Residual Warn (bp)", 1.00, min = 0, step = 0.25),
+          numericInput("diag_residual_fail", "Residual Fail (bp)", 2.50, min = 0.25, step = 0.25)
+        )
+      ),
+      control_section("Proxy Analysis",
+        div(class = "diag-info-note", tags$span(class = "info-dot", "i"),
+          "If selected historical quotes are missing or stale, proxy/fallback dates are shown as Local RDS proxy metadata.")
+      ),
+      control_section("Unit Policy",
+        div(class = "diag-policy-grid",
+          sidebar_selectize_input("diag_display_units", "Display Units", choices = c("Percent" = "percent"), selected = "percent"),
+          sidebar_selectize_input("diag_internal_units", "Internal Calc Units", choices = c("Decimal" = "decimal"), selected = "decimal")
+        ),
+        div(class = "rail-note compact-note", "Conversion: 1% = 0.01")
+      ),
+      control_section("Validation Checks",
+        checkboxGroupInput("diag_validation_checks", NULL,
+          choices = c("Monotonic 1M-30Y" = "monotonic", "Positive Forward Rates" = "forward_positive",
+            "Residual Thresholds" = "residual", "Unit Consistency" = "unit"),
+          selected = c("monotonic", "forward_positive", "residual", "unit"))
       )
     ),
     main = main_grid(
-      module_tabs("Diagnostics", c("Data Quality", "Model Fit", "Unavailable Metadata", "Unit Policy")),
-      metric_strip(
-        metric_card("Data Source", "diag_source"),
-        metric_card("Proxy Flag", "diag_proxy"),
-        metric_card("Fit RMSE", "diag_rmse"),
-        metric_card("Tenor Points", "diag_points")
+      div(class = "diag-kpi-strip",
+        diagnostics_metric_card("Data Freshness", "diag_freshness_value", "diag_freshness_subtitle", "diag_freshness_detail", "diag_freshness_status"),
+        diagnostics_metric_card("Missing Points", "diag_missing_value", "diag_missing_subtitle", "diag_missing_detail", "diag_missing_status"),
+        diagnostics_metric_card("Fit RMSE", "diag_fit_rmse_value", "diag_fit_rmse_subtitle", "diag_fit_rmse_detail", "diag_fit_rmse_status"),
+        diagnostics_metric_card("Proxy Flag", "diag_proxy_value", "diag_proxy_subtitle", "diag_proxy_detail", "diag_proxy_status"),
+        diagnostics_metric_card("Unit Check", "diag_unit_value", "diag_unit_subtitle", "diag_unit_detail", "diag_unit_status")
       ),
-      grid_row(
-        grid_col(class = "span-4", explanation_card("How to read diagnostics", "diagnostics_explanation")),
-        grid_col(class = "span-4", table_card("Fit Diagnostics", "diagnostics_table")),
-        grid_col(class = "span-4", table_card("Input Points", "input_points"))
+      grid_row(class = "diagnostics-main-row",
+        grid_col(class = "span-5", diagnostics_card("Diagnostics Summary", "diagnostics_table")),
+        grid_col(class = "span-7", plot_card("diagnostics_residual_plot", height = "360px", class = "diagnostics-residual-card",
+          subtitle = "Residual = observed YTM - fitted YTM. Thresholds follow Diagnostics Policy."))
       ),
-      grid_row(
-        grid_col(class = "span-6", unavailable_card("Bloomberg curve source metadata", "Ticker, contributor, quote timestamp and live source hierarchy are not present in the local RDS.")),
-        grid_col(class = "span-6", unavailable_card("Production cashflow engine", "Coupon schedules and full cashflow revaluation are outside the current local dashboard."))
+      grid_row(class = "diagnostics-bottom-row",
+        grid_col(class = "span-7", diagnostics_card("Input Points & Missing Tenors", "input_points",
+          subtitle = "Expected tenor set is fixed for diagnostics coverage.", class = "diag-input-matrix-card")),
+        grid_col(class = "span-5", diagnostics_card("About Diagnostics", "diagnostics_explanation", class = "diag-about-card"))
       )
     )
   ))
@@ -1190,7 +1302,7 @@ server <- function(input, output, session) {
   output$curve_metric_beta0 <- renderText({ req(ns_curve_fit()); fmt_pct(100 * ns_curve_fit()$parameters[["beta0"]]) })
   output$curve_metric_beta1 <- renderText({ req(ns_curve_fit()); fmt_pct(100 * ns_curve_fit()$parameters[["beta1"]]) })
   output$curve_metric_tau <- renderText({ req(ns_curve_fit()); fmt_num(ns_curve_fit()$parameters[["tau"]]) })
-  output$curve_metric_rmse <- renderText({ req(ns_curve_fit()); fmt_num(ns_curve_fit()$rmse_bp) })
+  output$curve_metric_rmse <- renderText({ req(ns_curve_fit()); fmt_num_digits(ns_curve_fit()$rmse_bp, 1) })
   output$curve_metric_rsq <- renderText({ req(ns_curve_fit()); paste0("R\u00b2: ", format_rsq(fit_rsq(ns_curve_fit())), "%") })
   output$curve_metric_obs <- renderText({ req(applied_curve()); nrow(applied_curve()$points) })
   output$curve_metric_range <- renderText({ req(applied_curve()); rng <- applied_curve()$tenor_range; paste(tenor_label(rng[[1]]), "to", tenor_label(rng[[2]])) })
@@ -1283,20 +1395,20 @@ server <- function(input, output, session) {
       )),
       parameter_section_ui("Goodness of Fit", data.frame(
         Metric = c("RMSE (bp)", "R-squared"),
-        Value = c(fmt_num(ns$rmse_bp), paste0(format_rsq(fit_rsq(ns)), "%")),
+        Value = c(fmt_num_digits(ns$rmse_bp, 1), paste0(format_rsq(fit_rsq(ns)), "%")),
         stringsAsFactors = FALSE
       )),
       parameter_section_ui("Spline", data.frame(
         Metric = c("Method", "Knots", "RMSE (bp)"),
         Value = c(if (is.null(spline)) "NA" else "Cubic spline", if (is.null(spline)) "NA" else "Market tenors",
-          if (is.null(spline)) "NA" else fmt_num(spline$rmse_bp)),
+          if (is.null(spline)) "NA" else fmt_num_digits(spline$rmse_bp, 1)),
         stringsAsFactors = FALSE
       ))
     )
   })
   output$fitted_parameters <- renderUI({ fitted_parameters_ui() })
-  output$fit_summary <- renderDT({ req(applied_curve()); datatable(round_numeric_df(data.frame(Method = vapply(applied_curve()$fits, `[[`, character(1), "method"), RMSE_bp = vapply(applied_curve()$fits, `[[`, numeric(1), "rmse_bp"))), options = list(dom = "t"), rownames = FALSE) })
-  output$ns_parameters <- renderDT({ req(ns_curve_fit()); ns <- ns_curve_fit(); datatable(round_numeric_df(data.frame(Parameter = names(ns$parameters), Value = ns$parameters)), options = list(dom = "t"), rownames = FALSE) })
+  output$fit_summary <- renderDT({ req(applied_curve()); centered_datatable(format_display_df(data.frame(Method = vapply(applied_curve()$fits, `[[`, character(1), "method"), RMSE_bp = vapply(applied_curve()$fits, `[[`, numeric(1), "rmse_bp"))), options = list(dom = "t")) })
+  output$ns_parameters <- renderDT({ req(ns_curve_fit()); ns <- ns_curve_fit(); centered_datatable(format_display_df(data.frame(Parameter = names(ns$parameters), Value = ns$parameters)), options = list(dom = "t")) })
   output$curve_explanation <- renderUI({
     req(ns_curve_fit())
     tagList(
@@ -1413,7 +1525,7 @@ server <- function(input, output, session) {
   output$history_comparison_table <- renderDT({
     req(applied_history())
     table <- history_quote_details(applied_history()$data, applied_history()$tenor_range)
-    datatable(table, options = list(pageLength = 18, scrollX = FALSE, dom = "tip", ordering = FALSE,
+    centered_datatable(table, options = list(pageLength = 18, scrollX = FALSE, dom = "tip", ordering = FALSE,
       columnDefs = list(list(targets = 5:8, visible = FALSE, searchable = FALSE)),
       rowCallback = JS(sprintf(
         "function(row, data) {
@@ -1451,7 +1563,7 @@ server <- function(input, output, session) {
             }
           });
         }")
-    ), rownames = FALSE)
+    ))
   })
   output$history_metric_combos <- renderText({ req(applied_history()); applied_history()$combinations })
   output$history_metric_combos_sub <- renderText({ req(applied_history()); paste(length(unique(applied_history()$curves)), "Curves x", length(unique(applied_history()$dates)), "Dates") })
@@ -1577,7 +1689,7 @@ server <- function(input, output, session) {
     end_spot <- decimal_to_percent(curve_rate(x$bundle$fit, x$end))
     fmt_bp((x$result$forward_percent - end_spot) * 100)
   })
-  output$forward_result <- renderDT({ req(applied_forward()); datatable(round_numeric_df(applied_forward()$result), options = list(dom = "t", scrollX = TRUE), rownames = FALSE) })
+  output$forward_result <- renderDT({ req(applied_forward()); centered_datatable(format_display_df(applied_forward()$result), options = list(dom = "t", scrollX = TRUE)) })
 
   forward_spot_inputs <- function(x) {
     fit <- x$bundle$fit
@@ -1624,7 +1736,7 @@ server <- function(input, output, session) {
       RawChange = c(NA_real_, (forwards[["continuous"]] - annual) * 100, (forwards[["simple"]] - annual) * 100),
       check.names = FALSE
     )
-    datatable(rows, options = list(dom = "t", scrollX = TRUE, ordering = FALSE,
+    centered_datatable(rows, options = list(dom = "t", scrollX = TRUE, ordering = FALSE,
       columnDefs = list(list(targets = 3, visible = FALSE, searchable = FALSE)),
       rowCallback = JS(sprintf(
         "function(row, data) {
@@ -1637,7 +1749,7 @@ server <- function(input, output, session) {
             $('td:eq(2)', row).css({'color':'%s','font-weight':'800'});
           }
         }", positive_color, negative_color, neutral_color))
-    ), rownames = FALSE)
+    ))
   })
   output$forward_inputs_summary <- renderDT({
     req(applied_forward())
@@ -1649,11 +1761,11 @@ server <- function(input, output, session) {
     dfs <- discount_factor(rates / 100, tenors, x$compounding)
     rows <- data.frame(Metric = c("Zero Rate (%)", "Discount Factor"), check.names = FALSE)
     for (index in seq_along(tenors)) {
-      rows[[tenor_names[[index]]]] <- c(fmt_num(rates[[index]]), fmt_df2(dfs[[index]]))
+      rows[[tenor_names[[index]]]] <- c(fmt_num_digits(rates[[index]], 2), fmt_df2(dfs[[index]]))
     }
     start_label <- tenor_label(x$start)
     end_label <- tenor_label(x$end)
-    datatable(rows, options = list(dom = "t", scrollX = TRUE, ordering = FALSE,
+    centered_datatable(rows, options = list(dom = "t", scrollX = TRUE, ordering = FALSE,
       rowCallback = JS(sprintf(
         "function(row, data) {
           var headers = this.api().columns().header().toArray().map(function(h){ return $(h).text(); });
@@ -1662,7 +1774,7 @@ server <- function(input, output, session) {
             if (label === '%s') $('td:eq(' + idx + ')', row).addClass('forward-end-cell');
           });
         }", start_label, end_label))
-    ), rownames = FALSE)
+    ))
   })
   output$forward_explanation <- renderUI({
     req(applied_forward())
@@ -1884,7 +1996,7 @@ server <- function(input, output, session) {
     mode <- input$carry_workspace_mode %||% "single"
     disabled <- !identical(mode, "trade")
     if (disabled) {
-      return(div(class = "curve-trade-workspace is-disabled",
+      return(div(class = "curve-trade-workspace resizable-card is-disabled",
         div(class = "curve-trade-title-row", tags$h4("Curve Trade"), tags$span("NA")),
         div(class = "curve-trade-controls-strip",
           div(class = "curve-trade-structure", tags$span("STRUCTURE"), div(class = "trade-badge-row is-na", tags$span(class = "trade-badge", "NA"))),
@@ -1896,11 +2008,11 @@ server <- function(input, output, session) {
         ),
         grid_row(class = "curve-trade-lower-row",
           grid_col(class = "span-8", div(class = "plot-card trade-portfolio-plot trade-na-card", div(class = "trade-na-panel", "NA"))),
-          grid_col(class = "span-4", div(class = "trade-summary-card", div(class = "trade-summary-inner", tags$h4("Curve Trade Summary"), div(class = "trade-na-panel", "NA"))))
+          grid_col(class = "span-4", div(class = "trade-summary-card resizable-card", div(class = "trade-summary-inner", tags$h4("Curve Trade Summary"), div(class = "trade-na-panel", "NA"))))
         )
       ))
     }
-    div(class = "curve-trade-workspace",
+    div(class = "curve-trade-workspace resizable-card",
       div(class = "curve-trade-title-row", tags$h4("Curve Trade"), tags$span("Results")),
       div(class = "curve-trade-controls-strip",
         div(class = "curve-trade-structure", tags$span("STRUCTURE"), uiOutput("trade_structure_badges")),
@@ -1909,7 +2021,7 @@ server <- function(input, output, session) {
       table_card("Curve Trade Legs", "trade_leg_table", "Results only; configure and calculate from the left sidebar."),
       grid_row(class = "curve-trade-lower-row",
         grid_col(class = "span-8", plot_card("trade_leg_pnl_plot", height = "330px", class = "trade-portfolio-plot")),
-        grid_col(class = "span-4", div(class = "trade-summary-card", uiOutput("trade_summary_card")))
+        grid_col(class = "span-4", div(class = "trade-summary-card resizable-card", uiOutput("trade_summary_card")))
       )
     )
   })
@@ -1973,7 +2085,7 @@ server <- function(input, output, session) {
       theme_minimal(base_size = 10) +
       theme(panel.grid.minor = element_blank(), strip.text = element_text(face = "bold"), plot.title = element_text(face = "bold", size = 11)))
   })
-  output$carry_matrix <- renderDT({ req(applied_carry()); datatable(round_numeric_df(applied_carry()$matrix[, c("tenor_label", "hold_label", "carry_bp", "roll_bp", "total_bp", "pnl")]), options = list(pageLength = 12, scrollX = TRUE), rownames = FALSE) })
+  output$carry_matrix <- renderDT({ req(applied_carry()); centered_datatable(format_display_df(applied_carry()$matrix[, c("tenor_label", "hold_label", "carry_bp", "roll_bp", "total_bp", "pnl")]), options = list(pageLength = 12, scrollX = TRUE)) })
   register_plot("carry_heatmap", function() {
     req(applied_carry())
     x <- applied_carry()$matrix
@@ -2063,10 +2175,9 @@ server <- function(input, output, session) {
       `P&L` = vapply(detail$total_pnl, signed_cell, character(1), suffix = "", digits = 0),
       check.names = FALSE
     )
-    datatable(display, escape = FALSE, rownames = FALSE,
+    centered_datatable(display, escape = FALSE,
       options = list(dom = "t", paging = FALSE, ordering = FALSE, searching = FALSE, info = FALSE,
-        autoWidth = FALSE, scrollX = FALSE,
-        columnDefs = list(list(className = "dt-center", targets = "_all"))))
+        autoWidth = FALSE, scrollX = FALSE))
   })
   register_plot("trade_leg_pnl_plot", function() {
     req(applied_trade())
@@ -2110,13 +2221,181 @@ server <- function(input, output, session) {
       theme(panel.grid.minor = element_blank(), plot.title = element_text(face = "bold", size = 11)))
   })
 
-  output$diagnostics_explanation <- renderUI(p(sprintf("Diagnostics uses the last applied Curve Explorer fit. Current RMSE: %.2f bp.", curve_fit()$rmse_bp)))
-  output$diag_source <- renderText({ req(applied_curve()); if (applied_curve()$mode == "zero") "Zero snapshot" else "Historical proxy" })
+  diagnostics_thresholds <- reactive({
+    warn <- suppressWarnings(as.numeric(input$diag_residual_warn %||% 1))
+    fail <- suppressWarnings(as.numeric(input$diag_residual_fail %||% 2.5))
+    if (!is.finite(warn) || warn < 0) warn <- 1
+    if (!is.finite(fail) || fail <= 0) fail <- 2.5
+    if (fail < warn) fail <- warn
+    list(warn = warn, fail = fail)
+  })
+  diagnostics_selected_fit <- reactive({
+    req(applied_curve())
+    preferred <- input$diag_fit_method %||% "spline"
+    fit <- find_fit(applied_curve()$fits, preferred)
+    if (is.null(fit)) fit <- curve_fit()
+    fit
+  })
+  diagnostics_selected_fit_label <- reactive({
+    fit <- diagnostics_selected_fit()
+    if (identical(fit$method, "spline")) "Spline" else if (identical(fit$method, "nelson_siegel")) "Nelson-Siegel" else tools::toTitleCase(fit$method)
+  })
+  diagnostics_tenor_matrix <- reactive({
+    req(applied_curve())
+    points <- applied_curve()$points
+    expected <- diagnostics_expected_tenors
+    rows <- lapply(seq_along(expected), function(index) {
+      tenor <- unname(expected[[index]])
+      label <- names(expected)[[index]]
+      tolerance <- if (tenor < 1) 0.02 else 0.05
+      matched <- which(abs(points$tenor - tenor) <= tolerance)
+      available <- length(matched) > 0
+      point <- if (available) points[matched[[1]], , drop = FALSE] else NULL
+      data.frame(
+        tenor = tenor,
+        tenor_label = label,
+        expected = TRUE,
+        available = available,
+        yield_percent = if (available) decimal_to_percent(point$rate[[1]]) else NA_real_,
+        source = if (available) "Local RDS" else "NA",
+        age = "NA",
+        stringsAsFactors = FALSE
+      )
+    })
+    do.call(rbind, rows)
+  })
+  diagnostics_missing_count <- reactive({ sum(!diagnostics_tenor_matrix()$available) })
+  diagnostics_status_for_residuals <- reactive({
+    fit <- diagnostics_selected_fit()
+    thresholds <- diagnostics_thresholds()
+    max_abs <- max(abs(fit$diagnostics$residual_bp), na.rm = TRUE)
+    if (!is.finite(max_abs)) return("na")
+    if (max_abs > thresholds$fail) "fail" else if (max_abs > thresholds$warn) "warn" else "ok"
+  })
+  diagnostics_summary_rows <- reactive({
+    req(applied_curve())
+    x <- applied_curve()
+    fit <- diagnostics_selected_fit()
+    ns <- find_fit(x$fits, "nelson_siegel")
+    spline <- find_fit(x$fits, "spline")
+    missing <- diagnostics_missing_count()
+    tenor_range <- range(x$points$tenor, na.rm = TRUE)
+    date_value <- if (identical(x$mode, "historical")) as.character(x$requested_date %||% "NA") else as.character(x$latest_db_date %||% "NA")
+    effective_value <- if (identical(x$mode, "historical")) as.character(x$effective_date %||% "NA") else as.character(x$latest_db_date %||% "NA")
+    data.frame(
+      Field = c("Curve", "Requested Date", "Effective Date", "Source", "Proxy", "Tenor Count",
+        "Missing Points", "Min Tenor", "Max Tenor", "NS RMSE", "Spline RMSE", "Unit Check"),
+      Value = c(x$curve_name, date_value, effective_value, if (identical(x$mode, "zero")) "Local RDS zero snapshot" else "Local RDS historical proxy",
+        if (identical(x$mode, "historical")) "Yes" else "No", paste0(nrow(x$points), " observed / ", length(diagnostics_expected_tenors), " expected"),
+        as.character(missing), tenor_label(tenor_range[[1]]), tenor_label(tenor_range[[2]]),
+        if (is.null(ns)) "NA" else fmt_num_digits(ns$rmse_bp, 1),
+        if (is.null(spline)) "NA" else fmt_num_digits(spline$rmse_bp, 1),
+        "OK"),
+      Unit = c("\u2013", "\u2013", "\u2013", "\u2013", "\u2013", "points", "points", "\u2013", "\u2013", "bp", "bp", "\u2013"),
+      Source = c("User Selection", "Local RDS", "Local RDS", "Local RDS", "Local RDS", "Local RDS",
+        "Diagnostics Policy", "Local RDS", "Local RDS", "Model", "Model", "Internal Policy"),
+      Status = c("ok", "ok", "ok", "ok", if (identical(x$mode, "historical")) "warn" else "ok",
+        if (missing > 0) "warn" else "ok", if (missing > 0) "warn" else "ok", "ok", "ok",
+        if (!is.null(ns) && ns$rmse_bp > diagnostics_thresholds()$fail) "fail" else "ok",
+        diagnostics_status_for_residuals(), "ok"),
+      stringsAsFactors = FALSE
+    )
+  })
+  diagnostics_table_ui <- function(rows) {
+    tags$table(class = "diag-summary-table",
+      tags$thead(tags$tr(lapply(c("Field", "Value", "Unit", "Source", "Status"), tags$th))),
+      tags$tbody(lapply(seq_len(nrow(rows)), function(index) {
+        tags$tr(
+          tags$td(rows$Field[[index]]),
+          tags$td(class = "diag-summary-value", rows$Value[[index]]),
+          tags$td(rows$Unit[[index]]),
+          tags$td(rows$Source[[index]]),
+          tags$td(diagnostics_status_icon(rows$Status[[index]]))
+        )
+      }))
+    )
+  }
+  output$diag_freshness_value <- renderUI({ req(applied_curve()); tags$span("Local RDS") })
+  output$diag_freshness_subtitle <- renderUI({ req(applied_curve()); tags$span(paste("Applied:", format(Sys.time(), "%H:%M:%S"))) })
+  output$diag_freshness_detail <- renderUI({ tags$span("Source: Local RDS") })
+  output$diag_freshness_status <- renderUI({ diagnostics_status_icon("ok") })
+  output$diag_missing_value <- renderUI({ req(applied_curve()); tags$span(diagnostics_missing_count()) })
+  output$diag_missing_subtitle <- renderUI({ req(applied_curve()); tags$span(paste("of", length(diagnostics_expected_tenors), "expected")) })
+  output$diag_missing_detail <- renderUI({ req(applied_curve()); tags$span(paste0(fmt_num_digits(100 * diagnostics_missing_count() / length(diagnostics_expected_tenors), 1), "% missing")) })
+  output$diag_missing_status <- renderUI({ req(applied_curve()); diagnostics_status_icon(if (diagnostics_missing_count() > 0) "warn" else "ok") })
+  output$diag_fit_rmse_value <- renderUI({ fit <- diagnostics_selected_fit(); tags$span(fmt_bp1(fit$rmse_bp)) })
+  output$diag_fit_rmse_subtitle <- renderUI({ tags$span(paste("Model:", diagnostics_selected_fit_label())) })
+  output$diag_fit_rmse_detail <- renderUI({ t <- diagnostics_thresholds(); tags$span(paste("Threshold:", fmt_bp1(t$fail))) })
+  output$diag_fit_rmse_status <- renderUI({ diagnostics_status_icon(diagnostics_status_for_residuals()) })
+  output$diag_proxy_value <- renderUI({ req(applied_curve()); tags$span(if (identical(applied_curve()$mode, "historical")) "Yes" else "No") })
+  output$diag_proxy_subtitle <- renderUI({ req(applied_curve()); tags$span(if (identical(applied_curve()$mode, "historical")) "Historical proxy" else "Primary local source") })
+  output$diag_proxy_detail <- renderUI({ tags$span("Local RDS") })
+  output$diag_proxy_status <- renderUI({ req(applied_curve()); diagnostics_status_icon(if (identical(applied_curve()$mode, "historical")) "warn" else "ok") })
+  output$diag_unit_value <- renderUI({ tags$span("OK") })
+  output$diag_unit_subtitle <- renderUI({ tags$span("Internal: Decimal") })
+  output$diag_unit_detail <- renderUI({ tags$span("Display: Percent") })
+  output$diag_unit_status <- renderUI({ diagnostics_status_icon("ok") })
+  output$diagnostics_explanation <- renderUI({
+    req(applied_curve())
+    div(class = "diag-about-content",
+      div(class = "diag-blue-note", tags$span(class = "info-dot", "i"),
+        div(tags$strong("Diagnostics do not trigger recalculation."),
+          tags$span(" They summarize the inputs and fit quality from the last successful Apply Curve in Curve Explorer."))),
+      tags$h5("What Diagnostics Checks"),
+      tags$ul(
+        tags$li("Local RDS source and proxy/fallback status."),
+        tags$li("Missing points against the expected tenor set."),
+        tags$li("Fit residuals against warning and fail thresholds."),
+        tags$li("Unit consistency: internal decimal, display percent/bp."),
+        tags$li("Basic validation rules selected in the policy sidebar.")
+      ),
+      div(class = "diag-muted-callout", "Bloomberg live metadata, Refinitiv source hierarchy, quote age seconds and production cashflow revaluation are unavailable in the local RDS build.")
+    )
+  })
+  output$diag_source <- renderText({ req(applied_curve()); if (applied_curve()$mode == "zero") "Local RDS zero snapshot" else "Local RDS historical proxy" })
   output$diag_proxy <- renderText({ req(applied_curve()); if (applied_curve()$mode == "historical") "TRUE" else "FALSE" })
-  output$diag_rmse <- renderText({ req(curve_fit()); fmt_bp(curve_fit()$rmse_bp) })
+  output$diag_rmse <- renderText({ req(diagnostics_selected_fit()); fmt_bp1(diagnostics_selected_fit()$rmse_bp) })
   output$diag_points <- renderText({ req(applied_curve()); nrow(applied_curve()$points) })
-  output$diagnostics_table <- renderDT(datatable(round_numeric_df(curve_fit()$diagnostics), options = list(pageLength = 10), rownames = FALSE))
-  output$input_points <- renderDT({ req(applied_curve()); datatable(round_numeric_df(transform(applied_curve()$points, rate_percent = decimal_to_percent(rate))), options = list(pageLength = 10), rownames = FALSE) })
+  output$diagnostics_table <- renderUI({ diagnostics_table_ui(diagnostics_summary_rows()) })
+  output$input_points <- renderUI({
+    matrix <- diagnostics_tenor_matrix()
+    tags$table(class = "diag-input-matrix",
+      tags$thead(tags$tr(tags$th(""), lapply(matrix$tenor_label, tags$th))),
+      tags$tbody(
+        tags$tr(tags$td("Expected"), lapply(matrix$expected, function(value) tags$td(diagnostics_status_icon(if (value) "ok" else "na")))),
+        tags$tr(tags$td("Available"), lapply(matrix$available, function(value) tags$td(diagnostics_status_icon(if (value) "ok" else "fail")))),
+        tags$tr(tags$td("Yield (%)"), lapply(matrix$yield_percent, function(value) tags$td(if (is.na(value)) "\u2013" else fmt_num_digits(value, 2)))),
+        tags$tr(tags$td("Source"), lapply(matrix$source, tags$td)),
+        tags$tr(tags$td("Age"), lapply(matrix$age, tags$td))
+      )
+    )
+  })
+  register_plot("diagnostics_residual_plot", function() {
+    fit <- diagnostics_selected_fit()
+    thresholds <- diagnostics_thresholds()
+    data <- fit$diagnostics
+    ordered_labels <- tenor_label(data$tenor)
+    data$tenor_label <- factor(ordered_labels, levels = unique(ordered_labels), ordered = TRUE)
+    data$status <- ifelse(abs(data$residual_bp) > thresholds$fail, "Fail",
+      ifelse(abs(data$residual_bp) > thresholds$warn, "Warn", "OK"))
+    data$color <- ifelse(data$status == "Fail", "#EF4444", ifelse(data$status == "Warn", "#F59E0B", "#0B5BD3"))
+    plot <- plotly::plot_ly(data, x = ~tenor_label, y = ~residual_bp, type = "bar",
+      marker = list(color = data$color), name = "Residual (bp)",
+      hovertext = ~paste0("Tenor: ", tenor_label, "<br>Residual: ", fmt_bp1(residual_bp), "<br>Status: ", status),
+      hoverinfo = "text")
+    for (value in c(thresholds$warn, -thresholds$warn, thresholds$fail, -thresholds$fail)) {
+      plot <- plotly::add_trace(plot, x = data$tenor_label, y = rep(value, nrow(data)), type = "scatter", mode = "lines",
+        name = paste0(if (value > 0) "+" else "\u2212", fmt_bp1(abs(value)), if (abs(value) == thresholds$warn) " Warn" else " Fail"),
+        line = list(color = if (abs(value) == thresholds$warn) "#16A085" else "#EF4444", width = 1.2, dash = "dash"),
+        hoverinfo = "skip", showlegend = TRUE, inherit = FALSE)
+    }
+    plotly_trace_finish(plotly::layout(plot,
+      title = "",
+      xaxis = list(title = "Tenor", tickangle = 0),
+      yaxis = list(title = "Residual (bp)", tickformat = ".1f", zeroline = TRUE, zerolinecolor = "#9AA9B7"),
+      legend = list(orientation = "h", x = 0.5, xanchor = "center", y = 1.14, yanchor = "bottom"),
+      margin = list(t = 82, r = 24, b = 58, l = 58)))
+  })
 }
 
 shinyApp(ui, server)
