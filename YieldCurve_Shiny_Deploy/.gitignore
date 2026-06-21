@@ -1,0 +1,12 @@
+R_library/
+.Rhistory
+.RData
+.Rproj.user/
+rsconnect/
+*.log
+*.png
+*.docx
+chrome-*profile/
+edge-*profile/
+docx_render_check/
+diagnostics_doc_render/
