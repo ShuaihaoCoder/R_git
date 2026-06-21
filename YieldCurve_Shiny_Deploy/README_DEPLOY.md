@@ -9,6 +9,7 @@
 - `R/`：计算、数据读取和 package helper。
 - `www/`：CSS 和前端样式。
 - `data/`：线上随 app 一起上传的数据快照。
+- `data/YieldCurve_reference.txt`：原始探索脚本的参考副本，改成 `.txt` 是为了避免 shinyapps.io 把旧脚本里的未使用 package 当成线上依赖。
 - `YieldCurve_Shiny_Deploy.Rproj`：RStudio 项目文件。
 
 部署目录刻意不包含开发日志、截图、Word 对比文档、browser profile、`R_library/` 和 `tests/`。
