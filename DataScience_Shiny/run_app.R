@@ -76,19 +76,28 @@ project_dir <- find_project_dir()
 # encoding = "UTF-8" 让 R 按 UTF-8 读取文件，避免中文注释乱码。
 source(file.path(project_dir, "R", "packages.R"), encoding = "UTF-8")
 
-# 这两个函数来自 R/packages.R。use_project_library() 会把 project_dir/R_library/R-当前版本
-# 放到 .libPaths() 最前面，让 R 优先从该文件夹寻找 packages；后者把缺少的 packages 安装进去。
-use_project_library(project_dir)
-
 # loaded_package_conflicts()
-# 作用：检查当前 R session 里是否已经加载了项目外的同名 package。
-# 为什么需要：VSCode 里反复 source 文件时，plotly 可能已经占用了旧 data.table；
-# 此时 R 不能在同一个 session 里把 data.table 换成项目 library 里的版本。
-loaded_package_conflicts <- function(packages, project_dir) {
+# 作用：检查当前 R session 里是否已经加载了会锁住 namespace 的高风险 package。
+# 为什么需要：VSCode 里反复 source 文件时，只要 plotly/data.table 等已经加载，
+# 后续 package 检查或加载就可能触发 data.table unload 失败。
+loaded_package_conflicts <- function(packages, project_dir, high_risk_packages = c("plotly", "data.table", "jsonlite", "ggplot2", "DT", "bslib", "shiny", "visNetwork")) {
   project_library <- normalizePath(project_library_path(project_dir), winslash = "/", mustWork = FALSE)
   loaded <- loadedNamespaces()
-  conflicts <- vapply(
-    intersect(packages, loaded),
+  already_loaded_high_risk <- intersect(intersect(packages, high_risk_packages), loaded)
+  high_risk_conflicts <- vapply(
+    already_loaded_high_risk,
+    function(package) {
+      package_path <- tryCatch(
+        normalizePath(find.package(package), winslash = "/", mustWork = FALSE),
+        error = function(error) "<unknown library path>"
+      )
+      paste0(package, " is already loaded from ", package_path)
+    },
+    character(1)
+  )
+
+  external_conflicts <- vapply(
+    setdiff(intersect(packages, loaded), already_loaded_high_risk),
     function(package) {
       package_path <- tryCatch(
         normalizePath(find.package(package), winslash = "/", mustWork = FALSE),
@@ -100,62 +109,104 @@ loaded_package_conflicts <- function(packages, project_dir) {
     },
     character(1)
   )
+  conflicts <- c(high_risk_conflicts, external_conflicts)
   conflicts[nzchar(conflicts)]
 }
 
 # run_in_clean_rscript()
 # 作用：当前 R session 已经有 package 冲突时，另外开一个干净 Rscript 进程启动网页。
 # 这样你仍然 source 这个文件，但真正的 Shiny 会在没有旧 package 占用的新 R 进程里运行。
+# wait = TRUE 会把 clean Rscript 的预计算进度直接显示在 VSCode console 中。
 run_in_clean_rscript <- function(project_dir) {
   script_path <- file.path(project_dir, "run_app.R")
   rscript_path <- file.path(R.home("bin"), "Rscript.exe")
   if (!file.exists(rscript_path)) {
     rscript_path <- file.path(R.home("bin"), "Rscript")
   }
+  log_dir <- file.path(project_dir, "logs")
+  dir.create(log_dir, recursive = TRUE, showWarnings = FALSE)
+  log_path <- file.path(log_dir, "run_app_clean_child.log")
+  runner_path <- file.path(log_dir, "run_app_clean_child.ps1")
+  ps_quote <- function(path) {
+    paste0("'", gsub("'", "''", normalizePath(path, winslash = "/", mustWork = FALSE)), "'")
+  }
   message("Current VSCode R session already has package conflicts.")
   message("Starting DataScience_Shiny in a clean Rscript process instead...")
-  system2(
-    rscript_path,
-    args = shQuote(script_path),
-    wait = FALSE,
-    env = c("DATASCIENCE_SHINY_CLEAN_CHILD=1")
+  message("Progress and errors will also be written to: ", normalizePath(log_path, winslash = "/", mustWork = FALSE))
+  message("The console should show case precompute progress and then stay busy while Shiny is running.")
+  if (identical(Sys.getenv("DATASCIENCE_SHINY_CLEAN_DRY_RUN"), "1")) {
+    message("Dry run only: clean Rscript launch was skipped.")
+    return(invisible(TRUE))
+  }
+
+  # The tiny PowerShell runner lets the clean Rscript output appear in the console
+  # and saves the same output to a log file for debugging if the child process exits.
+  writeLines(
+    c(
+      "$ErrorActionPreference = 'Continue'",
+      "$env:DATASCIENCE_SHINY_CLEAN_CHILD = '1'",
+      paste0("$logPath = ", ps_quote(log_path)),
+      "\"Starting clean DataScience_Shiny child process...\" | Set-Content -Path $logPath -Encoding UTF8",
+      paste0("& ", ps_quote(rscript_path), " ", ps_quote(script_path), " 2>&1 | Tee-Object -FilePath $logPath -Append"),
+      "exit $LASTEXITCODE"
+    ),
+    runner_path,
+    useBytes = TRUE
   )
-  message("A clean Shiny process is starting. Open http://127.0.0.1:7411 after it finishes precomputing cases.")
+
+  status <- system2(
+    "powershell.exe",
+    args = c("-NoProfile", "-ExecutionPolicy", "Bypass", "-File", shQuote(runner_path)),
+    wait = TRUE
+  )
+  if (!identical(status, 0L)) {
+    stop(
+      "Clean Rscript process exited early. Check log: ",
+      normalizePath(log_path, winslash = "/", mustWork = FALSE),
+      call. = FALSE
+    )
+  }
   invisible(TRUE)
 }
 
 conflicting_packages <- loaded_package_conflicts(required_packages, project_dir)
+run_current_session <- TRUE
 if (length(conflicting_packages) > 0 && !identical(Sys.getenv("DATASCIENCE_SHINY_CLEAN_CHILD"), "1")) {
   message("Detected loaded packages that cannot be safely replaced inside this R session:")
   message(paste("- ", conflicting_packages, collapse = "\n"))
   run_in_clean_rscript(project_dir)
-  return(invisible(TRUE))
+  run_current_session <- FALSE
 }
 
-install_missing_packages(required_packages, project_dir)
+if (run_current_session) {
+  # 这两个函数来自 R/packages.R。use_project_library() 会把 project_dir/R_library/R-当前版本
+  # 放到 .libPaths() 最前面，让 R 优先从该文件夹寻找 packages；后者把缺少的 packages 安装进去。
+  use_project_library(project_dir)
+  install_missing_packages(required_packages, project_dir)
 
-# message() 在 console 显示项目路径、R 版本和 package 文件夹，方便确认实际运行环境。
-message("DataScience_Shiny project: ", project_dir)
-message("R version: ", R.version.string)
-message("Primary project library: ", project_library_path(project_dir))
+  # message() 在 console 显示项目路径、R 版本和 package 文件夹，方便确认实际运行环境。
+  message("DataScience_Shiny project: ", project_dir)
+  message("R version: ", R.version.string)
+  message("Primary project library: ", project_library_path(project_dir))
 
-# open_in_chrome()
-# 作用：Shiny 准备完成后优先用本机 Chrome 打开网页；找不到 Chrome 时改用系统默认浏览器。
-open_in_chrome <- function(url) {
-  chrome_candidates <- c(
-    "C:/Program Files/Google/Chrome/Application/chrome.exe",
-    "C:/Program Files (x86)/Google/Chrome/Application/chrome.exe",
-    file.path(Sys.getenv("LOCALAPPDATA"), "Google", "Chrome", "Application", "chrome.exe")
-  )
-  chrome_path <- chrome_candidates[file.exists(chrome_candidates)][1]
+  # open_in_chrome()
+  # 作用：Shiny 准备完成后优先用本机 Chrome 打开网页；找不到 Chrome 时改用系统默认浏览器。
+  open_in_chrome <- function(url) {
+    chrome_candidates <- c(
+      "C:/Program Files/Google/Chrome/Application/chrome.exe",
+      "C:/Program Files (x86)/Google/Chrome/Application/chrome.exe",
+      file.path(Sys.getenv("LOCALAPPDATA"), "Google", "Chrome", "Application", "chrome.exe")
+    )
+    chrome_path <- chrome_candidates[file.exists(chrome_candidates)][1]
 
-  if (!is.na(chrome_path)) {
-    system2(chrome_path, args = url, wait = FALSE)
-  } else {
-    utils::browseURL(url)
+    if (!is.na(chrome_path)) {
+      system2(chrome_path, args = url, wait = FALSE)
+    } else {
+      utils::browseURL(url)
+    }
   }
-}
 
-# 启动 project_dir 中的 Shiny 网页；host 和 port 组成访问地址 http://127.0.0.1:7411。
-# launch.browser 使用上面的函数，等全部案例预计算完成后自动打开 Chrome。
-shiny::runApp(project_dir, host = "127.0.0.1", port = 7411, launch.browser = open_in_chrome)
+  # 启动 project_dir 中的 Shiny 网页；host 和 port 组成访问地址 http://127.0.0.1:7411。
+  # launch.browser 使用上面的函数，等全部案例预计算完成后自动打开 Chrome。
+  shiny::runApp(project_dir, host = "127.0.0.1", port = 7411, launch.browser = open_in_chrome)
+}
